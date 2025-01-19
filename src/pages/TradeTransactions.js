@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Alert from "../components/Alert"; // Replace with the correct path to your alert component
 import "../styles/TradeTransactions.css";
@@ -20,18 +20,18 @@ const TradeTransactions = () => {
   };
 
   // Fetch all trade transactions
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     try {
       const { data } = await axios.get("https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/trades/transactions");
       setTransactions(data);
     } catch (error) {
       triggerAlert("Error fetching transactions", "error");
     }
-  };
+  }, []); // Empty dependency array to only create the function once
 
   useEffect(() => {
     fetchTransactions();
-  }, []);
+  }, [fetchTransactions]);
 
   // View transaction details
   const handleViewDetails = (transaction) => {

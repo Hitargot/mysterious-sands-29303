@@ -16,7 +16,7 @@ const WithdrawalRequests = () => {
   const [transactionIdToConfirm, setTransactionIdToConfirm] = useState(null);
   const [modalAction, setModalAction] = useState('');
   const navigate = useNavigate(); // Use navigate for routing
-  const token = localStorage.getItem('adminToken');
+  const token = sessionStorage.getItem('adminToken'); // Changed to sessionStorage
 
   // Function to check if the token is expired
   const isTokenExpired = (token) => {
@@ -30,7 +30,7 @@ const WithdrawalRequests = () => {
     if (isTokenExpired(token)) {
       // Redirect to login if token is expired
       showAlert('Your session has expired. Please log in again.', 'error');
-      localStorage.removeItem('token');
+      sessionStorage.removeItem('adminToken'); // Removed from localStorage
       navigate('/login');
       return;
     }
@@ -65,7 +65,6 @@ const WithdrawalRequests = () => {
 
   // Handle modal actions (Approve/Reject/Complete)
   const handleAction = () => {
-    // Get the admin username (this can be fetched dynamically if necessary)
     const adminUsername = 'adminUsername'; // Replace this with the actual admin's username, which can be fetched from JWT
 
     const url =
@@ -77,7 +76,7 @@ const WithdrawalRequests = () => {
 
     // Send the admin username along with the action request
     axios
-      .patch(url, { adminActionBy: adminUsername },  { headers: { Authorization: `Bearer ${token}` } })
+      .patch(url, { adminActionBy: adminUsername }, { headers: { Authorization: `Bearer ${token}` } })
       .then(() => {
         const successMessage =
           modalAction === 'approve'
@@ -206,7 +205,7 @@ const WithdrawalRequests = () => {
       ) : (
         <div className="withdrawal-cards">
           {filteredWithdrawals.map((transaction) => {
-            const { label, disabled, action } = getButtonConfig(transaction);
+            const { label, disabled } = getButtonConfig(transaction);
             return (
               <div key={transaction.transactionId} className="withdrawal-card">
                 <h3>Transaction ID: {transaction.transactionId}</h3>
@@ -227,64 +226,64 @@ const WithdrawalRequests = () => {
                 </p>
 
                 {transaction.adminActionBy && (
-  <>
-    {transaction.status === 'approved' && (
-      <p>
-        <strong>Approved by:</strong> {transaction.adminActionBy} <br />
-        <small>Action taken on: {new Date(transaction.adminActionAt).toLocaleString()}</small>
-      </p>
-    )}
+                  <>
+                    {transaction.status === 'approved' && (
+                      <p>
+                        <strong>Approved by:</strong> {transaction.adminActionBy} <br />
+                        <small>Action taken on: {new Date(transaction.adminActionAt).toLocaleString()}</small>
+                      </p>
+                    )}
 
-    {transaction.status === 'completed' && (
-      <>
-        <p>
-          <strong>Approved by:</strong> {transaction.adminActionBy} <br />
-          <small>Action taken on: {new Date(transaction.adminActionAt).toLocaleString()}</small>
-        </p>
-        <p>
-          <strong>Completed by:</strong> {transaction.completedBy} <br />
-          <small>Action taken on: {new Date(transaction.completedAt).toLocaleString()}</small>
-        </p>
-      </>
-    )}
+                    {transaction.status === 'completed' && (
+                      <>
+                        <p>
+                          <strong>Approved by:</strong> {transaction.adminActionBy} <br />
+                          <small>Action taken on: {new Date(transaction.adminActionAt).toLocaleString()}</small>
+                        </p>
+                        <p>
+                          <strong>Completed by:</strong> {transaction.completedBy} <br />
+                          <small>Action taken on: {new Date(transaction.completedAt).toLocaleString()}</small>
+                        </p>
+                      </>
+                    )}
 
-    {transaction.status === 'rejected' && (
-      <p>
-        <strong>Rejected by:</strong> {transaction.adminActionBy} <br />
-        <small>Action taken on: {new Date(transaction.adminActionAt).toLocaleString()}</small>
-      </p>
-    )}
-  </>
-)}
+                    {transaction.status === 'rejected' && (
+                      <p>
+                        <strong>Rejected by:</strong> {transaction.adminActionBy} <br />
+                        <small>Action taken on: {new Date(transaction.adminActionAt).toLocaleString()}</small>
+                      </p>
+                    )}
+                  </>
+                )}
 
+<div className="actions">
+  {transaction.status === 'pending' && (
+    <>
+      <button
+        onClick={() => openModal(transaction.transactionId, 'approve')}
+        disabled={disabled}
+      >
+        {label} {/* Use the label here */}
+      </button>
+      <button
+        onClick={() => openModal(transaction.transactionId, 'reject')}
+        disabled={disabled}
+      >
+        {label} {/* Use the label here */}
+      </button>
+    </>
+  )}
 
-                <div className="actions">
-                  {transaction.status === 'pending' && (
-                    <>
-                      <button
-                        onClick={() => openModal(transaction.transactionId, 'approve')}
-                        disabled={disabled}
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => openModal(transaction.transactionId, 'reject')}
-                        disabled={disabled}
-                      >
-                        Reject
-                      </button>
-                    </>
-                  )}
+  {transaction.status === 'approved' && (
+    <button
+      onClick={() => openModal(transaction.transactionId, 'complete')}
+      disabled={disabled}
+    >
+      {label} {/* Use the label here */}
+    </button>
+  )}
+</div>
 
-                  {transaction.status === 'approved' && (
-                    <button
-                      onClick={() => openModal(transaction.transactionId, 'complete')}
-                      disabled={disabled}
-                    >
-                      Complete
-                    </button>
-                  )}
-                </div>
               </div>
             );
           })}

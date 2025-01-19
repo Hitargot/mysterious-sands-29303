@@ -1,25 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { FaSun, FaMoon, FaSignOutAlt } from 'react-icons/fa'; // Include both icons
+import React, { useState, useEffect, useCallback } from 'react';
+import { FaSun, FaMoon, FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // Decode JWT
+import { jwtDecode } from 'jwt-decode';
 import '../styles/AdminHeader.css';
 
 const AdminHeader = () => {
   const [adminName, setAdminName] = useState('');
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark'); // Default to 'dark' if no theme set
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
   const navigate = useNavigate();
 
-  // Fetch admin info and set greeting, check if password is expired
+  // Memoize handleLogout function with useCallback
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('tempPasswordExpiresAt');
+    setAdminName('');
+    navigate('/admin/login');
+  }, [navigate]);
+
+  // Authentication and expiration check effect
   useEffect(() => {
-    const token = localStorage.getItem('adminToken'); // Use localStorage for the token
-    const tempPasswordExpiresAt = localStorage.getItem('tempPasswordExpiresAt'); // Get expiration time from localStorage
+    const token = localStorage.getItem('adminToken');
+    const tempPasswordExpiresAt = localStorage.getItem('tempPasswordExpiresAt');
 
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        setAdminName(decodedToken.username); // Set the username from token
+        setAdminName(decodedToken.username);
 
-        // Check if the temp password is expired
         if (tempPasswordExpiresAt && Date.now() > parseInt(tempPasswordExpiresAt, 10)) {
           alert('Your temporary password has expired. Please log in again.');
           handleLogout(); // Logout if expired
@@ -31,27 +38,20 @@ const AdminHeader = () => {
     } else {
       navigate('/admin/login');
     }
+  }, [handleLogout, navigate]); // `handleLogout` is now memoized, no need to worry about re-creating it
 
-    // Apply the theme to the body
+  // Theme change effect
+  useEffect(() => {
     document.body.classList.toggle('dark-theme', theme === 'dark');
     document.body.classList.toggle('light-theme', theme === 'light');
-  }, [theme, navigate]); // Re-run when theme changes
+  }, [theme]);
 
-  // Toggle theme and save preference
+  // Toggle theme function
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
-    localStorage.setItem('theme', newTheme); // Save theme to localStorage
+    localStorage.setItem('theme', newTheme);
   };
-
-  // Logout function
-  const handleLogout = () => {
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('tempPasswordExpiresAt');
-    setAdminName('');
-    navigate('/admin/login');
-  };
-
 
   return (
     <header className="admin-header">
@@ -60,7 +60,7 @@ const AdminHeader = () => {
         <div className="header-controls">
           <span className="admin-name">Welcome, {adminName || 'Admin'}</span>
           <button className="icon-button" onClick={toggleTheme}>
-            {theme === 'light' ? <FaSun /> : <FaMoon />} {/* Toggle between light and dark theme icons */}
+            {theme === 'light' ? <FaSun /> : <FaMoon />}
           </button>
           <div className="logout-container" onClick={handleLogout}>
             <FaSignOutAlt className="logout-icon" />

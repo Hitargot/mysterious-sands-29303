@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy, useEffect } from 'react';
+import React, { useState, Suspense, lazy, useEffect, useCallback } from 'react';
 import DashboardHeader from '../components/DashboardHeader';
 import Sidebar from '../components/Sidebar';
 import '../styles/UserDashboard.css';
@@ -54,20 +54,20 @@ const UserDashboard = () => {
   }, [activeComponent]);
 
   // Fetch initial wallet and bank account data (example implementation)
-  const fetchBankAccounts = async () => {
+  const fetchBankAccounts = useCallback(async () => {
     const token = getJwtToken(); // Retrieve token as needed
     try {
-      await axios.get('http://localhost:22222/api/wallet/banks', {
+      await axios.get('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/wallet/banks', {
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (error) {
       handleAlert(error.response?.data?.message || 'Failed to load bank accounts.', 'error');
     }
-  };
+  }, []); // Empty dependency array to ensure it's only created once
 
   useEffect(() => {
-    fetchBankAccounts(); // Only run this once
-  }, []);  // Empty dependency array ensures this effect runs only on mount
+    fetchBankAccounts(); // Now only runs once
+  }, [fetchBankAccounts]); // The effect now only runs when fetchBankAccounts changes
 
   // Render component based on active selection
   const renderComponent = () => {

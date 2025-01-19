@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { FaSignOutAlt, FaUserCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Notifications from './Notifications';
@@ -12,7 +12,7 @@ const DashboardHeader = ({
   handleAlert,
   userInfo, // Assuming userInfo is passed as a prop
 }) => {
-  const [userName, setUserName] = useState(userInfo?.username || ''); // Set username from userInfo
+  const userName = userInfo?.username || 'User'; // Set username from userInfo
 
   const navigate = useNavigate();
 

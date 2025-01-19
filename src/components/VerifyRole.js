@@ -24,7 +24,7 @@ const VerifyRole = () => {
     
       try {
         console.log('Sending verification request...');
-        const response = await fetch(`http://localhost:22222/api/roles/verify?token=${token}`);
+        const response = await fetch(`https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/roles/verify?token=${token}`);
     
         const contentType = response.headers.get('Content-Type');
         let result;

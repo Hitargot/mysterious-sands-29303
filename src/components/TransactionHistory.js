@@ -5,7 +5,7 @@ import { FaReceipt } from 'react-icons/fa';
 import Spinner from './Spinner';
 import html2canvas from 'html2canvas';
 import Alert from './Alert';
-import { jsPDF } from "jspdf";
+// import { jsPDF } from "jspdf";
 
 const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
