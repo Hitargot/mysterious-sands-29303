@@ -31,7 +31,7 @@ const TradeCalculator = () => {
       }
     };
     fetchServices();
-  }, []);
+  }, [apiUrl]);
 
   const handleServiceChange = (e) => {
     const service = e.target.value;

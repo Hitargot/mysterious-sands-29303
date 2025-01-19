@@ -35,7 +35,7 @@ const Overview = ({ setActiveComponent }) => {
     };
 
     fetchData();
-  }, []);
+  }, [apiUrl]);
 
   const toggleBalanceVisibility = () => {
     setBalanceVisible(!isBalanceVisible);

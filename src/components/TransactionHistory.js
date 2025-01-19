@@ -39,7 +39,7 @@ const TransactionHistory = () => {
       }
     };
     fetchTransactions();
-  }, []);
+  }, [apiUrl]);
 
   useEffect(() => {
     let filtered = transactions;

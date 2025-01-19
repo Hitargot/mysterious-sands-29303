@@ -48,6 +48,8 @@ const UserDashboard = () => {
     console.log(`${type.toUpperCase()}: ${message}`);
   };
 
+  const apiUrl = process.env.REACT_APP_API_URL;
+
   // Save activeComponent to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('activeComponent', activeComponent);
@@ -57,13 +59,13 @@ const UserDashboard = () => {
   const fetchBankAccounts = useCallback(async () => {
     const token = getJwtToken(); // Retrieve token as needed
     try {
-      await axios.get('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/wallet/banks', {
+      await axios.get(`${apiUrl}/api/wallet/banks`, {
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (error) {
       handleAlert(error.response?.data?.message || 'Failed to load bank accounts.', 'error');
     }
-  }, []); // Empty dependency array to ensure it's only created once
+  }, [apiUrl]); // Empty dependency array to ensure it's only created once
 
   useEffect(() => {
     fetchBankAccounts(); // Now only runs once

@@ -37,7 +37,7 @@ const Profile = () => {
     };
 
     fetchProfileData();
-  }, [token]); // Ensure effect only runs once
+  }, [token, apiUrl]); // Ensure effect only runs once
 
   const handleEditProfile = () => {
     setIsEditing(true);

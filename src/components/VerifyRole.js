@@ -57,7 +57,7 @@ const VerifyRole = () => {
     
 
     verifyRole();
-  }, [location, navigate]);
+  }, [location, navigate, apiUrl]);
 
   return (
     <div className={`verify-account-container ${messageType}`}>

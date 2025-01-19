@@ -18,6 +18,7 @@ export const NotificationProvider = ({ children }) => {
   };
 
   const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   // Fetch notifications from backend (memoized)
   const fetchNotifications = useCallback(async () => {
@@ -28,7 +29,7 @@ export const NotificationProvider = ({ children }) => {
 
     try {
       const response = await axios.get(
-        'https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/notifications/notifications',
+        `${apiUrl}/api/notifications/notifications`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -40,7 +41,7 @@ export const NotificationProvider = ({ children }) => {
     } catch (error) {
       console.error('Error fetching notifications:', error.message);
     }
-  }, [token]); // Depend on token
+  }, [token, apiUrl]); // Depend on token
 
   // Poll every 10 seconds to check for new notifications
   useEffect(() => {
@@ -50,7 +51,7 @@ export const NotificationProvider = ({ children }) => {
 
     // Cleanup the interval on component unmount
     return () => clearInterval(interval);
-  }, [fetchNotifications]); // Depend on fetchNotifications
+  }, [fetchNotifications, apiUrl]); // Depend on fetchNotifications
 
   // Mark a single notification as read
   const markAsRead = async (id) => {
@@ -58,7 +59,7 @@ export const NotificationProvider = ({ children }) => {
 
     try {
       await axios.put(
-        `https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/notifications/${id}/read`,
+        `${apiUrl}/api/notifications/${id}/read`,
         null,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -79,7 +80,7 @@ export const NotificationProvider = ({ children }) => {
 
     try {
       await axios.put(
-        'https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/notifications/readAll',
+        `${apiUrl}/api/notifications/readAll`,
         null,
         {
           headers: { Authorization: `Bearer ${token}` },

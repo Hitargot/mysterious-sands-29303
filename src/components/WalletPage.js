@@ -62,7 +62,7 @@ const WalletPage = () => {
     } catch (error) {
       handleAlert(error.response?.data?.message || 'Failed to load wallet data.', 'error');
     }
-  }, [getJwtToken]);
+  }, [getJwtToken, apiUrl]);
 
   // Fetch bank accounts
   const fetchBankAccounts = useCallback(async () => {
@@ -89,7 +89,7 @@ const WalletPage = () => {
     } catch (error) {
         handleAlert(error.response?.data?.message || 'Failed to load bank accounts.', 'error');
     }
-}, [getJwtToken]);
+}, [getJwtToken, apiUrl]);
 
 
 

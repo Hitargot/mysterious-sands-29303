@@ -37,7 +37,7 @@ const TradeDetails = ({ selectedService }) => {
     };
 
     fetchServiceDetails();
-  }, [selectedService]);
+  }, [selectedService, apiUrl]);
 
   // Function to check validity based on service status
   const checkValidity = async () => {
