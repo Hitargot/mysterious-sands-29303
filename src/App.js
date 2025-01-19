@@ -28,6 +28,7 @@ import NoAccess from './components/NoAccess';
 
 const App = () => {
   const [userRole, setUserRole] = useState(null);
+  const [walletBalance, setWalletBalance] = useState(0);
 
   return (
     <NotificationProvider>
@@ -47,8 +48,8 @@ const App = () => {
           <Route path="/TradeCalculator" element={<TradeCalculator />} />
           <Route path="/WalletPage" element={<WalletPage />} />
           <Route path="/admin/signup" element={<AdminSignup />} />
-          <Route path="/overview" element={<Overview/>} />
-          <Route path="/Notifications" element={<Notifications/>} />
+          <Route path="/overview" element={<Overview walletBalance={walletBalance} />} />
+          <Route path="/Notifications" element={<Notifications />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/role/login" element={<RoleLogin />} />
           <Route path="/role/no-access" element={<NoAccess/>} />
