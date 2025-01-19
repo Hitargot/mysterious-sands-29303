@@ -11,6 +11,9 @@ const TradeTransactions = () => {
   const [isRejectConfirmOpen, setIsRejectConfirmOpen] = useState(false);
   const [transactionToApproveOrReject, setTransactionToApproveOrReject] = useState(null);
 
+  const apiUrl = process.env.REACT_APP_API_URL;
+
+
   // Trigger alert notifications
   const triggerAlert = (message, type) => {
     setAlert({ message, type, show: true });

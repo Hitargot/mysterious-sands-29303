@@ -17,6 +17,7 @@ const WithdrawalRequests = () => {
   const [modalAction, setModalAction] = useState('');
   const navigate = useNavigate(); // Use navigate for routing
   const token = localStorage.getItem('adminToken');
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   // Function to check if the token is expired
   const isTokenExpired = (token) => {
@@ -37,7 +38,7 @@ const WithdrawalRequests = () => {
 
     // Fetch withdrawal requests if token is valid
     axios
-      .get('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/admin/withdrawal-requests', {
+      .get(`${apiUrl}/api/admin/withdrawal-requests`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -51,7 +52,7 @@ const WithdrawalRequests = () => {
         showAlert('Error fetching withdrawal requests', 'error');
         setLoading(false);
       });
-  }, [token, navigate]);
+  }, [token, navigate, apiUrl]);
 
   // Show an alert and add it to the alert array
   const showAlert = (message, type) => {
@@ -70,10 +71,10 @@ const WithdrawalRequests = () => {
 
     const url =
       modalAction === 'approve'
-        ? `https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/admin/withdrawal-request/approve/${transactionIdToConfirm}`
+        ? `${apiUrl}/api/admin/withdrawal-request/approve/${transactionIdToConfirm}`
         : modalAction === 'reject'
-        ? `https://mysterious-sands-29303-c1f04c424030.herokuapp.com/admin/withdrawal-request/reject/${transactionIdToConfirm}`
-        : `https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/admin/withdrawal-request/complete/${transactionIdToConfirm}`;
+        ? `${apiUrl}/admin/withdrawal-request/reject/${transactionIdToConfirm}`
+        : `${apiUrl}/api/admin/withdrawal-request/complete/${transactionIdToConfirm}`;
 
     // Send the admin username along with the action request
     axios
