@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
 // Create the NotificationContext
@@ -20,12 +20,12 @@ export const NotificationProvider = ({ children }) => {
   const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
 
   // Fetch notifications from backend
-  const fetchNotifications = useCallback(async () => {
+  const fetchNotifications = async () => {
     if (!token) return console.error('No token found for fetching notifications');
 
     try {
-      const response = await axios.get('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/notifications/notifications', {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await axios.get('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/notifications/notifications', {
+        headers: { Authorization: `Bearer ${token}` }
       });
 
       const data = response.data.notifications || [];
@@ -34,8 +34,9 @@ export const NotificationProvider = ({ children }) => {
     } catch (error) {
       console.error('Error fetching notifications:', error.message);
     }
-  }, [token]); // Only recreate the function if token changes
+  };
 
+  // Poll every 10 seconds to check for new notifications
   useEffect(() => {
     const interval = setInterval(() => {
       fetchNotifications();
@@ -43,14 +44,14 @@ export const NotificationProvider = ({ children }) => {
 
     // Cleanup the interval on component unmount
     return () => clearInterval(interval);
-  }, [fetchNotifications]); // Only re-run the effect if fetchNotifications changes
+  }, [token]); // Only re-run the effect if token changes
 
   // Mark a single notification as read
   const markAsRead = async (id) => {
     if (!id || !token) return;
 
     try {
-      await axios.put(`http://localhost:22222/api/notifications/${id}/read`, null, {
+      await axios.put(`https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/notifications/${id}/read`, null, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications((prev) =>
@@ -67,7 +68,7 @@ export const NotificationProvider = ({ children }) => {
     if (!token) return;
 
     try {
-      await axios.put('http://localhost:22222/api/notifications/readAll', null, {
+      await axios.put('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/notifications/readAll', null, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })));

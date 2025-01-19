@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Signup from './components/Signup';
-import UserDashboard from './dashboards/UserDashboard';
+import UserDashboard from './dashboards/UserDashboard'; // User Dashboard
+import AdminDashboard from './dashboards/AdminDashboard'; // Admin Dashboard
 import Home from './pages/Home';
 import Testimonials from './pages/Testimonials';
 import ResetPassword from './components/ResetPassword';
@@ -13,10 +14,10 @@ import { NotificationProvider } from './context/NotificationContext';
 import Notifications from './components/Notifications';
 import WalletPage from './components/WalletPage';
 import Overview from './components/Overview';
-import adminRoutes from './routes/adminRoutes';
-import AdminLayout from './layouts/AdminLayout';
-import PrivateRoute from './components/PrivateRoute';
-import AdminSignup from './components/AdminSignup';
+import adminRoutes from './routes/adminRoutes'; // Import adminRoutes
+import AdminLayout from './layouts/AdminLayout'; // Layout for admin pages
+import PrivateRoute from './components/PrivateRoute'; // PrivateRoute component
+import AdminSignup from './components/AdminSignup'; // Import the AdminSignup component
 import VerifyAccount from './components/VerifyAccount';
 import VerifyRole from './components/VerifyRole';
 import AdminLogin from './components/AdminLogin';
@@ -26,6 +27,9 @@ import RoleLogin from './components/RoleLogin';
 import NoAccess from './components/NoAccess';
 
 const App = () => {
+  const [userRole, setUserRole] = useState(null);
+  const [walletBalance, setWalletBalance] = useState(0);
+
   return (
     <NotificationProvider>
       <Router>
@@ -33,7 +37,7 @@ const App = () => {
           {/* User Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login setUserRole={setUserRole} />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
@@ -44,16 +48,17 @@ const App = () => {
           <Route path="/TradeCalculator" element={<TradeCalculator />} />
           <Route path="/WalletPage" element={<WalletPage />} />
           <Route path="/admin/signup" element={<AdminSignup />} />
-          <Route path="/overview" element={<Overview />} />
+          <Route path="/overview" element={<Overview walletBalance={walletBalance} />} />
           <Route path="/Notifications" element={<Notifications />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/role/login" element={<RoleLogin />} />
-          <Route path="/role/no-access" element={<NoAccess />} />
+          <Route path="/role/no-access" element={<NoAccess/>} />
 
+          
           <Route
             path="/admin"
             element={
-              <PrivateRoute>
+              <PrivateRoute >
                 <AdminLayout>
                   <AdminHome />
                 </AdminLayout>
@@ -78,7 +83,7 @@ const App = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
 
           {/* Role-based dashboard routing */}
-          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/dashboard" element={userRole === 'admin' ? <AdminDashboard /> : <UserDashboard />} />
         </Routes>
       </Router>
     </NotificationProvider>

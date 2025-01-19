@@ -12,7 +12,7 @@ const Overview = ({ setActiveComponent }) => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
-        const balanceResponse = await fetch('http://localhost:22222/api/wallet/data', {
+        const balanceResponse = await fetch('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/wallet/data', {
           method: 'GET',
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -20,7 +20,7 @@ const Overview = ({ setActiveComponent }) => {
         const balanceData = await balanceResponse.json();
         setWalletBalance(balanceData.balance);
 
-        const transactionsResponse = await fetch('http://localhost:22222/api/transaction/transaction-history', {
+        const transactionsResponse = await fetch('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/transaction/transaction-history', {
           method: 'GET',
           headers: { Authorization: `Bearer ${token}` },
         });
