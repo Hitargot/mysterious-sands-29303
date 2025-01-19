@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 // Create the NotificationContext
@@ -19,8 +19,7 @@ export const NotificationProvider = ({ children }) => {
 
   const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
 
-  // Fetch notifications from backend
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!token) return console.error('No token found for fetching notifications');
 
     try {
@@ -34,7 +33,7 @@ export const NotificationProvider = ({ children }) => {
     } catch (error) {
       console.error('Error fetching notifications:', error.message);
     }
-  };
+  }, [token]); // Add token as a dependency
 
   // Poll every 10 seconds to check for new notifications
   useEffect(() => {
@@ -44,7 +43,8 @@ export const NotificationProvider = ({ children }) => {
 
     // Cleanup the interval on component unmount
     return () => clearInterval(interval);
-  }, [token]); // Only re-run the effect if token changes
+  }, [fetchNotifications, token]); // Add fetchNotifications to the dependency array
+
 
   // Mark a single notification as read
   const markAsRead = async (id) => {
