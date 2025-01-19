@@ -48,7 +48,7 @@ const App = () => {
           <Route path="/TradeCalculator" element={<TradeCalculator />} />
           <Route path="/WalletPage" element={<WalletPage />} />
           <Route path="/admin/signup" element={<AdminSignup />} />
-          <Route path="/overview" element={<Overview walletBalance={walletBalance} />} />
+          <Route path="/overview" element={<Overview walletBalance={walletBalance} setWalletBalance={setWalletBalance} />} />
           <Route path="/Notifications" element={<Notifications />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/role/login" element={<RoleLogin />} />
