@@ -13,6 +13,8 @@ const Profile = () => {
   const [alert, setAlert] = useState({ message: '', type: '', show: false });
 
   const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
+  const apiUrl = process.env.REACT_APP_API_URL;
+
 
   // Redirect if no token found
   useEffect(() => {
@@ -24,7 +26,7 @@ const Profile = () => {
     // Fetch profile data from the server
     const fetchProfileData = async () => {
       try {
-        const response = await axios.get('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/user/profile', {
+        const response = await axios.get(`${apiUrl}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserInfo(response.data);
@@ -45,7 +47,7 @@ const Profile = () => {
   const handleSaveProfile = async () => {
     try {
       const response = await axios.post(
-        'https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/user/update-profile',
+        `${apiUrl}/api/user/update-profile`,
         { fullName: newFullName },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -66,7 +68,7 @@ const Profile = () => {
 
     try {
       const response = await axios.post(
-        'https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/user/update-password',
+        `${apiUrl}/api/user/update-password`,
         { currentPassword, newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );

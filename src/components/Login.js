@@ -18,11 +18,13 @@ const Login = ({ setUserRole }) => { // Accept setUserRole as a prop
     setCredentials({ ...credentials, [name]: value });
   };
 
+  const apiUrl = process.env.REACT_APP_API_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/auth/login', {
+      const response = await axios.post(`${apiUrl}/api/auth/login`, {
         identifier: credentials.identifier,
         password: credentials.password,
       });

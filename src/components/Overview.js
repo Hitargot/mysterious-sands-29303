@@ -8,11 +8,14 @@ const Overview = ({ setActiveComponent }) => {
   const [isBalanceVisible, setBalanceVisible] = useState(false);
   const isMobile = window.innerWidth <= 768;
 
+  const apiUrl = process.env.REACT_APP_API_URL;
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
-        const balanceResponse = await fetch('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/wallet/data', {
+        const balanceResponse = await fetch(`${apiUrl}/api/wallet/data`, {
           method: 'GET',
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -20,7 +23,7 @@ const Overview = ({ setActiveComponent }) => {
         const balanceData = await balanceResponse.json();
         setWalletBalance(balanceData.balance);
 
-        const transactionsResponse = await fetch('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/transaction/transaction-history', {
+        const transactionsResponse = await fetch(`${apiUrl}/api/transaction/transaction-history`, {
           method: 'GET',
           headers: { Authorization: `Bearer ${token}` },
         });

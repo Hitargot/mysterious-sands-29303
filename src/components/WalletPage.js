@@ -23,6 +23,7 @@ const WalletPage = () => {
     accountName: '',
   });
   const [isBalanceVisible, setIsBalanceVisible] = useState(false);
+  const apiUrl = process.env.REACT_APP_API_URL;
   
 
   const toggleBalanceVisibility = () => {
@@ -49,7 +50,7 @@ const WalletPage = () => {
     if (!token) return;
 
     try {
-      const response = await axios.get('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/wallet/data', {
+      const response = await axios.get(`${apiUrl}/api/wallet/data`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const balance = response.data.balance;
@@ -69,7 +70,7 @@ const WalletPage = () => {
     if (!token) return;
 
     try {
-        const response = await axios.get('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/wallet/banks', {
+        const response = await axios.get(`${apiUrl}/api/wallet/banks`, {
             headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -177,7 +178,7 @@ const handleWithdraw = async () => {
     });
 
     const response = await axios.post(
-      'https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/wallet/withdraw',
+      `${apiUrl}/api/wallet/withdraw`,
       { 
         amount, 
         bankId: selectedBank.id,
@@ -233,7 +234,7 @@ const handleWithdraw = async () => {
 
     try {
       const response = await axios.post(
-        'https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/wallet/banks',
+        `${apiUrl}/api/wallet/banks`,
         { bankName, accountNumber, accountName },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -255,7 +256,7 @@ const handleWithdraw = async () => {
   
     try {
       const response = await axios.post(
-        'https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/wallet/add-balance',
+        `${apiUrl}/api/wallet/add-balance`,
         { amount },
         { headers: { Authorization: `Bearer ${token}` } }
       );

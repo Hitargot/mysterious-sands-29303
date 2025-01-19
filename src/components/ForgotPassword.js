@@ -8,13 +8,15 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState({ type: '', message: '' });
+  const apiUrl = process.env.REACT_APP_API_URL;
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); // Start loading
 
     try {
-      const response = await axios.post('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/auth/forgot-password', { email });
+      const response = await axios.post(`${apiUrl}/api/auth/forgot-password`, { email });
       setAlert({ type: 'success', message: response.data.message });
       setEmail(''); // Clear the input field
 

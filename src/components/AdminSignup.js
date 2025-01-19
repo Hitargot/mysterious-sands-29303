@@ -12,11 +12,14 @@ const AdminSignup = () => {
   const [nextMessage, setNextMessage] = useState(null); // For the next alert message after expiration
   const navigate = useNavigate();
 
+  const apiUrl = process.env.REACT_APP_API_URL;
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       // Call API with fullName, email, and phone
-      const res = await axios.post('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/admin/signup', {
+      const res = await axios.post(`${apiUrl}/api/admin/signup`, {
         fullName,
         email,
         phone,

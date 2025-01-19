@@ -9,13 +9,15 @@ const AdminForgotPassword = () => {
   const [messageType, setMessageType] = useState('');
   const navigate = useNavigate();
 
+  const apiUrl = process.env.REACT_APP_API_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage(''); // Clear any previous message
 
     try {
       // Send a request to reset password (admin-specific)
-      const response = await axios.post('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/admin/forgot-password', {
+      const response = await axios.post(`${apiUrl}/api/admin/forgot-password`, {
         emailOrUsername, // Admin will provide either username or email
       });
 

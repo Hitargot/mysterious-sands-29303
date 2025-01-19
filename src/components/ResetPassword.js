@@ -10,6 +10,8 @@ const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [alert, setAlert] = useState({ message: '', type: '' });
+  const apiUrl = process.env.REACT_APP_API_URL;
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +23,7 @@ const ResetPassword = () => {
     }
   
     try {
-      await axios.post(`https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/auth/reset-password/${token}`, { password });
+      await axios.post(`${apiUrl}/api/auth/reset-password/${token}`, { password });
   
       // Show success alert
       setAlert({ message: 'Password reset successful! Redirecting to login...', type: 'success' });

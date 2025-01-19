@@ -7,6 +7,8 @@ const VerifyAccount = () => {
   const [messageType, setMessageType] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
+  const apiUrl = process.env.REACT_APP_API_URL;
+
 
   useEffect(() => {
     const verifyAccount = async () => {
@@ -14,7 +16,7 @@ const VerifyAccount = () => {
       const token = queryParams.get('token');
 
       try {
-        const response = await fetch(`http://localhost:22222/api/admin/verify?token=${token}`);
+        const response = await fetch(`${apiUrl}/api/admin/verify?token=${token}`);
         const result = await response.text();
         setMessage(result);
 

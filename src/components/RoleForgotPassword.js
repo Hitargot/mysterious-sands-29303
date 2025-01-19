@@ -6,6 +6,8 @@ const RoleForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const apiUrl = process.env.REACT_APP_API_URL;
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,7 +16,7 @@ const RoleForgotPassword = () => {
     setError('');
 
     try {
-      const response = await axios.post('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/roles/forgot-password', { emailOrUsername });
+      const response = await axios.post(`${apiUrl}/api/roles/forgot-password`, { emailOrUsername });
       setMessage(response.data.message);
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred. Please try again.');

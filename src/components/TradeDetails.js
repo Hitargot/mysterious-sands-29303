@@ -10,13 +10,15 @@ const TradeDetails = ({ selectedService }) => {
   const [loading, setLoading] = useState(true); // To manage loading state
   const [refreshing, setRefreshing] = useState(false); // Track if status is being refreshed
   const validityCheckedRef = useRef(false); // Track if validity check has been done
+  const apiUrl = process.env.REACT_APP_API_URL;
+
 
   // Fetch service details when the component mounts or when selectedService changes
   useEffect(() => {
     const fetchServiceDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:22222/api/services/${selectedService}`);
+        const response = await axios.get(`${apiUrl}/api/services/${selectedService}`);
         const data = response.data;
 
         if (data) {
@@ -42,7 +44,7 @@ const TradeDetails = ({ selectedService }) => {
     setRefreshing(true);
     try {
       // Re-fetch the service details to get the updated status
-      const response = await axios.get(`http://localhost:22222/api/services/${selectedService}`);
+      const response = await axios.get(`${apiUrl}/api/services/${selectedService}`);
       const data = response.data;
 
       if (data) {

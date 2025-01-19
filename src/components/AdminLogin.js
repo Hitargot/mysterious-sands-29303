@@ -11,6 +11,9 @@ const AdminLogin = () => {
   const [tempPasswordExpiry, setTempPasswordExpiry] = useState(null);
   const navigate = useNavigate();
 
+  const apiUrl = process.env.REACT_APP_API_URL;
+
+
   // Check token validity on component mount
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -35,7 +38,7 @@ const AdminLogin = () => {
     setMessage('');
 
     try {
-      const response = await fetch('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/admin/login', {
+      const response = await fetch(`${apiUrl}/api/admin/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

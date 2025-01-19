@@ -17,12 +17,14 @@ const TradeCalculator = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [selectedCurrency, setSelectedCurrency] = useState('usd'); // default to USD
+  const apiUrl = process.env.REACT_APP_API_URL;
+
 
   // Fetch services dynamically
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await axios.get("https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/services");
+        const response = await axios.get(`${apiUrl}/api/services`);
         setServices(response.data);
       } catch (error) {
         console.error("Error fetching services:", error);

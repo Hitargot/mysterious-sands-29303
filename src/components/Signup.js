@@ -21,6 +21,9 @@ const Signup = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const apiUrl = process.env.REACT_APP_API_URL;
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -39,7 +42,7 @@ const Signup = () => {
     }
   
     try {
-      const response = await axios.post('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/auth/signup', {
+      const response = await axios.post(`${apiUrl}/api/auth/signup`, {
         username: formData.username,
         email: formData.email,
         phone: formData.phone,

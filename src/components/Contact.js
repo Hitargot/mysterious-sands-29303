@@ -15,12 +15,13 @@ const Contact = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/contact', formData);
+      const response = await axios.post(`${apiUrl}/api/contact`, formData);
 
       if (response.status === 201) {
         setAlert({ message: 'Message sent successfully!', duration: 3000, show: true });

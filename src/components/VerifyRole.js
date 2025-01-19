@@ -8,6 +8,8 @@ const VerifyRole = () => {
   const [loading, setLoading] = useState(true); // Add loading state
   const location = useLocation();
   const navigate = useNavigate();
+  const apiUrl = process.env.REACT_APP_API_URL;
+
 
   useEffect(() => {
     const verifyRole = async () => {
@@ -24,7 +26,7 @@ const VerifyRole = () => {
     
       try {
         console.log('Sending verification request...');
-        const response = await fetch(`https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/roles/verify?token=${token}`);
+        const response = await fetch(`${apiUrl}/api/roles/verify?token=${token}`);
     
         const contentType = response.headers.get('Content-Type');
         let result;

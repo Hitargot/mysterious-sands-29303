@@ -20,13 +20,14 @@ const TransactionHistory = () => {
   const [filterType, setFilterType] = useState('');
   const [filterDate, setFilterDate] = useState('');
   const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchTransactions = async () => {
       setLoading(true);
       try {
         const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
-        const response = await axios.get('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/transaction/transaction-history', {
+        const response = await axios.get(`${apiUrl}/api/transaction/transaction-history`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setTransactions(response.data.transactions);
@@ -67,7 +68,7 @@ const TransactionHistory = () => {
     setLoadingReceipt(true);
     try {
       const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
-      const response = await axios.get(`https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/transaction/transaction-history/receipt/${id}`, {
+      const response = await axios.get(`${apiUrl}/api/transaction/transaction-history/receipt/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReceipt(response.data);
