@@ -1,0 +1,85 @@
+/* src/styles/Contact.css */
+
+.contact-section {
+  max-width: 600px; /* Constrain max width for better readability */
+  margin: 50px auto; /* Center the section with auto margins */
+  padding: 30px; /* Add more padding for a spacious feel */
+  background-color: #ffffff; /* Change to white for a cleaner look */
+  border-radius: 12px; /* Slightly more rounded corners */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Deeper shadow for depth */
+  transition: box-shadow 0.3s ease; /* Smooth shadow transition on hover */
+}
+
+.contact-section:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Shadow effect on hover */
+}
+
+h2 {
+  text-align: center; /* Center the heading */
+  color: #333; /* Dark text for readability */
+  font-size: 2rem; /* Increase font size for emphasis */
+  margin-bottom: 20px; /* Space below the heading */
+}
+
+.contact-details {
+  margin-bottom: 30px; /* Margin for spacing */
+  text-align: center; /* Center align the details */
+  color: #555; /* Medium gray for less strain */
+}
+
+.contact-details a {
+  color: #007bff; /* Bootstrap primary color */
+  text-decoration: none; /* No underline by default */
+  font-weight: 500; /* Slightly bolder link */
+  transition: color 0.3s ease; /* Smooth color transition */
+}
+
+.contact-details a:hover {
+  text-decoration: underline; /* Underline on hover for interactivity */
+  color: #0056b3; /* Darker blue on hover */
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column; /* Stack inputs vertically */
+}
+
+label {
+  margin-bottom: 5px; /* Space below labels */
+  font-weight: bold; /* Bold labels for visibility */
+  color: #333; /* Darker label color */
+}
+
+input, textarea {
+  padding: 12px; /* Increased padding for better touch targets */
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 6px; /* Slightly more rounded corners */
+  font-size: 16px; /* Maintain good legibility */
+  margin-bottom: 20px; /* Increased space below inputs */
+  transition: border-color 0.3s ease; /* Smooth transition for border color */
+}
+
+input:focus, textarea:focus {
+  border-color: #007bff; /* Highlight border on focus */
+  outline: none; /* Remove default outline */
+}
+
+.submit-button {
+  padding: 12px; /* More padding for the button */
+  background-color: #007bff; /* Primary color for the button */
+  color: #ffffff; /* White text for contrast */
+  border: none; /* No border */
+  border-radius: 6px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 16px; /* Consistent font size */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition for background and transform */
+}
+
+.submit-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: translateY(-2px); /* Slight lift effect on hover */
+}
+
+.submit-button:active {
+  transform: translateY(0); /* Reset lift effect when clicked */
+}

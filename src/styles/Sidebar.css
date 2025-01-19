@@ -1,0 +1,177 @@
+.sidebar {
+    width: 70px;
+    height: 100vh;
+    background-color: #1e1e2f;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    transition: width 0.3s ease;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+  }
+  
+  .sidebar.expanded {
+    width: 150px;
+  }
+  
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #f0ad4e;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    transition: opacity 0.3s;
+  }
+  
+
+  
+  .sidebar-header h2 {
+    margin-left: 10px;
+    opacity: 0;
+  }
+  
+  .sidebar.expanded .sidebar-header h2 {
+    opacity: 1;
+  }
+  
+  .sidebar-nav {
+    flex-grow: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .sidebar-nav button {
+    width: 100%;
+    padding: 15px;
+    background-color: #2c2c3e;
+    color: #ffffff;
+    border: none;
+    text-align: left;
+    font-size: 1em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .sidebar-nav button:hover {
+    background-color: #f0ad4e;
+    color: #1e1e2f;
+  }
+  
+  .sidebar-nav button span {
+    margin-left: 10px;
+    opacity: 0;
+  }
+  
+  .sidebar.expanded .sidebar-nav button span {
+    opacity: 1;
+  }
+  
+  .sidebar-footer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: auto;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .user-name {
+    margin-left: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .sidebar.expanded .user-name {
+    opacity: 1;
+  }
+  
+  .logout-button {
+    padding: 10px 15px;
+    background-color: #d9534f;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    width: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .logout-button span {
+    margin-left: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .sidebar.expanded .logout-button span {
+    opacity: 1;
+  }
+  /* Admin Sidebar Styling */
+.admin-sidebar {
+  width: 70px;
+  background-color: #2c3e50;
+  padding: 20px;
+  color: white;
+  transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-sidebar.expanded {
+  width: 250px; /* Expand width when hovered or clicked */
+}
+
+.admin-sidebar .sidebar-header {
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-header .logo-icon {
+  width: 100px;
+  height: 70px;
+}
+
+.admin-sidebar nav {
+  margin-top: 20px;
+  padding: 0px;
+}
+
+/* Admin Content Area */
+.admin-content {
+  
+  height: 100vh; /* Make content area take full height */
+  overflow-y: auto; /* Allow the content to scroll */
+}
+
+.admin-sidebar a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.admin-sidebar a:hover {
+  background-color: #16a085;
+}
+
+.admin-sidebar .icon {
+  margin-right: 10px;
+}

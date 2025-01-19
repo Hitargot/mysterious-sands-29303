@@ -1,0 +1,131 @@
+/* General container styles */
+.contacts-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Title */
+h2 {
+  font-size: 2rem;
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Card styles for each contact */
+.contact-item {
+  background-color: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.contact-item p {
+  font-size: 1rem;
+  color: #555;
+  margin: 5px 0;
+}
+
+/* Chat box and message styles */
+.chat-box {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f4f4f4;
+  border-radius: 6px;
+}
+
+.user-message,
+.admin-reply {
+  background-color: #e9ecef;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.user-message p,
+.admin-reply p {
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Formatting timestamps */
+small {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* Buttons */
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Reply form styles */
+.reply-form {
+  margin-top: 15px;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.reply-form textarea {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  resize: none;
+}
+
+.reply-form button {
+  width: 100%;
+  background-color: #28a745;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+.cancel-reply-btn {
+  background-color: #dc3545;
+  margin-top: 5px;
+}
+
+.cancel-reply-btn:hover,
+.reply-form button:hover {
+  background-color: #218838;
+}
+
+.cancel-reply-btn {
+  width: 100%;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 10px;
+  margin: 20px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.search-bar:focus {
+  outline: none;
+  border-color: #4caf50; /* Add a green border when focused */
+}

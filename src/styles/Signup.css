@@ -1,0 +1,124 @@
+/* src/styles/Signup.css */
+
+/* Container Styles */
+.signup-container {
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 40px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+}
+
+/* Header */
+.signup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.signup-header .logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.signup-header .logo img {
+  width: 40px;
+  height: 40px;
+}
+
+.signup-header nav a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
+
+.signup-header nav a:hover {
+  color: #ff6600;
+}
+
+/* Form Styling */
+.signup-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Group input and label inline */
+.form-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-group label {
+  flex: 1;
+  text-align: right;
+  margin-right: 15px;
+  font-weight: normal; /* Reduced weight */
+  color: #333;
+  font-size: 14px; /* Reduced size */
+}
+
+.form-group input,
+.form-group select {
+  flex: 2;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px; /* Reduced size */
+}
+
+/* Button Styles */
+button {
+  padding: 12px;
+  background-color: #4caf50;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+/* Footer Links */
+.footer-links {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.footer-links p {
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.footer-links a {
+  color: #ff6600;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .form-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-group label {
+    text-align: left;
+    margin-bottom: 5px;
+  }
+}

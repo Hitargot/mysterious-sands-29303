@@ -1,0 +1,139 @@
+/* General Styles */
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body.light-theme {
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+body.dark-theme {
+  background-color: #1a1a1a;
+  color: #fff;
+}
+
+/* Admin Header */
+.admin-header {
+  background-color: var(--header-bg-color, #4a90e2);
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+}
+
+.admin-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.dashboard-title {
+  font-size: 1.5rem;
+  color: var(--title-color, #fff);
+  margin: 0;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.admin-name {
+  font-size: 1rem;
+  color: var(--text-color, #fff);
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  color: var(--icon-color, #fff);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.icon-button:hover {
+  transform: scale(1.1);
+}
+
+/* Logout Button */
+.logout-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  background-color: transparent;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--icon-color, #fff);
+  font-size: 1rem;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.logout-container:hover {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+.logout-icon {
+  margin-right: 8px;
+  font-size: 1.2rem;
+  transition: transform 0.2s ease-in-out;
+}
+
+.logout-container:hover .logout-icon {
+  transform: rotate(20deg);
+}
+
+.logout-text {
+  font-size: 1rem;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .dashboard-title {
+    font-size: 1.2rem;
+  }
+
+  .header-controls {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
+
+  .admin-name {
+    font-size: 0.9rem;
+  }
+
+  .icon-button {
+    font-size: 1rem;
+  }
+
+  .logout-text {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-title {
+    font-size: 1rem;
+  }
+
+  .header-controls {
+    gap: 8px;
+  }
+
+  .icon-button {
+    font-size: 0.9rem;
+  }
+
+  .logout-text {
+    font-size: 0.8rem;
+  }
+}

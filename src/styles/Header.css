@@ -1,0 +1,68 @@
+/* src/styles/Header.css */
+
+/* Header Container */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #0A0A23;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 1000; /* Ensure the header stays above all content */
+}
+
+/* Logo Section */
+.logo img {
+  height: 40px;
+  margin-right: 10px;
+}
+
+/* Navigation Links */
+.nav-links {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Navigation Links - Mobile Hidden */
+.nav-links a {
+  color: white;
+  text-decoration: none;
+}
+
+/* Hamburger Menu Icon (Hidden on Desktop) */
+.menu-icon {
+  display: none;
+  cursor: pointer;
+  font-size: 1.5rem; /* Larger icon size for better tap targets */
+  color: white;
+}
+
+/* Open State for Navigation (Mobile) */
+.nav-links.open {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 60px;
+  right: 15px;
+  background-color: #0A0A23;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Styles for Mobile */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .menu-icon {
+    display: block;
+  }
+}

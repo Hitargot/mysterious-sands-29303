@@ -1,0 +1,101 @@
+.notifications-container {
+  position: relative;
+  display: inline-block;
+}
+
+.notification-icon {
+  font-size: 24px;
+  cursor: pointer;
+  position: relative;
+}
+
+.notification-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  padding: 5px;
+}
+
+.notifications-dropdown {
+  position: absolute;
+  top: 35px;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 300px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.dropdown-header {
+  padding: 10px;
+  background-color: #f4f4f4;
+  border-bottom: 1px solid #ddd;
+  text-align: right;
+}
+
+.mark-all-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 3px;
+}
+
+.mark-all-btn:hover {
+  background-color: #0056b3;
+}
+
+.notification-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notification-item {
+  padding: 10px;
+  border-bottom: 1px solid #f4f4f4;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notification-item:hover {
+  background-color: #f9f9f9;
+}
+
+.unread {
+  font-weight: bold;
+}
+
+.read {
+  color: gray;
+}
+
+.envelope-icon {
+  font-size: 16px;
+  margin-left: 10px;
+  color: #007bff;
+}
+
+.no-notifications {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+}
+.notification-time {
+  font-size: 0.8rem;
+  color: #888;
+  margin-left: 10px;
+  white-space: nowrap;
+}

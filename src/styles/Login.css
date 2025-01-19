@@ -1,0 +1,61 @@
+/* src/styles/Login.css */
+
+.login {
+  margin: 0; /* Remove default margin */
+  height: 100vh; /* Full viewport height */
+  display: flex; /* Use flexbox for centering */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  background-color: #f0f0f0; /* Optional: background color for the body */
+}
+
+.login-container {
+  max-width: 400px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.login-header .logo {
+  display: flex;
+  align-items: center;
+}
+
+.login-header .logo img {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.login-header nav a {
+  margin-left: 15px;
+  text-decoration: none;
+  color: #007bff;
+}
+
+.login-header nav a:hover {
+  text-decoration: underline;
+}
+
+.footer-links {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 14px; /* Adjust font size if needed */
+}
+
+.footer-links a {
+  color: #007bff;
+  text-decoration: none;
+  margin: 0 5px; /* Adjust margin between links */
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}

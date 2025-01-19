@@ -1,0 +1,72 @@
+/* Main container styling for the verification message */
+.verify-account-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    background-color: #f7f7f7;
+    color: #333;
+  }
+  
+  /* Styling the message box */
+  .verify-account-container {
+    background-color: #ffffff;
+    padding: 30px;
+    max-width: 500px;
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Success message style */
+  .verify-account-container.success {
+    color: #28a745;
+    font-weight: bold;
+  }
+  
+  /* Error message style */
+  .verify-account-container.error {
+    color: #dc3545;
+    font-weight: bold;
+  }
+  
+  /* Add animation for message */
+  .verify-account-container {
+    animation: fadeIn 1s ease-in-out;
+  }
+  
+  /* Fade in animation */
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  /* Adding some space for the message */
+  .verify-account-container p {
+    margin: 0;
+    font-size: 18px;
+  }
+  
+  /* Optional: A smoother transition for the background color change on success */
+  .verify-account-container.success {
+    background-color: #d4edda;
+  }
+  
+  .verify-account-container.error {
+    background-color: #f8d7da;
+  }
+  
+  /* Additional styling for mobile devices */
+  @media (max-width: 600px) {
+    .verify-account-container {
+      padding: 20px;
+    }
+  }
+  

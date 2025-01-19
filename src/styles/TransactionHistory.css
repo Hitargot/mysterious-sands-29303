@@ -1,0 +1,228 @@
+/* General Styles */
+.transaction-history {
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.transaction-history h2 {
+  margin-bottom: 15px;
+  font-size: 26px;
+  color: #222;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Transaction Cards - Flexbox Grid */
+.transaction-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.transaction-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.transaction-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Card Header */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.transaction-type {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  text-align: left;
+}
+
+.status-badge {
+  padding: 0.3rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: #fff;
+}
+
+.status-badge.success {
+  background-color: #28a745;
+}
+
+.status-badge.error {
+  background-color: #dc3545;
+}
+
+/* Card Body */
+.card-body p {
+  margin: 0.5rem 0;
+}
+
+.card-actions {
+  margin-top: 1rem;
+}
+
+.card-actions button {
+  background-color: #007bff;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.card-actions button:hover {
+  background-color: #0056b3;
+}
+
+/* Modal and Receipt Styles */
+.receipt-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  max-width: 90%;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  font-family: 'Arial', sans-serif;
+  animation: fadeIn 0.5s ease-in-out;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+.receipt-header {
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.company-logo {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 10px;
+}
+
+.receipt-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #007bff;
+  font-weight: bold;
+}
+
+.receipt-header p {
+  font-size: 14px;
+  color: #555;
+  margin: 0;
+}
+
+.receipt-content {
+  margin-top: 20px;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #ddd;
+}
+
+.receipt-row:last-child {
+  border-bottom: none;
+}
+
+.receipt-row .label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #444;
+  text-transform: capitalize;
+}
+
+.receipt-row .value {
+  font-size: 16px;
+  color: #333;
+  text-align: right;
+  word-wrap: break-word;
+}
+
+.receipt-actions{
+  display: flex;
+  justify-content: space-between;
+}
+.receipt-footer{
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+}
+.receipt-footer p{
+  color: #007bff;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filters input, .filters button {
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 5px;
+}
+
+
+
+
+/* Mobile Responsiveness */
+@media screen and (max-width: 768px) {
+  .receipt-modal {
+    width: 90%;
+    max-width: 350px;
+    padding: 15px;
+  }
+  .receipt-row .label,
+  .receipt-row .value {
+    font-size: 14px;
+  }
+
+  .transaction-history h2 {
+    font-size: 22px;
+  }
+
+  .transaction-card {
+    padding: 1rem;
+    margin: 0 auto;
+  }
+
+  .transaction-type {
+    font-size: 1rem;
+  }
+
+  .transaction-cards {
+    grid-template-columns: 1fr;
+    
+  }
+  .card-actions button {
+    padding: 0.7rem 1.3rem;
+  }
+
+}

@@ -1,0 +1,92 @@
+/* Main Dashboard Container */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Header styling */
+.dashboard-header {
+  height: 60px;
+ 
+  background-color: #1e1e2f;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Main area containing sidebar and content */
+.dashboard-main {
+  display: flex;
+  height: calc(100vh - 60px); /* Adjusts for header height */
+}
+
+/* Sidebar styling */
+.sidebar {
+  width: 70px;
+  background-color: #1e1e2f;
+  color: #ffffff;
+  transition: width 0.3s;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  
+}
+
+.sidebar.expanded {
+  width: 220px; /* Expanded width for hover or active state */
+}
+
+/* Content area */
+.dashboard-content {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #f4f4f9;
+  overflow-y: auto;
+}
+
+/* Sidebar navigation buttons */
+.sidebar button {
+  width: 100%;
+  padding: 15px;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1em;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.sidebar button:hover {
+  background-color: #3e3e5e;
+  color: #f0ad4e;
+}
+.spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 18px;
+  color: #999;
+}
+
+.spinner::after {
+  content: '';
+  display: block;
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

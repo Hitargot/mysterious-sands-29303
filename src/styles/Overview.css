@@ -1,0 +1,168 @@
+/* General Styling */
+.overview {
+  padding: 20px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Balance Card */
+.balance-card {
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+.balance-amount {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.eye-icon {
+  cursor: pointer;
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+/* Action Buttons */
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.icon {
+  margin-right: 10px;
+}
+
+/* Recent Transactions Card */
+.recent-transactions-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.transaction-card-1 {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.transaction-card-1:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.transaction-status {
+  text-transform: capitalize;
+  font-weight: bold;
+}
+
+.transaction-type,
+.transaction-amount,
+.transaction-status,
+.transaction-date {
+  flex: 1;
+  text-align: center;
+}
+
+.transaction-status.success {
+  color: #28a745;
+}
+
+.transaction-status.error {
+  color: #dc3545;
+}
+
+button.see-more-button {
+  align-self: center;
+  margin-top: 15px;
+  background-color: #007bff;
+}
+
+button.see-more-button:hover{
+  background: orange;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  transform: scale(1.05);
+}
+
+/* Mobile Responsiveness */
+@media screen and (max-width: 768px) {
+  .overview {
+    padding: 15px;
+  }
+
+  .card {
+    padding: 15px;
+  }
+
+  .balance-card {
+    text-align: center;
+    padding: 15px;
+  }
+
+  .balance-amount {
+    font-size: 20px;
+  }
+
+  .button-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .transaction-card-1 {
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  .transaction-type,
+  .transaction-amount,
+  .transaction-status,
+  .transaction-date {
+    text-align: left;
+    margin-bottom: 5px;
+  }
+
+  .transaction-status {
+    text-align: left;
+  }
+
+  .transaction-date {
+    display: block;
+    text-align: left;
+    margin-top: 5px;
+  }
+
+  .see-more-button {
+    width: 100%;
+  }
+}
+

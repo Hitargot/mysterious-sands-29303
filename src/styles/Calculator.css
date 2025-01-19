@@ -1,0 +1,59 @@
+/* src/styles/Calculator.css */
+
+.calculator-section {
+  padding: 40px 20px; /* Spacing around the section */
+  background-color: #f5f5f5; /* Light background for contrast */
+  text-align: center; /* Center text */
+}
+
+.calculator-section h3 {
+  font-size: 2.5rem; /* Title size */
+  margin-bottom: 30px; /* Space below title */
+}
+
+form {
+  display: flex; /* Flexbox for form layout */
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Center items */
+  max-width: 400px; /* Max width for form */
+  margin: 0 auto; /* Center the form horizontally */
+  background-color: white; /* White background for the form */
+  padding: 20px; /* Padding inside the form */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+label {
+  font-size: 1.2rem; /* Size for labels */
+  margin: 10px 0; /* Spacing around labels */
+}
+
+select,
+input {
+  width: 100%; /* Full width inputs */
+  padding: 10px; /* Padding inside inputs */
+  margin: 10px 0; /* Spacing around inputs */
+  border-radius: 5px; /* Rounded corners */
+  border: 1px solid #ccc; /* Border style */
+  font-size: 1rem; /* Font size */
+}
+
+#calculate-button {
+  background-color: #f39c12; /* Button color */
+  color: white; /* Button text color */
+  border: none; /* Remove border */
+  padding: 10px 20px; /* Button padding */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer on hover */
+  transition: background-color 0.3s; /* Smooth transition */
+}
+
+#calculate-button:hover {
+  background-color: #e68a00; /* Darker orange on hover */
+}
+
+#result {
+  margin-top: 20px; /* Space above result */
+  font-size: 1.5rem; /* Larger font for result */
+  color: #333; /* Dark text color */
+}

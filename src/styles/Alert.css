@@ -1,0 +1,50 @@
+/* src/styles/Alert.css */
+.alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #28a745; /* Change this to your preferred color */
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 1000; /* Ensure it appears above other elements */
+  transition: opacity 0.3s ease-in-out;
+}
+
+.alert-progress {
+  height: 4px;
+  background-color: #e67e22; /* Change this to match your alert background */
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  animation: progress-animation linear forwards;
+}
+
+@keyframes progress-animation {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 600px) {
+  .alert {
+    width: 90%; /* Full width for small screens */
+    top: 15px;
+    right: 5%; /* Center horizontally */
+    padding: 10px 12px;
+  }
+}
+
+/* Responsive Design for Tablets */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .alert {
+    width: 80%; /* Slightly wider for tablets */
+    right: 10%; /* Center relative to screen */
+    top: 20px;
+  }
+}

@@ -1,0 +1,178 @@
+/* Admin Layout */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar Styling */
+.admin-sidebar {
+  width: 70px; /* Initial width for collapsed sidebar */
+  background-color: #2c3e50;
+  padding: 20px;
+  color: white;
+  transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.admin-sidebar.expanded {
+  width: 250px; /* Expanded width for hover */
+}
+
+/* Sidebar list items and links */
+.admin-sidebar ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-sidebar li {
+  padding: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+/* Sidebar Links */
+.admin-sidebar li a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.admin-sidebar li a:hover {
+  background-color: #16a085;
+}
+
+/* Sidebar Link Icons */
+.admin-sidebar li a .icon {
+  margin-right: 10px; /* Space between icon and text */
+}
+
+/* Hover Effect to Expand Sidebar */
+.admin-sidebar:hover {
+  width: 250px; /* Expanded width when hovered */
+}
+
+/* Admin Content Area */
+.admin-content {
+  flex-grow: 1;
+}
+
+/* Header Styling */
+.admin-header {
+  background-color: #34495e;
+  color: white;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-header h1 {
+  margin: 0;
+}
+
+/* Media Queries */
+
+/* For devices with a screen width of 768px or less (tablets, small screens) */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    width: 20px; /* Reduced width for smaller screens */
+  }
+
+  .admin-sidebar.expanded {
+    width: 120px; /* Slightly reduced expanded width */
+  }
+
+  .admin-sidebar li a {
+    font-size: 14px; /* Smaller font size for links */
+  }
+
+  .admin-sidebar li a .icon {
+    margin-right: 8px; /* Less space between icon and text */
+  }
+
+  /* Optionally hide the sidebar name when collapsed */
+  .admin-sidebar h2 {
+    display: none;
+  }
+
+  .admin-header h1 {
+    font-size: 18px; /* Reduce header font size */
+  }
+}
+
+/* For devices with a screen width of 480px or less (mobile screens) */
+@media (max-width: 480px) {
+  .admin-sidebar {
+    width: 50px; /* Smaller width for mobile */
+  }
+
+  .admin-sidebar.expanded {
+    width: 150px; /* Further reduced expanded width for mobile */
+  }
+
+  .admin-sidebar li a {
+    font-size: 12px; /* Even smaller font size for links */
+  }
+
+  .admin-sidebar li a .icon {
+    margin-right: 6px; /* Even less space between icon and text */
+  }
+
+  .admin-header {
+    padding: 10px; /* Less padding on header for smaller screens */
+  }
+
+  .admin-header h1 {
+    font-size: 16px; /* Further reduce header font size */
+  }
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .dashboard-title {
+    font-size: 1.2rem;
+  }
+
+  .header-controls {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
+
+  .admin-name {
+    font-size: 0.9rem;
+  }
+
+  .icon-button {
+    font-size: 1rem;
+  }
+
+  .logout-text {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-title {
+    font-size: 1rem;
+  }
+
+  .header-controls {
+    gap: 8px;
+  }
+
+  .icon-button {
+    font-size: 0.9rem;
+  }
+
+  .logout-text {
+    font-size: 0.8rem;
+  }
+}

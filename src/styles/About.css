@@ -1,0 +1,94 @@
+/* src/styles/About.css */
+
+.about-section {
+  padding: 20px 15px; /* Adjust padding for smaller screens */
+  background-color: #f4f4f4;
+  color: #333;
+  text-align: center;
+}
+
+/* Title styles */
+.about-section h2 {
+  font-size: 2rem; /* Smaller default size for mobile */
+  margin-bottom: 15px;
+}
+
+/* Body text styles */
+.about-section p {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0 auto 20px;
+  max-width: 90%; /* Max width to prevent text overflow on small screens */
+}
+
+/* Team members container */
+.team-members {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap; /* Wrap cards on small screens */
+  gap: 15px; /* Spacing between team members */
+  margin-top: 20px;
+}
+
+/* Individual team member card */
+.team-member {
+  background-color: white;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 100%; /* Full width by default */
+  max-width: 300px; /* Limit width for larger screens */
+}
+
+/* Team member profile image */
+.team-member img {
+  border-radius: 50%;
+  width: 70px; /* Reduced size for mobile */
+  height: 70px;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+/* Team member name */
+.team-member h4 {
+  font-size: 1.3rem;
+  margin: 10px 0 5px;
+}
+
+/* Paragraph spacing inside the card */
+.team-member p {
+  margin: 5px 0;
+}
+
+/* Media Queries for Larger Screens */
+@media (min-width: 768px) {
+  .about-section h2 {
+    font-size: 2.5rem; /* Increase title size on tablets */
+  }
+
+  .about-section p {
+    font-size: 1.2rem;
+    max-width: 600px; /* Slightly smaller paragraph width */
+  }
+
+  .team-member {
+    max-width: 200px; /* More compact card size on medium screens */
+  }
+
+  .team-member img {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+/* Media Query for Desktops */
+@media (min-width: 1024px) {
+  .about-section p {
+    max-width: 800px; /* Full width for paragraphs on larger screens */
+  }
+
+  .team-members {
+    gap: 30px; /* Increased space between members on larger screens */
+  }
+}

@@ -1,0 +1,54 @@
+/* src/styles/Footer.css */
+.footer {
+    background-color: #333; /* Dark background */
+    color: white; /* Text color */
+    padding: 20px; /* Padding around the footer */
+    text-align: center; /* Centered text */
+}
+
+.footer-links {
+    margin-bottom: 10px; /* Space between links and copyright text */
+    display: flex; /* Use flexbox for alignment */
+    justify-content: center; /* Center links */
+}
+
+.footer a {
+    color: #ffcc00; /* Link color */
+    text-decoration: none; /* No underline */
+    margin: 0 10px; /* Margin between links */
+    position: relative; /* Position for child elements */
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Center icon and text vertically */
+}
+
+.footer .link-text {
+    display: none; /* Hide link text initially */
+    position: absolute; /* Position absolutely for hover effect */
+    left: 50%; /* Center text horizontally */
+    transform: translateX(-50%); /* Adjust positioning */
+    bottom: -25px; /* Position below the icon */
+    white-space: nowrap; /* Prevent text wrapping */
+    background-color: rgba(0, 0, 0, 0.7); /* Background for text */
+    padding: 5px; /* Padding for text */
+    border-radius: 5px; /* Rounded corners */
+    transition: opacity 0.3s; /* Smooth transition */
+    opacity: 0; /* Start with invisible text */
+}
+
+.footer a:hover .link-text {
+    display: block; /* Show text on hover */
+    opacity: 1; /* Fade in text */
+}
+
+.footer a:hover .icon {
+    color: #ffcc00; /* Change icon color on hover */
+}
+
+.footer a i {
+    margin-right: 5px; /* Space between icon and text */
+}
+
+.footer p {
+    margin: 10px 0; /* Margin for paragraphs */
+    font-size: 14px; /* Font size */
+}
