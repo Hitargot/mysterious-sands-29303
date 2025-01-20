@@ -83,10 +83,20 @@
 
   .user-name {
     margin-right: 0;
+    font-size: 0.9em; /* Slightly smaller font on smaller screens */
   }
 
   .logout-button {
     margin-top: 5px;
-    font-size: 0.8em;
+    font-size: 0.8em; /* Reduce font size slightly */
+  }
+
+  .notification-icon {
+    font-size: 1.2em; /* Adjust icon size for smaller screens */
+  }
+
+  .notification-count {
+    font-size: 10px; /* Scale down count font size */
+    padding: 0 4px; /* Adjust padding for smaller size */
   }
 }
