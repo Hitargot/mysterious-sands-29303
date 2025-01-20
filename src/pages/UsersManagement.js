@@ -53,7 +53,7 @@ const UserManagement = () => {
     } finally {
       setIsLoading(false); // End loading
     }
-  }, [filter, searchQuery]); // Add filter and searchQuery as dependencies
+  }, [filter, searchQuery, apiUrl]); // Add filter and searchQuery as dependencies
   
   useEffect(() => {
     fetchUsers();
@@ -79,7 +79,7 @@ const UserManagement = () => {
     console.log(`Fetching notifications for user ${userId}...`);
     setNotifications((prevNotifications) => ({
       ...prevNotifications,
-      [userId]: [], // Clear any previous notifications for this user
+      [userId]: [apiUrl], // Clear any previous notifications for this user
     }));
 
     try {
@@ -188,7 +188,7 @@ const UserManagement = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [fetchUsers, filter, searchQuery]);
+  }, [fetchUsers, filter, searchQuery, apiUrl]);
 
   const handleEditClick = (user) => {
     setSelectedUser(user);

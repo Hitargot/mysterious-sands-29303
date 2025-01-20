@@ -30,7 +30,7 @@ const TradeTransactions = () => {
     } catch (error) {
       triggerAlert("Error fetching transactions", "error");
     }
-  }, []); // Empty dependency array to only create the function once
+  }, [apiUrl]); // Empty dependency array to only create the function once
 
   useEffect(() => {
     fetchTransactions();
