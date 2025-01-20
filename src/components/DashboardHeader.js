@@ -1,8 +1,8 @@
-import React from 'react';
 import { FaSignOutAlt, FaUserCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Notifications from './Notifications';
 import '../styles/DashboardHeader.css';
+import {jwtDecode} from 'jwt-decode'; // Ensure jwt-decode is correctly imported
 
 const DashboardHeader = ({
   clearJwtToken,
@@ -10,15 +10,26 @@ const DashboardHeader = ({
   setSelectedBankAccount,
   setWalletBalance,
   handleAlert,
-  userInfo, // Assuming userInfo is passed as a prop
 }) => {
-  const userName = userInfo?.username || 'User'; // Set username from userInfo
-
   const navigate = useNavigate();
+  let userName = 'User'; // Default username
+
+  // Decode token to fetch username
+  try {
+    const token = localStorage.getItem('token'); // Retrieve token from local storage
+    if (token) {
+      const decodedToken = jwtDecode(token); // Decode the JWT token
+      userName = decodedToken?.username || 'User'; // Extract username
+    }
+  } catch (error) {
+    console.error('Error decoding token:', error); // Handle decoding error
+    handleAlert('Session expired. Please log in again.', 'error');
+    navigate('/login');
+  }
 
   const handleLogout = () => {
     clearJwtToken();
-    localStorage.removeItem('username'); // Clear username on logout
+    localStorage.removeItem('token'); // Remove token on logout
     if (typeof setBankAccounts === 'function') {
       setBankAccounts([]);
     }
@@ -41,7 +52,7 @@ const DashboardHeader = ({
 
   return (
     <header className="dashboard-header">
-      <h1>{`${getGreeting()}, ${userName || 'User'}`}</h1>
+      <h1>{`${getGreeting()}, ${userName}`}</h1>
       <div className="header-icons">
         <Notifications />
         <FaUserCircle className="user-icon" aria-label="User Profile" onClick={navigateToProfile} />
