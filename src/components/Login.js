@@ -20,16 +20,13 @@ const Login = ({ setUserRole }) => { // Accept setUserRole as a prop
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
-
   const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await axios.post(`${apiUrl}/api/auth/login`, {
-        identifier: credentials.identifier,
-        password: credentials.password,
-      });
-
+      e.preventDefault();
+      try {
+          const response = await axios.post(`${apiUrl}/api/auth/login`, {
+              usernameOrEmailOrPhone,
+              password,
+          });
       // Check for success response
       if (response.status === 200) {
         setAlertMessage('Login successful! Redirecting to dashboard...');

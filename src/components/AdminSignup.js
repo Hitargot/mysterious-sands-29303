@@ -37,6 +37,7 @@ const AdminSignup = () => {
       // Error handling
       setMessage(err.response?.data?.message || 'An error occurred. Please try again.');
       setMessageType('error');
+      console.log("API URL:", apiUrl); // Debugging
     }
   };
 
