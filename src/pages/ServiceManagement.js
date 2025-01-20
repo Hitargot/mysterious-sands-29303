@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { WindmillSpinner } from "react-spinner-overlay";  // Import the spinner
+import { WindmillSpinner } from "react-spinner-overlay"; // Import the spinner
 import "../styles/ServiceManagement.css";
 
 const ServiceManagement = () => {
@@ -20,12 +20,25 @@ const ServiceManagement = () => {
   const [showForm, setShowForm] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState(null);
-  const [loading, setLoading] = useState(false);  // Add a loading state
+  const [loading, setLoading] = useState(false); // Add a loading state
   const apiUrl = process.env.REACT_APP_API_URL;
+
+  // Memoize the fetchServices function
+  const fetchServices = useCallback(async () => {
+    setLoading(true); // Start loading before the API call
+    try {
+      const response = await axios.get(`${apiUrl}/api/services`);
+      setServices(response.data);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    } finally {
+      setLoading(false); // End loading after the API call
+    }
+  }, [apiUrl]);
 
   useEffect(() => {
     fetchServices();
-  }, [apiUrl, fetchServices]);
+  }, [fetchServices]);
 
   // Automatically set USD exchange rate when the name is "Website Recharge"
   useEffect(() => {
@@ -40,18 +53,6 @@ const ServiceManagement = () => {
       }));
     }
   }, [formData.name]);
-
-  const fetchServices = async () => {
-    setLoading(true);  // Start loading before the API call
-    try {
-      const response = await axios.get(`${apiUrl}/api/services`);
-      setServices(response.data);
-    } catch (error) {
-      console.error("Error fetching services:", error);
-    } finally {
-      setLoading(false);  // End loading after the API call
-    }
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -217,31 +218,32 @@ const ServiceManagement = () => {
 
       <div className="service-list">
         <WindmillSpinner
-          loading={loading}  // Show spinner when loading is true
+          loading={loading} // Show spinner when loading is true
           text="Loading services..."
         />
-        {!loading && services.map((service) => (
-          <div key={service._id} className="service-card">
-            <h3>{service.name}</h3>
-            <div className="exchange-rates">
-              <p>USD: {service.exchangeRates.usd}</p>
-              <p>EUR: {service.exchangeRates.eur}</p>
-              <p>GBP: {service.exchangeRates.gbp}</p>
+        {!loading &&
+          services.map((service) => (
+            <div key={service._id} className="service-card">
+              <h3>{service.name}</h3>
+              <div className="exchange-rates">
+                <p>USD: {service.exchangeRates.usd}</p>
+                <p>EUR: {service.exchangeRates.eur}</p>
+                <p>GBP: {service.exchangeRates.gbp}</p>
+              </div>
+              <div className="description">{service.description}</div>
+              {service.note && <div className="note">{service.note}</div>}
+              <div className="service-actions">
+                <button onClick={() => handleEdit(service)}>Edit</button>
+                <button
+                  onClick={() => handleToggleStatus(service)}
+                  className={service.status === "valid" ? "" : "inactive"}
+                >
+                  {service.status === "valid" ? "Disable" : "Enable"}
+                </button>
+                <button onClick={() => openModal(service)}>Delete</button>
+              </div>
             </div>
-            <div className="description">{service.description}</div>
-            {service.note && <div className="note">{service.note}</div>}
-            <div className="service-actions">
-              <button onClick={() => handleEdit(service)}>Edit</button>
-              <button
-                onClick={() => handleToggleStatus(service)}
-                className={service.status === "valid" ? "" : "inactive"}
-              >
-                {service.status === "valid" ? "Disable" : "Enable"}
-              </button>
-              <button onClick={() => openModal(service)}>Delete</button>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       {showModal && (
