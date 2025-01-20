@@ -32,7 +32,7 @@ const NotificationManagement = () => {
         setAlert({ message: 'Error fetching users.', type: 'error', show: true });
         setLoading((prev) => ({ ...prev, users: false }));
       });
-  }, []);
+  }, [apiUrl]);
 
   useEffect(() => {
     fetch(`${apiUrl}/api/notifications`)
@@ -50,7 +50,7 @@ const NotificationManagement = () => {
         setAlert({ message: 'Error fetching notifications.', type: 'error', show: true });
         setLoading((prev) => ({ ...prev, notifications: false }));
       });
-  }, []);
+  }, [apiUrl]);
 
   const handleUserSelection = (userId) => {
     setSelectedUsers((prev) =>

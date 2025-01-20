@@ -57,7 +57,7 @@ const UserManagement = () => {
   
   useEffect(() => {
     fetchUsers();
-  }, [fetchUsers, filter, searchQuery]); // Include filter and searchQuery as dependencies
+  }, [fetchUsers, filter, searchQuery, apiUrl]); // Include filter and searchQuery as dependencies
   
 
   // Function to refresh the wallet balance of a user

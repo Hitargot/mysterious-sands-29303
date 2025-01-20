@@ -31,7 +31,7 @@ useEffect(() => {
   };
 
   fetchAdminRoutes();
-}, []);
+}, [apiUrl]);
 
 
   // Handle form input changes

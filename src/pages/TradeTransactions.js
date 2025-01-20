@@ -25,7 +25,7 @@ const TradeTransactions = () => {
   // Fetch all trade transactions
   const fetchTransactions = useCallback(async () => {
     try {
-      const { data } = await axios.get("https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/trades/transactions");
+      const { data } = await axios.get(`${apiUrl}/api/trades/transactions`);
       setTransactions(data);
     } catch (error) {
       triggerAlert("Error fetching transactions", "error");
@@ -34,7 +34,7 @@ const TradeTransactions = () => {
 
   useEffect(() => {
     fetchTransactions();
-  }, [fetchTransactions]);
+  }, [fetchTransactions, apiUrl]);
 
   // View transaction details
   const handleViewDetails = (transaction) => {
@@ -56,7 +56,7 @@ const TradeTransactions = () => {
   // Approve transaction
   const confirmApprove = async () => {
     try {
-      await axios.put(`https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/trades/transactions/approve/${transactionToApproveOrReject._id}`);
+      await axios.put(`${apiUrl}/api/trades/transactions/approve/${transactionToApproveOrReject._id}`);
       triggerAlert("Transaction approved successfully", "success");
       fetchTransactions();
       setIsApproveConfirmOpen(false);
@@ -68,7 +68,7 @@ const TradeTransactions = () => {
   // Reject transaction
   const confirmReject = async () => {
     try {
-      await axios.put(`https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/trades/transactions/reject/${transactionToApproveOrReject._id}`);
+      await axios.put(`${apiUrl}/api/trades/transactions/reject/${transactionToApproveOrReject._id}`);
       triggerAlert("Transaction rejected successfully", "success");
       fetchTransactions();
       setIsRejectConfirmOpen(false);

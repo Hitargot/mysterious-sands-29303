@@ -25,7 +25,7 @@ const ServiceManagement = () => {
 
   useEffect(() => {
     fetchServices();
-  }, []);
+  }, [apiUrl]);
 
   // Automatically set USD exchange rate when the name is "Website Recharge"
   useEffect(() => {

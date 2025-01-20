@@ -54,7 +54,7 @@ const ManageContacts = () => {
     };
 
     fetchContacts();
-  }, []);
+  }, [apiUrl]);
 
   const handleReplyChange = (e) => setReply(e.target.value);
 
