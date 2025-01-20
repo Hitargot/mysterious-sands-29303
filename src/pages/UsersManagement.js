@@ -29,7 +29,7 @@ const UserManagement = () => {
   const [userId, setUserId] = useState(null); // Store the currently selected user ID
   const [filteredUsers, setFilteredUsers] = useState([]); // New state for filtered users
   const [isLoading, setIsLoading] = useState(false); // Loading indicator state
-
+  const apiUrl = process.env.REACT_APP_API_URL;
 
 
   const triggerAlert = (message, type) => {
@@ -41,7 +41,7 @@ const UserManagement = () => {
   const fetchUsers = useCallback(async () => {
     setIsLoading(true); // Start loading
     try {
-      const { data } = await axios.get("https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/users/users", {
+      const { data } = await axios.get(`${apiUrl}/api/users/users`, {
         params: {
           status: filter !== "all" ? filter : undefined,
           search: searchQuery || undefined,
@@ -63,7 +63,7 @@ const UserManagement = () => {
   // Function to refresh the wallet balance of a user
   const fetchWalletBalance = async (userId, index) => {
     try {
-      const { data } = await axios.get(`https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/users/users/${userId}/wallet`);
+      const { data } = await axios.get(`${apiUrl}/api/users/users/${userId}/wallet`);
       setUsers((prev) =>
         prev.map((user, i) =>
           i === index ? { ...user, walletBalance: data.balance || 0 } : user
@@ -83,7 +83,7 @@ const UserManagement = () => {
     }));
 
     try {
-      const { data } = await axios.get(`https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/users/users/${userId}/notifications`);
+      const { data } = await axios.get(`${apiUrl}/api/users/users/${userId}/notifications`);
       console.log("Fetched notifications:", data);
 
       const notificationsList = data.notifications || [];
@@ -118,10 +118,10 @@ const UserManagement = () => {
     e.preventDefault();
     try {
       if (isEditing) {
-        await axios.put(`https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/users/users/${selectedUser._id}`, formData);
+        await axios.put(`${apiUrl}/api/users/users/${selectedUser._id}`, formData);
         triggerAlert("User updated successfully", "success");
       } else {
-        await axios.post("https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/users/users", formData);
+        await axios.post(`${apiUrl}/api/users/users`, formData);
         triggerAlert("User added successfully", "success");
       }
       fetchUsers();
@@ -145,7 +145,7 @@ const UserManagement = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/users/users/${userToDelete}`);
+      await axios.delete(`${apiUrl}/api/users/users/${userToDelete}`);
       triggerAlert("User deleted successfully", "success");
       fetchUsers();
     } catch (error) {
@@ -157,7 +157,7 @@ const UserManagement = () => {
 
   const toggleBlockUser = async (userId, isBlocked) => {
     try {
-      const response = await axios.put(`https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/users/users/${userId}/block`);
+      const response = await axios.put(`${apiUrl}/api/users/users/${userId}/block`);
       triggerAlert(
         response.data.status === "blocked" ? "User blocked successfully" : "User unblocked successfully",
         "success"

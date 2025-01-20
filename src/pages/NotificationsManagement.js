@@ -13,9 +13,11 @@ const NotificationManagement = () => {
   const [showCreateNotification, setShowCreateNotification] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const apiUrl = process.env.REACT_APP_API_URL;
+
 
   useEffect(() => {
-    fetch('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/users')
+    fetch(`${apiUrl}/api/users`)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -33,7 +35,7 @@ const NotificationManagement = () => {
   }, []);
 
   useEffect(() => {
-    fetch('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/notifications')
+    fetch(`${apiUrl}/api/notifications`)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -73,7 +75,7 @@ const NotificationManagement = () => {
       type: 'general',
     };
 
-    fetch('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/send-notification', {
+    fetch(`${apiUrl}/api/send-notification`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(notificationData),

@@ -15,6 +15,8 @@ const ManageContacts = () => {
   const [alert, setAlert] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [adminName, setAdminName] = useState("");
+  const apiUrl = process.env.REACT_APP_API_URL;
+
 
   // Utility to decode admin token
   const getAdminUsername = () => {
@@ -41,7 +43,7 @@ const ManageContacts = () => {
     // Fetch contacts from API
     const fetchContacts = async () => {
       try {
-        const response = await axios.get("https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/contacts");
+        const response = await axios.get(`${apiUrl}/api/contacts`);
         setContacts(response.data);
         setLoading(false);
       } catch (err) {
@@ -58,7 +60,7 @@ const ManageContacts = () => {
 
   const handleReplySubmit = async (contactId) => {
     try {
-      const response = await axios.post("https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/reply", {
+      const response = await axios.post(`${apiUrl}/api/reply`, {
         contactId,
         replyMessage: reply,
         repliedBy: adminName || "Admin",
@@ -70,7 +72,7 @@ const ManageContacts = () => {
         setSelectedContact(null);
 
         // Refetch the contacts after sending the reply
-        const updatedContacts = await axios.get("https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/contacts");
+        const updatedContacts = await axios.get(`${apiUrl}/api/contacts`);
         setContacts(updatedContacts.data);
       }
     } catch (err) {

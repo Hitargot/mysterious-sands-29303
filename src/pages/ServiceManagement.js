@@ -21,6 +21,7 @@ const ServiceManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState(null);
   const [loading, setLoading] = useState(false);  // Add a loading state
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     fetchServices();
@@ -43,7 +44,7 @@ const ServiceManagement = () => {
   const fetchServices = async () => {
     setLoading(true);  // Start loading before the API call
     try {
-      const response = await axios.get("https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/services");
+      const response = await axios.get(`${apiUrl}/api/services`);
       setServices(response.data);
     } catch (error) {
       console.error("Error fetching services:", error);
@@ -77,11 +78,11 @@ const ServiceManagement = () => {
     try {
       if (editingService) {
         await axios.put(
-          `https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/services/${editingService._id}`,
+          `${apiUrl}/api/services/${editingService._id}`,
           serviceData
         );
       } else {
-        await axios.post("https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/services/create", serviceData);
+        await axios.post(`${apiUrl}/api/services/create`, serviceData);
       }
 
       fetchServices();
@@ -112,7 +113,7 @@ const ServiceManagement = () => {
     };
 
     try {
-      await axios.put(`https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/services/${service._id}`, updatedService);
+      await axios.put(`${apiUrl}/api/services/${service._id}`, updatedService);
       fetchServices();
     } catch (error) {
       console.error("Error updating status:", error);
@@ -121,7 +122,7 @@ const ServiceManagement = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/services/${serviceToDelete._id}`);
+      await axios.delete(`${apiUrl}/api/services/${serviceToDelete._id}`);
       fetchServices();
       setShowModal(false);
     } catch (error) {

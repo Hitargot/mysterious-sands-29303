@@ -15,12 +15,13 @@ const CreateRole = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [adminRoutes, setAdminRoutes] = useState([]);
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   // Fetch the available admin routes from the backend
 useEffect(() => {
   const fetchAdminRoutes = async () => {
     try {
-      const response = await axios.get('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/roles/admin/routes');
+      const response = await axios.get(`${apiUrl}/api/roles/admin/routes`);
       console.log('Fetched Routes:', response.data); // Check the response
       setAdminRoutes(response.data.routes);
     } catch (err) {
@@ -62,7 +63,7 @@ useEffect(() => {
     setError('');
 
     try {
-      const response = await axios.post('https://mysterious-sands-29303-c1f04c424030.herokuapp.com/api/roles/create-role', formData);
+      const response = await axios.post(`${apiUrl}/api/roles/create-role`, formData);
       setMessage(response.data.message);
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred. Please try again.');
