@@ -10,7 +10,7 @@ const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [alert, setAlert] = useState({ message: '', type: '' });
-  const apiUrl = process.env.REACT_APP_API_URL;
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
 
 
   const handleSubmit = async (e) => {

@@ -10,7 +10,7 @@ const TradeDetails = ({ selectedService }) => {
   const [loading, setLoading] = useState(true); // To manage loading state
   const [refreshing, setRefreshing] = useState(false); // Track if status is being refreshed
   const validityCheckedRef = useRef(false); // Track if validity check has been done
-  const apiUrl = process.env.REACT_APP_API_URL;
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
 
 
   // Fetch service details when the component mounts or when selectedService changes

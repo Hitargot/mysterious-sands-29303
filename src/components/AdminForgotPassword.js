@@ -9,7 +9,7 @@ const AdminForgotPassword = () => {
   const [messageType, setMessageType] = useState('');
   const navigate = useNavigate();
 
-  const apiUrl = process.env.REACT_APP_API_URL;
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
