@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios"; // Importing Axios
-import Alert from './Alert'; // Assuming you have an Alert component
+import axios from "axios";
+import Alert from "./Alert";
+import ConfirmationForm from "./ConfirmationForm"; // Importing the ConfirmationForm component
 
 const TradeDetails = ({ selectedService }) => {
-  const [serviceDetails, setServiceDetails] = useState(null); // State for service details
-  const [isValid, setIsValid] = useState(null); // State to store validity status
-  const [alertMessage, setAlertMessage] = useState(""); // For storing alert message
-  const [alertType, setAlertType] = useState(""); // For storing alert type (success/error)
-  const [loading, setLoading] = useState(true); // To manage loading state
-  const [refreshing, setRefreshing] = useState(false); // Track if status is being refreshed
-  const validityCheckedRef = useRef(false); // Track if validity check has been done
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-
+  const [serviceDetails, setServiceDetails] = useState(null);
+  const [isValid, setIsValid] = useState(null);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const validityCheckedRef = useRef(false);
+  const apiUrl = "http://localhost:22222";
+  // const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
 
   // Fetch service details when the component mounts or when selectedService changes
   useEffect(() => {
@@ -36,20 +37,19 @@ const TradeDetails = ({ selectedService }) => {
       }
     };
 
-    fetchServiceDetails();
+    if (selectedService) fetchServiceDetails();
   }, [selectedService, apiUrl]);
 
   // Function to check validity based on service status
   const checkValidity = async () => {
     setRefreshing(true);
     try {
-      // Re-fetch the service details to get the updated status
       const response = await axios.get(`${apiUrl}/api/services/${selectedService}`);
       const data = response.data;
 
       if (data) {
         setServiceDetails(data);
-        const valid = data.status === "valid"; // Check validity based on the updated data
+        const valid = data.status === "valid";
         setIsValid(valid);
 
         if (!valid) {
@@ -69,7 +69,7 @@ const TradeDetails = ({ selectedService }) => {
       setAlertType("error");
     } finally {
       setRefreshing(false);
-      validityCheckedRef.current = true; // Mark validity as checked
+      validityCheckedRef.current = true;
     }
   };
 
@@ -104,6 +104,12 @@ const TradeDetails = ({ selectedService }) => {
 
           {/* Show alert if there's any */}
           {alertMessage && <Alert message={alertMessage} type={alertType} />}
+
+          {/* Mount the ConfirmationForm component */}
+          <div className="confirmation-section">
+            <h4>Submit Your Confirmation</h4>
+            <ConfirmationForm selectedService={selectedService} />
+          </div>
         </>
       )}
     </div>

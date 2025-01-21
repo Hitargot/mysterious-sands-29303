@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Alert from '../components/Alert'; // Import your Alert component
 import '../styles/Login.css'; // Import your CSS file
 import axios from 'axios'; // Import axios
-import { jwtDecode } from 'jwt-decode'; // Import jwt-decode
+import {jwtDecode} from 'jwt-decode'; // Import jwt-decode
 
 const Login = ({ setUserRole }) => { // Accept setUserRole as a prop
   const [credentials, setCredentials] = useState({
@@ -18,6 +18,7 @@ const Login = ({ setUserRole }) => { // Accept setUserRole as a prop
     setCredentials({ ...credentials, [name]: value });
   };
 
+  // const apiUrl = "http://localhost:22222";
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
 
 
@@ -34,29 +35,24 @@ const Login = ({ setUserRole }) => { // Accept setUserRole as a prop
       if (response.status === 200) {
         setAlertMessage('Login successful! Redirecting to dashboard...');
 
-          // Decode the JWT token
-          const token = response.data.token;
-          const decodedToken = jwtDecode(token);
-          const userName = decodedToken.username; // Assuming 'username' is in the decoded token payload
+        // Decode the JWT token
+        const token = response.data.token;
+        const decodedToken = jwtDecode(token);
+        const userName = decodedToken.username; // Assuming 'username' is in the decoded token payload
 
+        // Extract user role and user ID from the decoded token
+        const role = decodedToken.role; // Assuming 'role' is in token payload
 
-          // Extract user role and user ID from the decoded token
-          const role = decodedToken.role; // Assuming 'role' is in token payload
-          // const userId = decodedToken.id; // Assuming 'id' or similar identifier is in token payload
+        // Set the user role based on decoded token data
+        setUserRole(role); // Update the user role in the App
 
-          // Set the user role based on decoded token data
-          setUserRole(role); // Update the user role in the App
-
-          // Store the token in local storage (or in context if preferred)
-          localStorage.setItem('jwtToken', response.data.token);
-          localStorage.setItem('username', userName);
-          console.log(response.data); // Check if 'username' is part of the response
-
-
-
+        // Store the token in local storage
+        localStorage.setItem('jwtToken', response.data.token);
+        localStorage.setItem('username', userName);
+        console.log(response.data); // Check if 'username' is part of the response
 
         setTimeout(() => {
-          navigate('/dashboard');
+          navigate('/dashboard'); // Redirect to the dashboard after login
         }, 3000);
       }
     } catch (err) {
@@ -68,6 +64,26 @@ const Login = ({ setUserRole }) => { // Accept setUserRole as a prop
       }
     }
   };
+
+  const checkTokenExpiration = () => {
+    const token = localStorage.getItem('jwtToken');
+    
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        if (decodedToken.exp * 1000 < Date.now()) {
+          localStorage.removeItem('jwtToken'); // Remove expired token
+          window.location.href = '/login'; // Redirect to login page
+        }
+      } catch (error) {
+        console.error('Token decoding error', error);
+      }
+    }
+  };
+  
+  // Run the check function when your app loads or when a page requiring authentication is accessed
+  checkTokenExpiration();
+  
 
   return (
     <div className="login">
