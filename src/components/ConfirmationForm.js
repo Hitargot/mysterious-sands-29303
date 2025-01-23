@@ -112,7 +112,6 @@ const generateTransactionId = () => {
     try {
         const response = await axios.post(`${apiUrl}/api/confirmations`, formData, {
             headers: {
-              "Content-Type": "multipart/form-data", // Ensure proper content-type for file uploads
               "Authorization": `Bearer ${token}`,   // Correctly set the Authorization header
             },
           });
