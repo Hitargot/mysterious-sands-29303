@@ -67,7 +67,7 @@ const Login = ({ setUserRole }) => { // Accept setUserRole as a prop
 
   const checkTokenExpiration = () => {
     const token = localStorage.getItem('jwtToken');
-    
+
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
@@ -80,10 +80,10 @@ const Login = ({ setUserRole }) => { // Accept setUserRole as a prop
       }
     }
   };
-  
+
   // Run the check function when your app loads or when a page requiring authentication is accessed
   checkTokenExpiration();
-  
+
 
   return (
     <div className="login">
