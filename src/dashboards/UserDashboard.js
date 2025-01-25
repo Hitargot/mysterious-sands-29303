@@ -48,8 +48,8 @@ const UserDashboard = () => {
     console.log(`${type.toUpperCase()}: ${message}`);
   };
 
-  // const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  const apiUrl = "http://localhost:22222";
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  // const apiUrl = "http://localhost:22222";
 
   // Save activeComponent to localStorage whenever it changes
   useEffect(() => {

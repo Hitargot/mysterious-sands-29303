@@ -18,8 +18,8 @@ export const NotificationProvider = ({ children }) => {
   };
 
   const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
-  // const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  const apiUrl = "http://localhost:22222";
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  // const apiUrl = "http://localhost:22222";
 
   // Fetch notifications from backend (memoized)
   const fetchNotifications = useCallback(async () => {
