@@ -114,35 +114,41 @@ const TransactionHistory = () => {
     try {
       const receiptElement = document.querySelector(".receipt-modal");
       if (!receiptElement) {
-        throw new Error("Receipt element not found");
+        alert("Receipt not found!");
+        return;
       }
   
-      // Use html2canvas to capture the element
-      const canvas = await html2canvas(receiptElement);
+      // Ensure the receipt is visible
+      receiptElement.style.display = "block";
   
-      // Preview the captured canvas
-      document.body.appendChild(canvas);
+      // Capture the receipt
+      const canvas = await html2canvas(receiptElement, {
+        useCORS: true,
+        scale: 2,
+      });
   
-      // Convert the canvas to a data URL
+      // Debug: Preview the canvas
       const imgData = canvas.toDataURL("image/png");
+      window.open(imgData); // Open the image in a new tab
   
-      // Debug: Show the generated image in a new tab
-      window.open(imgData);
-  
-      // Convert to a Blob for sharing
+      // Convert to a file for sharing
       const response = await fetch(imgData);
       const blob = await response.blob();
       const file = new File([blob], "receipt.png", { type: "image/png" });
   
+      // Share the file
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
           title: "Transaction Receipt",
           text: "Here is your transaction receipt.",
         });
-        console.log("Receipt shared successfully!");
       } else {
-        alert("Sharing is not supported on this device.");
+        alert("Sharing not supported. Downloading the receipt...");
+        const a = document.createElement("a");
+        a.href = imgData;
+        a.download = "receipt.png";
+        a.click();
       }
     } catch (error) {
       console.error("Error sharing receipt as image:", error);
