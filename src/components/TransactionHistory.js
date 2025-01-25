@@ -113,48 +113,47 @@ const TransactionHistory = () => {
   const handleShareReceipt = async () => {
     try {
       const receiptElement = document.querySelector(".receipt-modal");
+  
       if (!receiptElement) {
-        alert("Receipt not found!");
+        console.error("Receipt element not found.");
+        alert("Unable to find receipt element. Please try again.");
         return;
       }
   
-      // Ensure the receipt is visible
-      receiptElement.style.display = "block";
-  
-      // Capture the receipt
       const canvas = await html2canvas(receiptElement, {
         useCORS: true,
-        scale: 2,
+        scale: 2, // Higher quality
       });
   
-      // Debug: Preview the canvas
-      const imgData = canvas.toDataURL("image/png");
-      window.open(imgData); // Open the image in a new tab
+      // Convert canvas to blob directly
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          console.error("Failed to create blob from canvas.");
+          alert("Failed to generate receipt. Please try again.");
+          return;
+        }
   
-      // Convert to a file for sharing
-      const response = await fetch(imgData);
-      const blob = await response.blob();
-      const file = new File([blob], "receipt.png", { type: "image/png" });
+        const file = new File([blob], "receipt.png", { type: "image/png" });
   
-      // Share the file
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: "Transaction Receipt",
-          text: "Here is your transaction receipt.",
-        });
-      } else {
-        alert("Sharing not supported. Downloading the receipt...");
-        const a = document.createElement("a");
-        a.href = imgData;
-        a.download = "receipt.png";
-        a.click();
-      }
+        // Check if sharing is supported
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: "Transaction Receipt",
+            text: "Here is your transaction receipt.",
+          });
+          console.log("Receipt shared successfully!");
+        } else {
+          console.warn("Sharing is not supported on this device.");
+          alert("Sharing is not supported on this device.");
+        }
+      }, "image/png");
     } catch (error) {
       console.error("Error sharing receipt as image:", error);
       alert("Error sharing receipt. Please try again.");
     }
   };
+  
   
 
   return (
