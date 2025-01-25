@@ -176,6 +176,15 @@
 .receipt-footer p{
   color: #007bff;
 }
+.receipt{
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.share-receipt {
+  border: 1px solid red;
+}
 
 .filters {
   display: flex;

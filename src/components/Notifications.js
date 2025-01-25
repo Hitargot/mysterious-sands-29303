@@ -8,8 +8,9 @@ import '../styles/Notifications.css';
 dayjs.extend(relativeTime); // Extend dayjs with the relativeTime plugin
 
 const Notifications = () => {
-  const { notifications, markAsRead, markAllAsRead, unreadCount } = useNotification();
+  const { notifications, markAsRead, markAllAsRead, unreadCount, fetchNotifications } = useNotification();
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(true);  // Add loading state
   const dropdownRef = useRef(null);
 
   const toggleNotifications = () => {
@@ -26,6 +27,22 @@ const Notifications = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Fetch notifications on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);  // Start loading before fetching
+      try {
+        await fetchNotifications();  // Assume fetchNotifications is a function in context to fetch data
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      } finally {
+        setLoading(false);  // Stop loading after fetching
+      }
+    };
+
+    fetchData();
+  }, [fetchNotifications]);
 
   const handleNotificationClick = (notification) => {
     console.log('Notification ID:', notification._id);  // Log the ID
@@ -44,7 +61,9 @@ const Notifications = () => {
             <button onClick={markAllAsRead} className="mark-all-btn">Mark All as Read</button>
           </div>
           <ul className="notification-list">
-            {notifications.length > 0 ? (
+            {loading ? (
+              <div className="loading-spinner">Loading...</div>  // Display loading indicator
+            ) : notifications.length > 0 ? (
               notifications.map((notification) => (
                 <li
                   key={notification._id || Math.random()}  // Fallback key if _id is missing

@@ -1,154 +1,127 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {jwtDecode} from 'jwt-decode';
+import {jwtDecode} from "jwt-decode";
+import Alert from "./Alert"; // Import your custom alert component
 
 const ConfirmationForm = ({ selectedService }) => {
-  const [services, setServices] = useState([]); // State to store fetched services
-  const [selectedServiceId, setSelectedServiceId] = useState(selectedService || ""); // State for selected service
-  const [file, setFile] = useState(null); // State for uploaded file
-  const [note, setNote] = useState(""); // State for note
-  const [alertMessage, setAlertMessage] = useState(""); // State for alert message
-  const [alertType, setAlertType] = useState(""); // State for alert type (success/error)
-  const [loading, setLoading] = useState(false); // State for loading spinner
-//   const [apiUrl] = useState("http://localhost:22222"); // Backend API URL
-  const [transactionId, setTransactionId] = useState(""); // Add this to your state
-  const [apiUrl] = useState("https://mysterious-sands-29303-c1f04c424030.herokuapp.com"); // Backend API URL
+  const [services, setServices] = useState([]);
+  const [selectedServiceId, setSelectedServiceId] = useState(selectedService || "");
+  const [file, setFile] = useState(null);
+  const [note, setNote] = useState("");
+  const [alert, setAlert] = useState(null); // State for managing alerts
+  const [loading, setLoading] = useState(false);
+  const [transactionId, setTransactionId] = useState("");
+//   const [apiUrl] = useState("https://mysterious-sands-29303-c1f04c424030.herokuapp.com");
+  const [apiUrl] = useState("http://localhost:22222"); // Backend API URL
+ 
 
+  useEffect(() => {
+    if (selectedServiceId) {
+      const generatedTransactionId = generateTransactionId();
+      setTransactionId(generatedTransactionId);
+    }
+  }, [selectedServiceId]);
 
-// Set transactionId dynamically based on the service or other logic
-useEffect(() => {
-  if (selectedServiceId) {
-    const generatedTransactionId = generateTransactionId(); // Function to generate or fetch the transaction ID
-    setTransactionId(generatedTransactionId);
-  }
-}, [selectedServiceId]);
+  const generateTransactionId = () => {
+    return "TX" + new Date().getTime();
+  };
 
-const generateTransactionId = () => {
-  // Example logic to generate a transaction ID (could be based on time, user, or service)
-  return "TX" + new Date().getTime(); // Example: Transaction ID based on current timestamp
-};
-
-
-
-  // Fetch services for dropdown
   useEffect(() => {
     const fetchServices = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/services`);
         setServices(response.data);
       } catch (error) {
-        console.error("Error fetching services:", error);
-        setAlertMessage("Failed to fetch services.");
-        setAlertType("error");
+        showAlert("Failed to fetch services.", "error");
       }
     };
     fetchServices();
   }, [apiUrl]);
 
   const getUserIdFromToken = () => {
-    const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
-    console.log("Token retrieved:", token); // Log the retrieved token
+    const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        console.log("Decoded Token:", decodedToken); // Log the decoded token
-        return decodedToken.id; // Use the 'id' from the decoded token
+        return decodedToken.id;
       } catch (error) {
-        console.error("Error decoding token:", error); // Log any error in decoding
+        console.error("Error decoding token:", error);
         return null;
       }
     }
-    return null; // If no token is found, return null
+    return null;
   };
-  
-  
-  const userId = getUserIdFromToken(); // Automatically fetch the userId from the token
-  console.log("UserId from Token:", userId); // Log userId to ensure it's correct
 
-  // Handle file change
+  const showAlert = (message, type) => {
+    setAlert({ message, type });
+    setTimeout(() => setAlert(null), 5000); // Auto-dismiss alert after 5 seconds
+  };
+
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
-    console.log("File Selected:", selectedFile); // Log the file selected by the user
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Ensure all fields are filled
+
     if (!selectedServiceId || !file || !note || !transactionId) {
-      setAlertMessage("Please fill out all fields.");
-      setAlertType("error");
+      showAlert("Please fill out all fields.", "error");
       return;
     }
-  
+
     setLoading(true);
-  
-    // Retrieve userId from decoded token
-    const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
-    let userId = null;
-  
-    if (token) {
-      const decodedToken = jwtDecode(token);
-      userId = decodedToken.id; // Use the 'id' from the decoded token
-    }
-  
+    const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
+    const userId = getUserIdFromToken();
+
     if (!userId) {
-      setAlertMessage("User not authenticated.");
-      setAlertType("error");
+      showAlert("User not authenticated.", "error");
       setLoading(false);
       return;
     }
-  
-    // Prepare the data to be sent
+
     const formData = new FormData();
     formData.append("serviceId", selectedServiceId);
     formData.append("file", file);
     formData.append("note", note);
     formData.append("userId", userId);
-    formData.append("transactionId", transactionId); // Ensure this is included if required
-  
+    formData.append("transactionId", transactionId);
+
     try {
-        const response = await axios.post(`${apiUrl}/api/confirmations`, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data", // Ensure proper content-type for file uploads
-              "Authorization": `Bearer ${token}`,   // Correctly set the Authorization header
-            },
-          });
-          
-  
+      const response = await axios.post(`${apiUrl}/api/confirmations`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       if (response.data.success) {
-        setAlertMessage("Confirmation submitted successfully!");
-        setAlertType("success");
-        // Reset form fields
+        showAlert("Confirmation submitted successfully!", "success");
         setSelectedServiceId("");
         setFile(null);
         setNote("");
-        setTransactionId(""); // Clear the transactionId if necessary
+        setTransactionId("");
       } else {
-        setAlertMessage("Error submitting confirmation.");
-        setAlertType("error");
+        showAlert("Error submitting confirmation.", "error");
       }
     } catch (error) {
-      setAlertMessage("An error occurred while submitting the confirmation.");
-      setAlertType("error");
+      showAlert("An error occurred while submitting the confirmation.", "error");
     } finally {
       setLoading(false);
     }
   };
-  
-  
+
   return (
     <div className="confirmation-form">
       <h4>Submit Confirmation</h4>
-      {alertMessage && (
-        <div className={`alert ${alertType === "error" ? "error" : "success"}`}>
-          {alertMessage}
-        </div>
+      {alert && (
+        <Alert
+          type={alert.type}
+          message={alert.message}
+          onClose={() => setAlert(null)}
+        />
       )}
       <form onSubmit={handleSubmit}>
-        {/* Service Dropdown */}
         <div>
           <label>Select Service</label>
           <select
@@ -163,14 +136,10 @@ const generateTransactionId = () => {
             ))}
           </select>
         </div>
-
-        {/* File Upload */}
         <div>
           <label>Upload Document</label>
           <input type="file" onChange={handleFileChange} />
         </div>
-
-        {/* Note Input */}
         <div>
           <label>Note</label>
           <textarea
@@ -179,8 +148,6 @@ const generateTransactionId = () => {
             placeholder="Add any additional notes..."
           />
         </div>
-
-        {/* Submit Button */}
         <div>
           <button type="submit" disabled={loading}>
             {loading ? "Submitting..." : "Submit Confirmation"}
