@@ -176,11 +176,12 @@
 .receipt-footer p{
   color: #007bff;
 }
-.receipt{
+/* .receipt{
+  border: 1px solid red;
   display: flex;
   justify-content: space-between;
   padding: 20px;
-}
+} */
 
 .share-receipt {
   border: 1px solid red;

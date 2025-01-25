@@ -5,6 +5,7 @@ import { FaReceipt } from "react-icons/fa";
 import Spinner from "./Spinner";
 import html2canvas from "html2canvas";
 import Alert from "./Alert";
+import jsPDF from "jspdf";
 
 const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
@@ -113,13 +114,38 @@ const TransactionHistory = () => {
   const handleShareReceipt = async () => {
     try {
       const receiptElement = document.querySelector(".receipt-modal");
-      const canvas = await html2canvas(receiptElement);
+  
+      if (!receiptElement) {
+        console.error("Receipt element not found.");
+        alert("Unable to find receipt element. Please try again.");
+        return;
+      }
+  
+      // Capture the receipt as an image
+      const canvas = await html2canvas(receiptElement, {
+        useCORS: true, // Handle external assets if any
+        scale: 2, // High-quality capture
+      });
+  
       const imgData = canvas.toDataURL("image/png");
   
-      // Convert the image data to a Blob (required for sharing files)
-      const response = await fetch(imgData);
-      const blob = await response.blob();
-      const file = new File([blob], "receipt.png", { type: "image/png" });
+      // Create a PDF document
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+  
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+  
+      // Adjust the image to fit the PDF page
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, (canvas.height / canvas.width) * pdfWidth);
+  
+      // Convert the PDF to a Blob
+      const pdfBlob = pdf.output("blob");
+  
+      // Create a file from the Blob
+      const file = new File([pdfBlob], "receipt.pdf", { type: "application/pdf" });
   
       // Check if sharing is supported
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -131,11 +157,14 @@ const TransactionHistory = () => {
         console.log("Receipt shared successfully!");
       } else {
         console.warn("Sharing is not supported on this device.");
-        alert("Sharing is not supported on this device.");
+  
+        // If sharing is not supported, download the receipt
+        alert("Sharing is not supported on this device. The receipt will be downloaded instead.");
+        pdf.save("receipt.pdf");
       }
     } catch (error) {
-      console.error("Error sharing receipt as image:", error);
-      alert("Error sharing receipt. Please try again.");
+      console.error("Error handling receipt:", error);
+      alert("An error occurred. Please try again.");
     }
   };
   
@@ -302,8 +331,7 @@ const TransactionHistory = () => {
             <p>Thank you for choosing Exdollarium!</p>
             <div className="receipt">
             <button className="share-receipt" onClick={handleShareReceipt}>
-              Share Receipt
-            </button>
+            Share or Download Receipt            </button>
             <button
               className="close-receipt"
               onClick={() => setReceipt(null)}
