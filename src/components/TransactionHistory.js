@@ -113,15 +113,27 @@ const TransactionHistory = () => {
   const handleShareReceipt = async () => {
     try {
       const receiptElement = document.querySelector(".receipt-modal");
+      if (!receiptElement) {
+        throw new Error("Receipt element not found");
+      }
+  
+      // Use html2canvas to capture the element
       const canvas = await html2canvas(receiptElement);
+  
+      // Preview the captured canvas
+      document.body.appendChild(canvas);
+  
+      // Convert the canvas to a data URL
       const imgData = canvas.toDataURL("image/png");
   
-      // Convert the image data to a Blob (required for sharing files)
+      // Debug: Show the generated image in a new tab
+      window.open(imgData);
+  
+      // Convert to a Blob for sharing
       const response = await fetch(imgData);
       const blob = await response.blob();
       const file = new File([blob], "receipt.png", { type: "image/png" });
   
-      // Check if sharing is supported
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
@@ -130,7 +142,6 @@ const TransactionHistory = () => {
         });
         console.log("Receipt shared successfully!");
       } else {
-        console.warn("Sharing is not supported on this device.");
         alert("Sharing is not supported on this device.");
       }
     } catch (error) {
