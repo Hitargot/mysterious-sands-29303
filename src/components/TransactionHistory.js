@@ -113,47 +113,31 @@ const TransactionHistory = () => {
   const handleShareReceipt = async () => {
     try {
       const receiptElement = document.querySelector(".receipt-modal");
+      const canvas = await html2canvas(receiptElement);
+      const imgData = canvas.toDataURL("image/png");
   
-      if (!receiptElement) {
-        console.error("Receipt element not found.");
-        alert("Unable to find receipt element. Please try again.");
-        return;
+      // Convert the image data to a Blob (required for sharing files)
+      const response = await fetch(imgData);
+      const blob = await response.blob();
+      const file = new File([blob], "receipt.png", { type: "image/png" });
+  
+      // Check if sharing is supported
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "Transaction Receipt",
+          text: "Here is your transaction receipt.",
+        });
+        console.log("Receipt shared successfully!");
+      } else {
+        console.warn("Sharing is not supported on this device.");
+        alert("Sharing is not supported on this device.");
       }
-  
-      const canvas = await html2canvas(receiptElement, {
-        useCORS: true,
-        scale: 2, // Higher quality
-      });
-  
-      // Convert canvas to blob directly
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          console.error("Failed to create blob from canvas.");
-          alert("Failed to generate receipt. Please try again.");
-          return;
-        }
-  
-        const file = new File([blob], "receipt.png", { type: "image/png" });
-  
-        // Check if sharing is supported
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: "Transaction Receipt",
-            text: "Here is your transaction receipt.",
-          });
-          console.log("Receipt shared successfully!");
-        } else {
-          console.warn("Sharing is not supported on this device.");
-          alert("Sharing is not supported on this device.");
-        }
-      }, "image/png");
     } catch (error) {
       console.error("Error sharing receipt as image:", error);
       alert("Error sharing receipt. Please try again.");
     }
   };
-  
   
 
   return (
