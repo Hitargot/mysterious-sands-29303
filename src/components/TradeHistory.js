@@ -4,7 +4,7 @@ import { ClipboardCopy, FileText, X } from "lucide-react";
 import Button from "../components/ui/Button";
 import { Card, CardHeader, CardContent, CardFooter } from "../components/ui/Card";
 import Alert from "./Alert";
-import Modal from "../components/ui/Modal";
+import ReceiptModal from "./ReceiptModal";
 import "../styles/TradeHistory.css";
 
 const TradeHistory = () => {
@@ -127,7 +127,7 @@ const TradeHistory = () => {
 
       {/* Receipt Modal */}
       {selectedReceipt && (
-        <Modal onClose={handleCloseReceipt}>
+        <ReceiptModal onClose={handleCloseReceipt}>
           <div className="receipt-modal">
             <div className="modal-header">
               <h3>Transaction Receipt</h3>
@@ -142,7 +142,7 @@ const TradeHistory = () => {
               )}
             </div>
           </div>
-        </Modal>
+        </ReceiptModal>
       )}
     </div>
   );
