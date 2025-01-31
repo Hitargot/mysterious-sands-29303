@@ -57,8 +57,10 @@ const TradeHistory = () => {
       setAlertMessage("Receipt URL is missing or invalid.");
       return;
     }
+    // Ensure the file URL points to the correct public URL
     window.open(fileUrl, "_blank");
   };
+  
 
   const formatDate = (date) => {
     const options = {
