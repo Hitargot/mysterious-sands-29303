@@ -111,63 +111,69 @@ const TransactionHistory = () => {
     });
   };
 
-  const handleShareReceipt = async () => {
-    try {
-      const receiptElement = document.querySelector(".receipt-modal");
-  
-      if (!receiptElement) {
-        console.error("Receipt element not found.");
-        alert("Unable to find receipt element. Please try again.");
-        return;
-      }
-  
-      // Capture the receipt as an image
-      const canvas = await html2canvas(receiptElement, {
-        useCORS: true, // Handle external assets if any
-        scale: 2, // High-quality capture
-      });
-  
-      const imgData = canvas.toDataURL("image/png");
-  
-      // Create a PDF document
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-  
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-  
-      // Adjust the image to fit the PDF page
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, (canvas.height / canvas.width) * pdfWidth);
-  
-      // Convert the PDF to a Blob
-      const pdfBlob = pdf.output("blob");
-  
-      // Create a file from the Blob
-      const file = new File([pdfBlob], "receipt.pdf", { type: "application/pdf" });
-  
-      // Check if sharing is supported
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: "Transaction Receipt",
-          text: "Here is your transaction receipt.",
-        });
-        console.log("Receipt shared successfully!");
-      } else {
-        console.warn("Sharing is not supported on this device.");
-  
-        // If sharing is not supported, download the receipt
-        alert("Sharing is not supported on this device. The receipt will be downloaded instead.");
-        pdf.save("receipt.pdf");
-      }
-    } catch (error) {
-      console.error("Error handling receipt:", error);
-      alert("An error occurred. Please try again.");
+
+
+const handleShareReceipt = async () => {
+  try {
+    const receiptElement = document.querySelector(".receipt-modal");
+
+    if (!receiptElement) {
+      console.error("Receipt element not found.");
+      alert("Unable to find receipt element. Please try again.");
+      return;
     }
-  };
-  
+
+    // Ensure the receipt element is fully rendered and visible
+    receiptElement.style.display = "block"; // Make sure the element is visible
+    await new Promise((resolve) => setTimeout(resolve, 300)); // Small delay to ensure rendering
+
+    // Capture the receipt as an image
+    const canvas = await html2canvas(receiptElement, {
+      useCORS: true, // Handle external assets
+      scale: 2, // High-resolution capture
+      logging: true, // Enable logging to debug
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+
+    // Create a PDF document
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height / canvas.width) * pdfWidth;
+
+    // Add the image to the PDF
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+    // Convert the PDF to a Blob
+    const pdfBlob = pdf.output("blob");
+
+    // Create a file from the Blob
+    const file = new File([pdfBlob], "receipt.pdf", { type: "application/pdf" });
+
+    // Check if sharing is supported
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: "Transaction Receipt",
+        text: "Here is your transaction receipt.",
+      });
+      console.log("Receipt shared successfully!");
+    } else {
+      console.warn("Sharing is not supported on this device.");
+      alert("Sharing is not supported. The receipt will be downloaded instead.");
+      pdf.save("receipt.pdf");
+    }
+  } catch (error) {
+    console.error("Error handling receipt:", error);
+    alert("An error occurred. Please try again.");
+  }
+};
+
 
   return (
     <div className="transaction-history">

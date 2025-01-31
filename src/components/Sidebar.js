@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaHome, FaCalculator, FaHistory, FaUser, FaWallet } from 'react-icons/fa'; // Import Wallet icon
-import Logo from '../assets/images/Exodollarium-01.png'; // Replace with your actual logo path
+import { FaHome, FaCalculator, FaHistory, FaUser, FaWallet, FaExchangeAlt } from 'react-icons/fa'; // Added FaExchangeAlt for Trade History
+import Logo from '../assets/images/Exodollarium-01.png'; // Ensure correct path for your logo
 import '../styles/Sidebar.css';
 
 const Sidebar = ({ setActiveComponent }) => {
@@ -20,23 +20,27 @@ const Sidebar = ({ setActiveComponent }) => {
       </div>
 
       <nav className="sidebar-nav">
-        <button onClick={() => setActiveComponent('overview')}>
+        <button onClick={() => setActiveComponent('overview')} aria-label="Go to Overview">
           <FaHome />
           {isExpanded && <span>Overview</span>}
         </button>
-        <button onClick={() => setActiveComponent('trade-calculator')}>
+        <button onClick={() => setActiveComponent('trade-calculator')} aria-label="Go to Trade Calculator">
           <FaCalculator />
           {isExpanded && <span>Trade Calculator</span>}
         </button>
-        <button onClick={() => setActiveComponent('wallet')}>
-          <FaWallet /> {/* Add Wallet icon */}
-          {isExpanded && <span>Wallet</span>} {/* Wallet button */}
+        <button onClick={() => setActiveComponent('wallet')} aria-label="Go to Wallet">
+          <FaWallet />
+          {isExpanded && <span>Wallet</span>}
         </button>
-        <button onClick={() => setActiveComponent('transaction-history')}>
+        <button onClick={() => setActiveComponent('transaction-history')} aria-label="Go to Transaction History">
           <FaHistory />
           {isExpanded && <span>Transaction History</span>}
         </button>
-        <button onClick={() => setActiveComponent('profile')}>
+        <button onClick={() => setActiveComponent('trade-history')} aria-label="Go to Trade History">
+          <FaExchangeAlt /> {/* Use a different icon for Trade History */}
+          {isExpanded && <span>Trade History</span>}
+        </button>
+        <button onClick={() => setActiveComponent('profile')} aria-label="Go to Profile">
           <FaUser />
           {isExpanded && <span>Profile</span>}
         </button>

@@ -25,6 +25,9 @@ import AdminForgotPassword from './components/AdminForgotPassword';
 import AdminHome from './pages/AdminHome';
 import RoleLogin from './components/RoleLogin';
 import NoAccess from './components/NoAccess';
+import TradeHistory from './components/TradeHistory';
+
+
 
 const App = () => {
   const [userRole, setUserRole] = useState(null);
@@ -53,6 +56,7 @@ const App = () => {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/role/login" element={<RoleLogin />} />
           <Route path="/role/no-access" element={<NoAccess/>} />
+          <Route path="/trade-history" element={<TradeHistory/>} />
 
           
           <Route

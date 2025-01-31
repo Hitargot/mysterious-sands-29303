@@ -1,0 +1,163 @@
+/* General Layout for the component */
+.transaction-history {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Cards Grid */
+.transaction-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+  background-color: #f7f7f7;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+  color: white;
+}
+
+.status-badge.success {
+  background-color: #4caf50;
+}
+
+.status-badge.error {
+  background-color: #f44336;
+}
+
+.card-content {
+  padding: 16px;
+  font-size: 1rem;
+  color: #555;
+}
+
+.transaction-id {
+  margin-bottom: 12px;
+}
+
+.clipboard-icon {
+  cursor: pointer;
+  margin-left: 8px;
+  color: #9ca3af;
+  transition: color 0.3s ease;
+}
+
+.clipboard-icon:hover {
+  color: #374151;
+}
+
+.card-footer {
+  padding: 16px;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #f0f0f0;
+}
+
+.card-footer button {
+  margin-left: 8px;
+}
+
+/* Loading Spinner */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error Message */
+.error-container {
+  text-align: center;
+  color: #f44336;
+}
+
+.retry-btn {
+  margin-top: 16px;
+}
+
+/* No History Found */
+.no-history {
+  text-align: center;
+  color: #777;
+  grid-column: span 3;
+}
+
+/* Card Header - Service Name and Status inline */
+.service-status-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+  color: white;
+  white-space: nowrap;
+}
+
+.status-badge.success {
+  background-color: #4caf50;
+}
+
+.status-badge.error {
+  background-color: #f44336;
+}

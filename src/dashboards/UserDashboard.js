@@ -10,6 +10,7 @@ const Overview = lazy(() => import('../components/Overview'));
 const TradeCalculator = lazy(() => import('../components/TradeCalculator'));
 const TransactionHistory = lazy(() => import('../components/TransactionHistory'));
 const Profile = lazy(() => import('../components/Profile'));
+const TradeHistory = lazy(() => import('../components/TradeHistory'));
 const Wallet = lazy(() => import('../components/WalletPage'));
 
 // ErrorBoundary component for better error handling
@@ -23,7 +24,7 @@ class ErrorBoundary extends React.Component {
   componentDidCatch(error, info) {
     console.error('ErrorBoundary caught an error', error, info);
   }
-  
+
   render() {
     if (this.state.hasError) {
       return (
@@ -35,7 +36,7 @@ class ErrorBoundary extends React.Component {
     }
     return this.props.children;
   }
-  
+
 }
 
 const UserDashboard = () => {
@@ -83,6 +84,8 @@ const UserDashboard = () => {
         return <Wallet />;
       case 'transaction-history':
         return <TransactionHistory />;
+      case 'trade-history':
+        return <TradeHistory />;
       case 'profile':
         return <Profile />;
       default:

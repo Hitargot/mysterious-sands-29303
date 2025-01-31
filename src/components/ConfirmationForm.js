@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {jwtDecode} from "jwt-decode";
 import Alert from "./Alert"; // Import your custom alert component
+import { v4 as uuidv4 } from 'uuid';
+
 
 const ConfirmationForm = ({ selectedService }) => {
   const [services, setServices] = useState([]);
@@ -23,7 +25,15 @@ const [apiUrl] = useState("https://mysterious-sands-29303-c1f04c424030.herokuapp
   }, [selectedServiceId]);
 
   const generateTransactionId = () => {
-    return "TX" + new Date().getTime();
+    const timestamp = new Date().getTime(); // Current timestamp
+    const randomPart = uuidv4().split('-')[0]; // Short random part from UUID
+    const emoji = "💸"; // Fun, visually appealing emoji
+    const customString = "TRX"; // Custom prefix
+  
+    // Combine elements for a unique and fun transaction ID
+    const uniqueId = `${customString}-${timestamp}-${randomPart}-${emoji}`;
+  
+    return uniqueId;
   };
 
   useEffect(() => {
