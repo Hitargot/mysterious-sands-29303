@@ -14,7 +14,6 @@ const TradeHistory = () => {
   const [alertMessage, setAlertMessage] = useState(""); // For custom alert
 //   const apiUrl = "http://localhost:22222"; // Replace with your API URL
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-
   useEffect(() => {
     const fetchConfirmations = async () => {
       try {
@@ -23,17 +22,23 @@ const TradeHistory = () => {
         const response = await axios.get(`${apiUrl}/api/confirmations`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        setConfirmations(response.data.confirmations || []);
+  
+        // Sort transactions by createdAt (latest first)
+        const sortedConfirmations = response.data.confirmations.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+  
+        setConfirmations(sortedConfirmations || []);
       } catch (err) {
         setError("Failed to load trade history. Please try again.");
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchConfirmations();
   }, [apiUrl]);
+  
 
   const copyToClipboard = (txid) => {
     if (!txid) return;
