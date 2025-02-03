@@ -51,17 +51,6 @@
     color: #666;
 }
 
-/* Receipt Content */
-#receipt-content {
-    width: 100%;  /* Ensures proper scaling */
-    padding: 16px;
-    font-size: 14px; /* Ensure text is readable */
-    line-height: 1.5; /* Prevent text compression */
-    white-space: pre-line; /* Ensure line breaks */
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-}
-
 /* Scrollable Content */
 .receipt-modal-content {
     padding: 20px;
@@ -190,4 +179,3 @@
         padding: 6px 10px;
     }
 }
-
