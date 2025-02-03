@@ -20,77 +20,80 @@ const ReceiptModal = ({ receiptData, onClose }) => {
     });
   };
 
-const handleShareAsImage = async () => {
+  const handleShareAsImage = async () => {
     const receiptElement = document.getElementById("receipt-content");
     const buttonsToHide = document.querySelectorAll(".hide-on-share");
 
     if (!receiptElement) {
-        console.error("Receipt element not found");
-        return;
+      console.error("Receipt element not found");
+      return;
     }
 
     // Hide buttons before capture
     buttonsToHide.forEach(button => button.style.display = "none");
 
     try {
-        // Expand receipt for full capture
-        receiptElement.style.maxHeight = "none";
-        receiptElement.style.overflow = "visible";
+      // Expand receipt for full capture
+      receiptElement.style.maxHeight = "none";
+      receiptElement.style.overflow = "visible";
+      receiptElement.style.padding = "16px";
+      receiptElement.style.wordSpacing = "3px"; // Force spacing
+      receiptElement.style.whiteSpace = "pre-wrap"; // Preserve spac
 
-        // Allow DOM reflow before capture
-        await new Promise(resolve => setTimeout(resolve, 200));
+      // Allow DOM reflow before capture
+      await new Promise(resolve => setTimeout(resolve, 200));
 
-        // Capture image
-        const canvas = await html2canvas(receiptElement, {
-            scale: 2,
-            useCORS: true,
-            windowHeight: receiptElement.scrollHeight
-        });
+      // Capture image
+      const canvas = await html2canvas(receiptElement, {
+        scale: 2,
+        useCORS: true,
+        windowHeight: receiptElement.scrollHeight
+      });
 
-        // Restore buttons
-        buttonsToHide.forEach(button => button.style.display = "");
+      // Restore buttons
+      buttonsToHide.forEach(button => button.style.display = "");
 
-        // Convert to image
-        const image = canvas.toDataURL("image/png");
+      // Convert to image
+      const image = canvas.toDataURL("image/png");
 
-        // Automatically download receipt
-        downloadImage(image);
-        setAlertMessage("Receipt downloaded successfully.");
+      // Automatically download receipt
+      downloadImage(image);
+      setAlertMessage("Receipt downloaded successfully.");
 
-        // Attempt Web Share API if supported
-        if (navigator.canShare) {
-            try {
-                const response = await fetch(image);
-                const blob = await response.blob();
-                const file = new File([blob], "receipt.png", { type: "image/png" });
+      // Attempt Web Share API if supported
+      if (navigator.canShare) {
+        try {
+          const response = await fetch(image);
+          const blob = await response.blob();
+          const file = new File([blob], "receipt.png", { type: "image/png" });
 
-                await navigator.share({
-                    files: [file],
-                    title: "Transaction Receipt",
-                    text: "Here is your transaction receipt."
-                });
+          await navigator.share({
+            files: [file],
+            title: "Transaction Receipt",
+            text: "Here is your transaction receipt."
+          });
 
-                setAlertMessage("Receipt shared successfully.");
-            } catch (error) {
-                console.warn("Sharing failed, but receipt downloaded.", error);
-                setAlertMessage("Sharing failed, but the receipt was downloaded.");
-            }
+          setAlertMessage("Receipt shared successfully.");
+        } catch (error) {
+          console.warn("Sharing failed, but receipt downloaded.", error);
+          setAlertMessage("Sharing failed, but the receipt was downloaded.");
         }
+      }
     } catch (error) {
-        console.error("Error capturing receipt:", error);
-        setAlertMessage("An error occurred while processing the receipt.");
+      console.error("Error capturing receipt:", error);
+      setAlertMessage("An error occurred while processing the receipt.");
     }
-};
+  };
 
-// Function to download image automatically
-const downloadImage = (imageData) => {
+  // Function to download image automatically
+  const downloadImage = (imageData) => {
     const link = document.createElement("a");
     link.href = imageData;
     link.download = "receipt.png";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-};
+  };
 
   return (
     <div className="receipt-modal-overlay">
