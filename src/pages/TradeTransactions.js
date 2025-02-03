@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useCallback } from "react";
 import axios from "axios";
 import Alert from "../components/Alert"; // Your alert component
 import { jwtDecode } from 'jwt-decode'; // Ensure jwt-decode is installed
@@ -19,29 +19,40 @@ const TradeTransactions = () => {
 
 
     // Fetch transactions function
-    const fetchTransactions = async () => {
-        try {
-            const token = localStorage.getItem('adminToken'); // Assuming admin token is stored here
-            const headers = { Authorization: `Bearer ${token}` };
-            
-            const response = await axios.get(`${apiUrl}/api/admin/confirmations`, { headers });
-            const sortedTransactions = response.data.confirmations.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by date (latest first)
-            setTransactions(sortedTransactions);
-            setFilteredTransactions(sortedTransactions); // Initially, show all transactions
-            
-            const decodedToken = jwtDecode(token);
-            setAdminUsername(decodedToken.username); // Assuming token contains admin's username
-            console.log(adminUsername);
-
-        } catch (err) {
-            const errorMessage = err.response ? err.response.data.message : 'Failed to fetch trade transactions.';
-            setError(errorMessage);
-        }
-    };
+    const fetchTransactions = useCallback(async () => {
+      try {
+          const token = localStorage.getItem('adminToken');
+          if (!token) {
+              setError("Unauthorized: Admin token missing.");
+              return;
+          }
+  
+          const headers = { Authorization: `Bearer ${token}` };
+          const response = await axios.get(`${apiUrl}/api/admin/confirmations`, { headers });
+  
+          const sortedTransactions = response.data.confirmations.sort((a, b) => 
+              new Date(b.createdAt) - new Date(a.createdAt)
+          );
+  
+          setTransactions(sortedTransactions);
+          setFilteredTransactions(sortedTransactions);
+  
+          const decodedToken = jwtDecode(token);
+          setAdminUsername(decodedToken.username);
+          console.log(decodedToken.username); // Corrected logging
+          console.log(decodedToken.adminUsername); // Corrected logging
+  
+      } catch (err) {
+          const errorMessage = err.response?.data?.message || 'Failed to fetch trade transactions.';
+          setError(errorMessage);
+      }
+  }, [apiUrl]);
+  
+  
 
     useEffect(() => {
-        fetchTransactions(); // Fetch transactions on component mount
-    }, [apiUrl, fetchTransactions]);
+      fetchTransactions();
+  }, [fetchTransactions]);
 
     // Search function to filter transactions based on the search term
     const handleSearch = (e) => {
