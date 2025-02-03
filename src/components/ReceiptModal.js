@@ -104,7 +104,7 @@ const ReceiptModal = ({ receiptData, onClose }) => {
           <div className="receipt-header">
             <img src={require('../assets/images/Exodollarium-01.png')} alt="Exdollarium Logo" className="company-logo" />
             <h2>Exdollarium</h2>
-            <p className="receipt-title">Official Transaction Receipt</p>
+            <p>Official Transaction Receipt</p>
           </div>
 
           <div className="receipt-content">

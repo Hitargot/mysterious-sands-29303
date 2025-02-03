@@ -64,13 +64,7 @@
     /* Ensures spaces are preserved */
 
 }
-.receipt-title {
-    display: block;
-    text-align: center;
-    white-space: normal;
-    word-spacing: 4px;
-  }
-  
+
 /* Receipt Content */
 .receipt-content {
     margin-top: 15px;
