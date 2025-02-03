@@ -29,6 +29,8 @@ const TradeTransactions = () => {
             
             const decodedToken = jwtDecode(token);
             setAdminUsername(decodedToken.username); // Assuming token contains admin's username
+            console.log(adminUsername);
+
         } catch (err) {
             const errorMessage = err.response ? err.response.data.message : 'Failed to fetch trade transactions.';
             setError(errorMessage);
