@@ -11,22 +11,48 @@
     align-items: center;
     z-index: 1000;
     padding: 10px;
-  }
-  
-  /* Modal Container */
-  .receipt-modal {
+}
+
+/* Modal Container */
+.receipt-modal {
     background: #fff;
-    width: 400px;
-    max-width: 90%;
+    width: 100%;
+    max-width: 90%;  /* Responsive max width */
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     animation: fadeIn 0.3s ease-in-out;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
-  }
-  
-  #receipt-content {
+    overflow: hidden;
+}
+
+/* Header */
+.receipt-header {
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.company-logo {
+    width: 50px;
+    height: 50px;
+}
+
+.receipt-header h2 {
+    font-size: 22px;
+    color: #007bff;
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 10px;
+}
+
+.receipt-header p {
+    font-size: 14px;
+    color: #666;
+}
+
+/* Receipt Content */
+#receipt-content {
     width: 100%;  /* Ensures proper scaling */
     padding: 16px;
     font-size: 14px; /* Ensure text is readable */
@@ -36,137 +62,131 @@
     overflow-wrap: break-word;
 }
 
-  /* Scrollable Content */
-  .receipt-modal-content {
+/* Scrollable Content */
+.receipt-modal-content {
     padding: 20px;
     overflow-y: auto;
     max-height: 75vh; /* Ensure scrollable content */
-  }
-  
-  /* Header */
-  .receipt-header {
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .company-logo {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .receipt-header h2 {
-    font-size: 22px;
-    color: #007bff;
-    font-weight: bold;
-    margin-top: 10px;
-    padding: 10px;
-  }
-  
-  .receipt-header p {
-    font-size: 14px;
-    color: #666;
-  }
-  
-  /* Receipt Content */
-  .receipt-content {
-    margin-top: 15px;
-  }
-  
-  .receipt-row {
+}
+
+/* Receipt Rows */
+.receipt-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px 0;
     border-bottom: 1px solid #eee;
     font-size: 15px;
-  }
-  
-  .receipt-row:last-child {
+}
+
+.receipt-row:last-child {
     border-bottom: none;
-  }
-  
-  .receipt-row .label {
+}
+
+.receipt-row .label {
     font-weight: 600;
     color: #444;
-  }
-  
-  .receipt-row .value {
+}
+
+.receipt-row .value {
     color: #222;
     text-align: right;
     display: flex;
     align-items: center;
     gap: 5px;
     word-break: break-word;
-  }
-  
-  /* Clipboard Icon */
-  .clipboard-icon {
-    cursor: pointer;
-    font-size: 14px;
-    color: #007bff;
-  }
-  
-  .clipboard-icon:hover {
-    color: #0056b3;
-  }
-  
-  /* Footer */
-  .receipt-footer {
+}
+
+/* Footer */
+.receipt-footer {
     text-align: center;
     padding-top: 10px;
     font-size: 14px;
     color: #007bff;
     border-top: 1px solid #ddd;
-  }
-  
-  /* Footer Buttons */
-  .footer-buttons {
+}
+
+/* Footer Buttons */
+.footer-buttons {
     display: flex;
     justify-content: center;
     gap: 10px;
     margin-top: 10px;
-  }
-  
-  .share-btn, .close-bt {
+}
+
+.share-btn, .close-bt {
     padding: 8px 12px;
     border-radius: 5px;
     font-size: 14px;
     cursor: pointer;
     border: none;
     transition: background 0.2s;
-  }
-  
-  .share-btn {
-    background: #007bff;
-    color: #fff;
-  }
-  
-  .hide-on-share {
-  display: inline-block; /* Normal display */
 }
 
-  .share-btn:hover {
+.share-btn {
+    background: #007bff;
+    color: #fff;
+}
+
+.share-btn:hover {
     background: #0056b3;
-  }
-  
-  .close-bt {
+}
+
+.close-bt {
     background: #ccc;
     color: #000;
-  }
-  
-  .close-bt:hover {
+}
+
+.close-bt:hover {
     background: #bbb;
-  }
-  
-  /* Fade-in Animation */
-  @keyframes fadeIn {
+}
+
+/* Clipboard Icon */
+.clipboard-icon {
+    cursor: pointer;
+    font-size: 14px;
+    color: #007bff;
+}
+
+.clipboard-icon:hover {
+    color: #0056b3;
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
     from {
-      opacity: 0;
-      transform: scale(0.9);
+        opacity: 0;
+        transform: scale(0.9);
     }
     to {
-      opacity: 1;
-      transform: scale(1);
+        opacity: 1;
+        transform: scale(1);
     }
-  }
-  
+}
+
+/* Responsive Design for Mobile */
+@media (max-width: 600px) {
+    .receipt-modal {
+        max-width: 100%;
+        width: 100%;
+        padding: 10px;
+    }
+
+    .receipt-header h2 {
+        font-size: 18px;
+    }
+
+    .receipt-row {
+        font-size: 14px;
+        padding: 6px 0;
+    }
+
+    .receipt-footer {
+        font-size: 12px;
+    }
+
+    .share-btn, .close-bt {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+}
