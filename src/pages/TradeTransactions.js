@@ -40,7 +40,8 @@ const TradeTransactions = () => {
           const decodedToken = jwtDecode(token);
           setAdminUsername(decodedToken.username);
           console.log(decodedToken.username); // Corrected logging
-          console.log(decodedToken.adminUsername); // Corrected logging
+          console.log(adminUsername); // Just to use the variable
+
   
       } catch (err) {
           const errorMessage = err.response?.data?.message || 'Failed to fetch trade transactions.';
