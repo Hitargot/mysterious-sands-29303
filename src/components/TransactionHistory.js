@@ -19,7 +19,9 @@ const TransactionHistory = () => {
   const [filterType, setFilterType] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [filteredTransactions, setFilteredTransactions] = useState([]);
-  const apiUrl = "http://localhost:22222"; // Replace with your API URL
+  //const apiUrl = "http://localhost:22222"; // Replace with your API URL
+    const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+
 
   useEffect(() => {
     const fetchTransactions = async () => {

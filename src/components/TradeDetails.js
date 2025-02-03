@@ -11,8 +11,9 @@ const TradeDetails = ({ selectedService }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const validityCheckedRef = useRef(false);
-  const apiUrl = "http://localhost:22222";
-  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "http://localhost:22222"; 
+
 
   // Fetch service details when the component mounts or when selectedService changes
   useEffect(() => {
