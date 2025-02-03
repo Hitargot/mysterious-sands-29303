@@ -47,7 +47,7 @@ const TradeTransactions = () => {
           const errorMessage = err.response?.data?.message || 'Failed to fetch trade transactions.';
           setError(errorMessage);
       }
-  }, [apiUrl]);
+  }, [apiUrl, adminUsername]);
   
   
 
