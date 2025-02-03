@@ -164,37 +164,30 @@
     }
 }
 
-
-
-/* Ensure the receipt content is properly scaling for mobile devices */
-@media (max-width: 480px) {
-    #receipt-content {
-      padding: 10px;
-      font-size: 12px;
-      width: 100%;
-      box-sizing: border-box;
-      overflow-wrap: break-word;  /* Allow long words to break */
-    }
-  
+/* Responsive Design for Mobile */
+@media (max-width: 600px) {
     .receipt-modal {
-      width: 100%;
-      padding: 10px;
-      box-sizing: border-box;
-      max-width: 90%;
+        max-width: 100%;
+        width: 100%;
+        padding: 10px;
     }
-    
+
+    .receipt-header h2 {
+        font-size: 18px;
+    }
+
     .receipt-row {
-      font-size: 13px; /* Smaller font size for better fit */
+        font-size: 14px;
+        padding: 6px 0;
     }
-    
+
     .receipt-footer {
-      font-size: 12px;
-      text-align: center;
+        font-size: 12px;
     }
-  
-    .footer-buttons button {
-      padding: 8px 10px;
-      font-size: 12px;  /* Smaller buttons for mobile */
+
+    .share-btn, .close-bt {
+        font-size: 12px;
+        padding: 6px 10px;
     }
-  }
-  
+}
+
