@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import Alert from "./Alert"; // Import your custom alert component
+import Alert from "./Alert"; // Ensure this component is working correctly
 import { v4 as uuidv4 } from "uuid";
 
 const ConfirmationForm = ({ selectedService }) => {
@@ -12,14 +12,21 @@ const ConfirmationForm = ({ selectedService }) => {
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(false);
   const [transactionId, setTransactionId] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [apiUrl] = useState("https://mysterious-sands-29303-c1f04c424030.herokuapp.com");
 
   useEffect(() => {
     if (selectedServiceId) {
-      setTransactionId(generateTransactionId());
+      const generatedTransactionId = generateTransactionId();
+      setTransactionId(generatedTransactionId);
     }
   }, [selectedServiceId]);
+
+  const generateTransactionId = () => {
+    const timestamp = new Date().getTime();
+    const randomPart = uuidv4().split("-")[0];
+    return `TRX-${timestamp}-${randomPart} 💸`;
+  };
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -33,17 +40,12 @@ const ConfirmationForm = ({ selectedService }) => {
     fetchServices();
   }, [apiUrl]);
 
-  const generateTransactionId = () => {
-    const timestamp = new Date().getTime();
-    const randomPart = uuidv4().split("-")[0];
-    return `TRX-${timestamp}-${randomPart}`;
-  };
-
   const getUserIdFromToken = () => {
     const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
     if (token) {
       try {
-        return jwtDecode(token).id;
+        const decodedToken = jwtDecode(token);
+        return decodedToken.id;
       } catch (error) {
         console.error("Error decoding token:", error);
         return null;
@@ -54,10 +56,13 @@ const ConfirmationForm = ({ selectedService }) => {
 
   const showAlert = (message, type) => {
     setAlert({ message, type });
+    console.log("Alert set:", { message, type }); // Debugging alert
     setTimeout(() => setAlert(null), 5000);
   };
 
-  const handleFileChange = (e) => setFile(e.target.files[0]);
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,7 +103,7 @@ const ConfirmationForm = ({ selectedService }) => {
         setFile(null);
         setNote("");
         setTransactionId("");
-        setModalOpen(false);
+        setShowModal(false);
       } else {
         showAlert("Error submitting confirmation.", "error");
       }
@@ -110,33 +115,60 @@ const ConfirmationForm = ({ selectedService }) => {
   };
 
   return (
-    <div>
-      <button onClick={() => setModalOpen(true)} className="open-modal-button">
+    <div className="confirmation-container">
+      {alert && (
+        <Alert
+          type={alert.type}
+          message={alert.message}
+          onClose={() => setAlert(null)}
+        />
+      )}
+
+      {/* Button to Open Modal */}
+      <button className="open-modal-btn" onClick={() => setShowModal(true)}>
         Open Confirmation Form
       </button>
 
-      {modalOpen && (
+      {/* Modal */}
+      {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h4>Submit Confirmation</h4>
-            {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
             <form onSubmit={handleSubmit}>
-              <label>Select Service</label>
-              <select value={selectedServiceId} onChange={(e) => setSelectedServiceId(e.target.value)}>
-                <option value="">Select a service</option>
-                {services.map((service) => (
-                  <option key={service._id} value={service._id}>{service.name}</option>
-                ))}
-              </select>
-              
-              <label>Upload Document</label>
-              <input type="file" onChange={handleFileChange} />
-              
-              <label>Note</label>
-              <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add any additional notes..." />
-              
-              <button type="submit" disabled={loading}>{loading ? "Submitting..." : "Submit Confirmation"}</button>
-              <button type="button" onClick={() => setModalOpen(false)} className="close-modal-button">Close</button>
+              <div>
+                <label>Select Service</label>
+                <select
+                  value={selectedServiceId}
+                  onChange={(e) => setSelectedServiceId(e.target.value)}
+                >
+                  <option value="">Select a service</option>
+                  {services.map((service) => (
+                    <option key={service._id} value={service._id}>
+                      {service.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label>Upload Document</label>
+                <input type="file" onChange={handleFileChange} />
+              </div>
+              <div>
+                <label>Note</label>
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Add any additional notes..."
+                />
+              </div>
+              <div>
+                <button type="submit" disabled={loading}>
+                  {loading ? "Submitting..." : "Submit Confirmation"}
+                </button>
+              </div>
+              <button className="close-modal-btn" onClick={() => setShowModal(false)}>
+                Close
+              </button>
             </form>
           </div>
         </div>
