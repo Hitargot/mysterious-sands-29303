@@ -102,9 +102,9 @@ const Overview = ({ setActiveComponent }) => {
             <div className="transaction-card-1" key={activity.id || index}>
               <div className="transaction-type">{activity.type}</div>
               <div className="transaction-amount">
-                {activity.type === 'Transaction' 
+                {activity.type === 'withdrawal' 
                   ? `₦${activity.amount ? activity.amount.toLocaleString() : '0'}` 
-                  : activity.type === 'Confirmation'
+                  : activity.type === 'Trade'
                   ? activity.serviceId?.name
                   : 'N/A'}
               </div>
