@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { ClipboardCopy, FileText, X } from "lucide-react";
+import { ClipboardCopy, FileText } from "lucide-react";
 import Button from "../components/ui/Button";
 import { Card, CardHeader, CardContent, CardFooter } from "../components/ui/Card";
 import Alert from "./Alert";
@@ -14,8 +14,10 @@ const TradeHistory = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [selectedReceipt, setSelectedReceipt] = useState(null);
-  
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+
+  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = "http://localhost:22222"; 
+
 
   useEffect(() => {
     const fetchConfirmations = async () => {
@@ -24,7 +26,7 @@ const TradeHistory = () => {
         const response = await axios.get(`${apiUrl}/api/confirmations`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        
+
         const sortedConfirmations = response.data.confirmations.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
@@ -50,8 +52,36 @@ const TradeHistory = () => {
   };
 
   const handleViewReceipt = (confirmation) => {
-    setSelectedReceipt(confirmation);
-  };
+    const receiptData = {
+        title: "Transaction Receipt",
+        fields: [
+            { label: "Service", value: confirmation.serviceId?.name || "N/A" },
+            { label: "Transaction ID", value: confirmation.transactionId || "N/A", copyable: true },
+            { label: "Date", value: new Date(confirmation.createdAt).toLocaleString() || "N/A" },
+            { label: "Status", value: confirmation.status || "N/A" },
+            { label: "Note", value: confirmation.note || "No additional notes." },  // ✅ Added Note
+            { 
+                label: "Receipt File", 
+                value: confirmation.fileUrl ? 
+                    <a href={confirmation.fileUrl} target="_blank" rel="noopener noreferrer">
+                        Download Receipt
+                    </a> : "No receipt available"  // ✅ Added File URL
+            },
+        ],
+    };
+
+    // Add rejection reason if the status is rejected
+    if (confirmation.status === "Rejected") {
+        receiptData.fields.push({
+            label: "Rejection Reason", 
+            value: confirmation.rejectionReason || "No reason provided"
+        });
+    }
+
+    setSelectedReceipt(receiptData);
+};
+
+  
 
   const handleCloseReceipt = () => {
     setSelectedReceipt(null);
@@ -62,14 +92,6 @@ const TradeHistory = () => {
       confirmation.serviceId?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       confirmation.transactionId.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const formatDate = (date) => {
-    const options = {
-      weekday: "long", year: "numeric", month: "long", day: "numeric",
-      hour: "numeric", minute: "numeric", second: "numeric", hour12: true,
-    };
-    return new Date(date).toLocaleDateString(undefined, options);
-  };
 
   if (loading) return <div className="loading-container"><div className="spinner"></div></div>;
   if (error) return <div className="error-container"><p>{error}</p></div>;
@@ -97,7 +119,7 @@ const TradeHistory = () => {
                   <h3 className="card-title">{confirmation.serviceId?.name || "Unknown Service"}</h3>
                   <span className={`status-badge ${confirmation.status === "Success" ? "success" : "error"}`}>{confirmation.status || "N/A"}</span>
                 </div>
-                <p className="date"><strong>Date:</strong> {formatDate(confirmation.createdAt) || "N/A"}</p>
+                <p className="date"><strong>Date:</strong> {new Date(confirmation.createdAt).toLocaleString() || "N/A"}</p>
               </CardHeader>
 
               <CardContent className="card-content">
@@ -125,25 +147,8 @@ const TradeHistory = () => {
         )}
       </div>
 
-      {/* Receipt Modal */}
-      {selectedReceipt && (
-        <ReceiptModal onClose={handleCloseReceipt}>
-          <div className="receipt-modal">
-            <div className="modal-header">
-              <h3>Transaction Receipt</h3>
-              <X className="close-icon" onClick={handleCloseReceipt} />
-            </div>
-            <div className="modal-content">
-              <p><strong>Service:</strong> {selectedReceipt.serviceId?.name || "N/A"}</p>
-              <p><strong>Transaction ID:</strong> {selectedReceipt.transactionId || "N/A"}</p>
-              <p><strong>Date:</strong> {formatDate(selectedReceipt.createdAt) || "N/A"}</p>
-              {selectedReceipt.fileUrl && (
-                <Button variant="default" onClick={() => window.open(selectedReceipt.fileUrl, "_blank")}>Download Receipt</Button>
-              )}
-            </div>
-          </div>
-        </ReceiptModal>
-      )}
+      {/* Receipt Modal using Reusable Component */}
+      {selectedReceipt && <ReceiptModal receiptData={selectedReceipt} onClose={handleCloseReceipt} />}
     </div>
   );
 };

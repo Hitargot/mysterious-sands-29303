@@ -29,7 +29,9 @@ const UserManagement = () => {
   const [userId, setUserId] = useState(null); // Store the currently selected user ID
   const [filteredUsers, setFilteredUsers] = useState([]); // New state for filtered users
   const [isLoading, setIsLoading] = useState(false); // Loading indicator state
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = "http://localhost:22222"; 
+
 
 
   const triggerAlert = (message, type) => {

@@ -5,7 +5,6 @@ import { FaReceipt } from "react-icons/fa";
 import Spinner from "./Spinner";
 import html2canvas from "html2canvas";
 import Alert from "./Alert";
-import jsPDF from "jspdf";
 
 const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
@@ -20,9 +19,7 @@ const TransactionHistory = () => {
   const [filterType, setFilterType] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [filteredTransactions, setFilteredTransactions] = useState([]);
-  // const apiUrl = "http://localhost:22222"; // Replace with your API URL
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-
+  const apiUrl = "http://localhost:22222"; // Replace with your API URL
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -52,7 +49,6 @@ const TransactionHistory = () => {
   useEffect(() => {
     let filtered = transactions;
 
-    // Apply filters
     if (statusFilter) {
       filtered = filtered.filter(
         (transaction) =>
@@ -111,69 +107,68 @@ const TransactionHistory = () => {
     });
   };
 
-
-
-const handleShareReceipt = async () => {
-  try {
-    const receiptElement = document.querySelector(".receipt-modal");
+  const handleShareAsImage = async () => {
+    const receiptElement = document.getElementById("receipt-content");
+    const buttonsToHide = document.querySelectorAll(".hide-on-share");
 
     if (!receiptElement) {
-      console.error("Receipt element not found.");
-      alert("Unable to find receipt element. Please try again.");
-      return;
+        console.error("Receipt element not found");
+        setAlertMessage("Receipt content not found. Please try again.");
+        return;
     }
 
-    // Ensure the receipt element is fully rendered and visible
-    receiptElement.style.display = "block"; // Make sure the element is visible
-    await new Promise((resolve) => setTimeout(resolve, 300)); // Small delay to ensure rendering
+    buttonsToHide.forEach(button => button.style.display = "none");
 
-    // Capture the receipt as an image
-    const canvas = await html2canvas(receiptElement, {
-      useCORS: true, // Handle external assets
-      scale: 2, // High-resolution capture
-      logging: true, // Enable logging to debug
-    });
+    try {
+        // Allow DOM reflow before capture
+        receiptElement.style.maxHeight = "none";
+        receiptElement.style.overflow = "visible";
+        await new Promise(resolve => setTimeout(resolve, 200)); // wait for reflow
 
-    const imgData = canvas.toDataURL("image/png");
+        // Capture image
+        const canvas = await html2canvas(receiptElement, {
+            scale: 2,
+            useCORS: true,
+            windowHeight: receiptElement.scrollHeight,
+        });
 
-    // Create a PDF document
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-    });
+        buttonsToHide.forEach(button => button.style.display = "");
+        const image = canvas.toDataURL("image/png");
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height / canvas.width) * pdfWidth;
+        downloadImage(image);
+        setAlertMessage("Receipt downloaded successfully.");
 
-    // Add the image to the PDF
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+        if (navigator.canShare) {
+            const response = await fetch(image);
+            const blob = await response.blob();
+            const file = new File([blob], "receipt.png", { type: "image/png" });
 
-    // Convert the PDF to a Blob
-    const pdfBlob = pdf.output("blob");
-
-    // Create a file from the Blob
-    const file = new File([pdfBlob], "receipt.pdf", { type: "application/pdf" });
-
-    // Check if sharing is supported
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({
-        files: [file],
-        title: "Transaction Receipt",
-        text: "Here is your transaction receipt.",
-      });
-      console.log("Receipt shared successfully!");
-    } else {
-      console.warn("Sharing is not supported on this device.");
-      alert("Sharing is not supported. The receipt will be downloaded instead.");
-      pdf.save("receipt.pdf");
+            await navigator.share({
+                files: [file],
+                title: "Transaction Receipt",
+                text: "Here is your transaction receipt."
+            });
+            setAlertMessage("Receipt shared successfully.");
+        }
+    } catch (error) {
+        console.error("Error capturing receipt:", error);
+        setAlertMessage("An error occurred while processing the receipt.");
     }
-  } catch (error) {
-    console.error("Error handling receipt:", error);
-    alert("An error occurred. Please try again.");
-  }
 };
 
+  const downloadImage = (imageData) => {
+    const link = document.createElement("a");
+    link.href = imageData;
+    link.download = "receipt.png";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Close the receipt modal
+  const onClose = () => {
+    setReceipt(null); // Close the modal by setting receipt to null
+  };
 
   return (
     <div className="transaction-history">
@@ -228,9 +223,8 @@ const handleShareReceipt = async () => {
               <div className="card-header">
                 <span className="transaction-type">{transaction.type}</span>
                 <span
-                  className={`status-badge ${
-                    transaction.status === "Completed" ? "success" : "error"
-                  }`}
+                  className={`status-badge ${transaction.status === "Completed" ? "success" : "error"
+                    }`}
                 >
                   {transaction.status}
                 </span>
@@ -267,86 +261,73 @@ const handleShareReceipt = async () => {
 
       {receipt && (
         <div className="receipt-modal">
-          <div className="receipt-header">
-            <img
-              src={require("../assets/images/Exodollarium-01.png")}
-              alt="Exdollarium Logo"
-              className="company-logo"
-            />
-            <h2>Exdollarium</h2>
-            <p>Official Transaction Receipt</p>
-          </div>
+          <div className="receipt-modal-content" id="receipt-content">
+            <div className="receipt-header">
+              <img src={require('../assets/images/Exodollarium-01.png')} alt="Exdollarium Logo" className="company-logo" />
+              <h2>Exdollarium</h2>
+              <p>Official Transaction Receipt</p>
+            </div>
 
-          <div className="receipt-content">
-            <div className="receipt-row">
-              <p className="label">Date:</p>
-              <p className="value">
-                {new Date(receipt.date).toLocaleDateString()}
-              </p>
-            </div>
-            <div className="receipt-row">
-              <p className="label">Time:</p>
-              <p className="value">
-                {new Date(receipt.date).toLocaleTimeString()}
-              </p>
-            </div>
-            <div className="receipt-row">
-              <p className="label">Transaction ID:</p>
-              <div className="value">
-                <span>{receipt.transactionId}</span>
-                <span
-                  className="clipboard-icon"
-                  onClick={() => handleCopyTransactionId(receipt.transactionId)}
-                >
-                  📋
-                </span>
-                {isCopied && copiedText === receipt.transactionId && (
-                  <span className="copied-text">Copied!</span>
-                )}
-              </div>
-            </div>
-            <div className="receipt-row">
-              <p className="label">Amount:</p>
-              <p className="value">
-                {receipt.amount} {receipt.currency || "NGN"}
-              </p>
-            </div>
-            <div className="receipt-row">
-              <p className="label">Status:</p>
-              <p className="value">{receipt.status}</p>
-            </div>
-            <div className="receipt-row">
-              <p className="label">Type:</p>
-              <p className="value">{receipt.type}</p>
-            </div>
-            {receipt.type === "withdrawal" && (
+            <div className="receipt-content">
               <div className="receipt-row">
-                <p className="label">Bank ID:</p>
-                <p className="value">{receipt.bankId || "Not Available"}</p>
+                <p className="label">Date:</p>
+                <p className="value">
+                  {new Date(receipt.date).toLocaleDateString()}
+                </p>
               </div>
-            )}
-            {receipt.currency && receipt.ngnAmount && (
               <div className="receipt-row">
-                <p className="label">Converted NGN Amount:</p>
-                <p className="value">{receipt.ngnAmount}</p>
+                <p className="label">Time:</p>
+                <p className="value">
+                  {new Date(receipt.date).toLocaleTimeString()}
+                </p>
               </div>
-            )}
-          </div>
+              <div className="receipt-row">
+                <p className="label">Transaction ID:</p>
+                <div className="value">
+                  <span>{receipt.transactionId}</span>
+                  <span
+                    className="clipboard-icon"
+                    onClick={() => handleCopyTransactionId(receipt.transactionId)}
+                  >
+                    📋
+                  </span>
+                  {isCopied && copiedText === receipt.transactionId && (
+                    <span className="copied-text">Copied!</span>
+                  )}
+                </div>
+              </div>
+              <div className="receipt-row">
+                <p className="label">Amount:</p>
+                <p className="value">
+                  {receipt.amount} {receipt.currency || "NGN"}
+                </p>
+              </div>
+              <div className="receipt-row">
+                <p className="label">Status:</p>
+                <p className="value">{receipt.status}</p>
+              </div>
+              <div className="receipt-row">
+                <p className="label">Type:</p>
+                <p className="value">{receipt.type}</p>
+              </div>
+              {receipt.type === "withdrawal" && (
+                <div className="receipt-row">
+                  <p className="label">Bank ID:</p>
+                  <p className="value">{receipt.bankId || "Not Available"}</p>
+                </div>
+              )}
+            </div>
 
-          <div className="receipt-footer">
-            <p>Thank you for choosing Exdollarium!</p>
-            <div className="receipt">
-            <button className="share-receipt" onClick={handleShareReceipt}>
-            Share or Download Receipt            </button>
-            <button
-              className="close-receipt"
-              onClick={() => setReceipt(null)}
-            >
-              Close
-            </button>
-          </div>
+            <div className="receipt-footer">
+            <p>Thank you for choosing <strong>Exdollarium</strong>. We appreciate your trust.</p>
+            <div className="footer-buttons">
+            <button className="share-btn hide-on-share" onClick={handleShareAsImage}>
+                Share as Image
+              </button>
+              <button className="close-bt hide-on-share" onClick={onClose}>Close</button>
             </div>
-            
+          </div>
+          </div>
         </div>
       )}
     </div>

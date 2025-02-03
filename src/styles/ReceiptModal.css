@@ -1,0 +1,162 @@
+/* Overlay Background */
+.receipt-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Dark overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 10px;
+  }
+  
+  /* Modal Container */
+  .receipt-modal {
+    background: #fff;
+    width: 400px;
+    max-width: 90%;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease-in-out;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Scrollable Content */
+  .receipt-modal-content {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: 75vh; /* Ensure scrollable content */
+  }
+  
+  /* Header */
+  .receipt-header {
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .company-logo {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .receipt-header h2 {
+    font-size: 22px;
+    color: #007bff;
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 10px;
+  }
+  
+  .receipt-header p {
+    font-size: 14px;
+    color: #666;
+  }
+  
+  /* Receipt Content */
+  .receipt-content {
+    margin-top: 15px;
+  }
+  
+  .receipt-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 15px;
+  }
+  
+  .receipt-row:last-child {
+    border-bottom: none;
+  }
+  
+  .receipt-row .label {
+    font-weight: 600;
+    color: #444;
+  }
+  
+  .receipt-row .value {
+    color: #222;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    word-break: break-word;
+  }
+  
+  /* Clipboard Icon */
+  .clipboard-icon {
+    cursor: pointer;
+    font-size: 14px;
+    color: #007bff;
+  }
+  
+  .clipboard-icon:hover {
+    color: #0056b3;
+  }
+  
+  /* Footer */
+  .receipt-footer {
+    text-align: center;
+    padding-top: 10px;
+    font-size: 14px;
+    color: #007bff;
+    border-top: 1px solid #ddd;
+  }
+  
+  /* Footer Buttons */
+  .footer-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .share-btn, .close-bt {
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+  }
+  
+  .share-btn {
+    background: #007bff;
+    color: #fff;
+  }
+  
+  .hide-on-share {
+  display: inline-block; /* Normal display */
+}
+
+  .share-btn:hover {
+    background: #0056b3;
+  }
+  
+  .close-bt {
+    background: #ccc;
+    color: #000;
+  }
+  
+  .close-bt:hover {
+    background: #bbb;
+  }
+  
+  /* Fade-in Animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  

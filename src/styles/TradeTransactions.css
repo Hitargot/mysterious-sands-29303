@@ -1,71 +1,169 @@
 /* TradeTransactions.css */
-.transaction-list {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 20px;
-    margin-top: 20px;
+
+/* Card Styles */
+.transaction-card {
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.transaction-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.transaction-card.approved {
+  border-color: #28a745; /* Green */
+}
+
+.transaction-card.rejected {
+  border-color: #dc3545; /* Red */
+}
+
+.transaction-card.pending {
+  border-color: #6c757d; /* Gray */
+}
+
+/* Transaction Header */
+.transaction-card h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* Transaction Text */
+.transaction-card p {
+  font-size: 0.875rem;
+  margin-bottom: 8px;
+}
+
+/* Status Colors */
+.transaction-card .approved-status {
+  color: #28a745; /* Green */
+  font-weight: bold;
+}
+
+.transaction-card .rejected-status {
+  color: #dc3545; /* Red */
+  font-weight: bold;
+}
+
+.transaction-card .pending-status {
+  color: #ffc107; /* Yellow */
+  font-weight: bold;
+}
+
+/* Approve/Reject Buttons */
+.transaction-card .action-buttons button {
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.transaction-card .action-buttons button.approve-btn {
+  background-color: #28a745; /* Green */
+  color: white;
+}
+
+.transaction-card .action-buttons button.reject-btn {
+  background-color: #dc3545; /* Red */
+  color: white;
+}
+
+.transaction-card .action-buttons button:hover {
+  opacity: 0.85;
+}
+
+/* Reject Confirmation Modal */
+.reject-modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.reject-modal .modal-content {
+  background-color: white;
+  padding: 24px;
+  border-radius: 8px;
+  width: 380px;
+  max-width: 100%;
+}
+
+.reject-modal h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.reject-modal textarea {
+  padding: 12px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  margin-bottom: 16px;
+  resize: vertical;
+}
+
+.reject-modal .modal-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.reject-modal .modal-buttons button {
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.reject-modal .modal-buttons .cancel-btn {
+  background-color: #ccc;
+  color: #333;
+}
+
+.reject-modal .modal-buttons .reject-btn {
+  background-color: #dc3545; /* Red */
+  color: white;
+}
+
+.reject-modal .modal-buttons button:hover {
+  opacity: 0.85;
+}
+
+/* Grid Container */
+.transaction-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Three cards in a row */
+  gap: 16px;
+  padding: 16px;
+}
+/* Add this to your TradeTransactions.css if not already present */
+
+/* Card Grid Layout */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
   }
-  
-  .transaction-card {
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
+}
+
+@media (min-width: 1024px) {
+  .lg\:grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
   }
-  
-  .card-header {
-    font-size: 16px;
-    font-weight: bold;
-  }
-  
-  .card-body {
-    margin-top: 10px;
-  }
-  
-  .card-body button {
-    margin-right: 10px;
-  }
-  
-  .action-buttons button {
-    margin-top: 10px;
-    margin-right: 10px;
-  }
-  
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .modal-content {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    width: 500px;
-  }
-  
-  .confirmation-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .confirmation-modal {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-  }
-  
+}

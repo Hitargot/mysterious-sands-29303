@@ -1,168 +1,269 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import Alert from "../components/Alert"; // Replace with the correct path to your alert component
-import "../styles/TradeTransactions.css";
+import Alert from "../components/Alert"; // Your alert component
+import { jwtDecode } from 'jwt-decode'; // Ensure jwt-decode is installed
+import '../styles/TradeTransactions.css';
 
 const TradeTransactions = () => {
-  const [transactions, setTransactions] = useState([]);
-  const [selectedTransaction, setSelectedTransaction] = useState(null);
-  const [alert, setAlert] = useState({ message: "", type: "", show: false });
-  const [isApproveConfirmOpen, setIsApproveConfirmOpen] = useState(false);
-  const [isRejectConfirmOpen, setIsRejectConfirmOpen] = useState(false);
-  const [transactionToApproveOrReject, setTransactionToApproveOrReject] = useState(null);
+    const [transactions, setTransactions] = useState([]);
+    const [filteredTransactions, setFilteredTransactions] = useState([]);
+    const [error, setError] = useState(null);
+    const [rejectionReasons, setRejectionReasons] = useState({});
+    const [adminUsername, setAdminUsername] = useState(""); // Admin username extracted from JWT
+    const [showRejectModal, setShowRejectModal] = useState(false); // Modal state for rejection
+    const [showApproveModal, setShowApproveModal] = useState(false); // Modal state for approval
+    const [selectedTransaction, setSelectedTransaction] = useState(null); // For selected transaction
+    const [searchTerm, setSearchTerm] = useState(""); // For search term
+    const apiUrl = "http://localhost:22222"; 
 
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+    // Fetch transactions function
+    const fetchTransactions = async () => {
+        try {
+            const token = localStorage.getItem('adminToken'); // Assuming admin token is stored here
+            const headers = { Authorization: `Bearer ${token}` };
+            
+            const response = await axios.get(`${apiUrl}/api/admin/confirmations`, { headers });
+            const sortedTransactions = response.data.confirmations.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by date (latest first)
+            setTransactions(sortedTransactions);
+            setFilteredTransactions(sortedTransactions); // Initially, show all transactions
+            
+            const decodedToken = jwtDecode(token);
+            setAdminUsername(decodedToken.username); // Assuming token contains admin's username
+        } catch (err) {
+            const errorMessage = err.response ? err.response.data.message : 'Failed to fetch trade transactions.';
+            setError(errorMessage);
+        }
+    };
 
+    useEffect(() => {
+        fetchTransactions(); // Fetch transactions on component mount
+    }, [apiUrl]);
 
-  // Trigger alert notifications
-  const triggerAlert = (message, type) => {
-    setAlert({ message, type, show: true });
-    setTimeout(() => {
-      setAlert({ message: "", type: "", show: false });
-    }, 3000);
-  };
+    // Search function to filter transactions based on the search term
+    const handleSearch = (e) => {
+        const term = e.target.value.toLowerCase();
+        setSearchTerm(term);
 
-  // Fetch all trade transactions
-  const fetchTransactions = useCallback(async () => {
-    try {
-      const { data } = await axios.get(`${apiUrl}/api/trades/transactions`);
-      setTransactions(data);
-    } catch (error) {
-      triggerAlert("Error fetching transactions", "error");
-    }
-  }, [apiUrl]); // Empty dependency array to only create the function once
+        const filtered = transactions.filter((tx) =>
+            tx.transactionId.toLowerCase().includes(term) ||
+            tx.userId?.username.toLowerCase().includes(term) ||
+            tx.serviceId?.name.toLowerCase().includes(term)
+        );
+        setFilteredTransactions(filtered);
+    };
 
-  useEffect(() => {
-    fetchTransactions();
-  }, [fetchTransactions, apiUrl]);
+    // ✅ Approve Confirmation
+    const handleApprove = async (id) => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const headers = { Authorization: `Bearer ${token}` };
+            const response = await axios.patch(`${apiUrl}/api/admin/confirmations/${id}/approve`, {}, { headers });
 
-  // View transaction details
-  const handleViewDetails = (transaction) => {
-    setSelectedTransaction(transaction);
-  };
+            setTransactions((prevTransactions) =>
+                prevTransactions.map((transaction) =>
+                    transaction._id === response.data.confirmation._id
+                        ? { ...transaction, status: 'Approved', approvedAt: response.data.confirmation.approvedAt }
+                        : transaction
+                )
+            );
+            setShowApproveModal(false); // Close the modal after approval
+        } catch (error) {
+            setError("Failed to approve transaction.");
+        }
+    };
 
-  // Handle approve transaction
-  const handleApprove = (transaction) => {
-    setTransactionToApproveOrReject(transaction);
-    setIsApproveConfirmOpen(true);
-  };
+    const handleReject = async (id, rejectionReason) => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const headers = { Authorization: `Bearer ${token}` };
+            const response = await axios.patch(`${apiUrl}/api/admin/confirmations/${id}/reject`, { rejectionReason }, { headers });
 
-  // Handle reject transaction
-  const handleReject = (transaction) => {
-    setTransactionToApproveOrReject(transaction);
-    setIsRejectConfirmOpen(true);
-  };
+            setTransactions((prevTransactions) =>
+                prevTransactions.map((transaction) =>
+                    transaction._id === response.data.confirmation._id
+                        ? { ...transaction, status: 'Rejected', rejectionReason: response.data.confirmation.rejectionReason }
+                        : transaction
+                )
+            );
+            setShowRejectModal(false); // Close the modal after rejection
+        } catch (error) {
+            setError("Failed to reject transaction.");
+        }
+    };
 
-  // Approve transaction
-  const confirmApprove = async () => {
-    try {
-      await axios.put(`${apiUrl}/api/trades/transactions/approve/${transactionToApproveOrReject._id}`);
-      triggerAlert("Transaction approved successfully", "success");
-      fetchTransactions();
-      setIsApproveConfirmOpen(false);
-    } catch (error) {
-      triggerAlert("Error approving transaction", "error");
-    }
-  };
+    const handleRejectModal = (transaction) => {
+        setSelectedTransaction(transaction);
+        setShowRejectModal(true);
+    };
 
-  // Reject transaction
-  const confirmReject = async () => {
-    try {
-      await axios.put(`${apiUrl}/api/trades/transactions/reject/${transactionToApproveOrReject._id}`);
-      triggerAlert("Transaction rejected successfully", "success");
-      fetchTransactions();
-      setIsRejectConfirmOpen(false);
-    } catch (error) {
-      triggerAlert("Error rejecting transaction", "error");
-    }
-  };
+    const handleApproveModal = (transaction) => {
+        setSelectedTransaction(transaction);
+        setShowApproveModal(true); // Open approve modal
+    };
 
-  // Cancel approve/reject modal
-  const cancelApproveReject = () => {
-    setIsApproveConfirmOpen(false);
-    setIsRejectConfirmOpen(false);
-  };
+    const handleRejectConfirmation = (confirmation) => {
+        if (confirmation) {
+            const rejectionReason = rejectionReasons[selectedTransaction._id];
+            handleReject(selectedTransaction._id, rejectionReason);
+        }
+        setShowRejectModal(false);
+    };
 
-  // No transactions found
-  const noTransactions = transactions.length === 0;
+    const handleApproveConfirmation = (confirmation) => {
+        if (confirmation) {
+            handleApprove(selectedTransaction._id);
+        }
+        setShowApproveModal(false);
+    };
 
-  return (
-    <div>
-      <h2>Trade Transactions</h2>
-      {alert.show && <Alert type={alert.type} message={alert.message} />}
+    return (
+        <div className="p-4">
+            <h2 className="text-xl font-semibold mb-4">Trade Transactions</h2>
 
-      {/* Transaction List */}
-      {noTransactions ? (
-        <p>No transactions found</p>
-      ) : (
-        <div className="transaction-list">
-          {transactions.map((transaction) => (
-            <div key={transaction._id} className="transaction-card">
-              <div className="card-header">
-                <h4>{transaction.user.username}</h4>
-                <p>Status: {transaction.status}</p>
-                <p>Amount: {transaction.amount} NGN</p>
-              </div>
-              <div className="card-body">
-                <button onClick={() => handleViewDetails(transaction)}>View Details</button>
-                {transaction.status === "manual" && (
-                  <div className="action-buttons">
-                    <button onClick={() => handleApprove(transaction)}>Approve</button>
-                    <button onClick={() => handleReject(transaction)}>Reject</button>
-                  </div>
-                )}
-              </div>
+            {/* Show Alert if there's an error */}
+            {error && <Alert type="error" message={error} />}
+
+            {/* Search Bar */}
+            <div className="mb-4">
+                <input
+                    type="text"
+                    className="search-bar p-2 border rounded w-full"
+                    placeholder="Search transactions by ID, User, or Service"
+                    value={searchTerm}
+                    onChange={handleSearch}
+                />
             </div>
-          ))}
-        </div>
-      )}
 
-      {/* Transaction Details Modal */}
-      {selectedTransaction && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Transaction Details</h3>
-            <p>Username: {selectedTransaction.user.username}</p>
-            <p>Email: {selectedTransaction.user.email}</p>
-            <p>Amount: {selectedTransaction.amount}</p>
-            <p>Status: {selectedTransaction.status}</p>
-            <p>Created At: {new Date(selectedTransaction.createdAt).toLocaleString()}</p>
-            <button onClick={() => setSelectedTransaction(null)}>Close</button>
-          </div>
-        </div>
-      )}
+            {/* Transaction Cards - Grid Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredTransactions.map((tx) => (
+                    <div
+                        key={tx._id}
+                        className={`transaction-card p-4 rounded-lg shadow-md border ${tx.status === "Approved" ? "border-green-500" : tx.status === "Rejected" ? "border-red-500" : "border-gray-300"}`}
+                    >
+                        <h3 className="text-lg font-bold">
+                            Transaction ID: {tx.transactionId}
+                        </h3>
+                        <p><strong>User:</strong> {tx.userId?.username || "N/A"}</p>
+                        <p><strong>Service:</strong> {tx.serviceId?.name || "N/A"}</p>
+                        <p>
+                            <strong>Status:</strong>{" "}
+                            <span className={`status-text font-semibold ${tx.status === "Approved" ? "text-green-600" : tx.status === "Rejected" ? "text-red-600" : "text-yellow-500"}`}>
+                                {tx.status}
+                            </span>
+                        </p>
+                        <p><strong>Approved/Rejected By:</strong> {tx.adminUsername || "N/A"}</p>
 
-      {/* Confirmation Modal for Approve */}
-      {isApproveConfirmOpen && (
-        <div className="confirmation-modal-overlay">
-          <div className="confirmation-modal">
-            <p>Are you sure you want to approve this transaction?</p>
-            <button className="confirm" onClick={confirmApprove}>
-              Yes
-            </button>
-            <button className="cancel" onClick={cancelApproveReject}>
-              No
-            </button>
-          </div>
-        </div>
-      )}
+                        {/* Show timestamps */}
+                        {tx.status === "Approved" && (
+                            <p><strong>Approved At:</strong> {new Date(tx.approvedAt).toLocaleString()}</p>
+                        )}
+                        {tx.status === "Rejected" && (
+                            <>
+                                <p><strong>Rejected At:</strong> {new Date(tx.rejectedAt).toLocaleString()}</p>
+                                <p><strong>Reason:</strong> {tx.rejectionReason}</p>
+                            </>
+                        )}
 
-      {/* Confirmation Modal for Reject */}
-      {isRejectConfirmOpen && (
-        <div className="confirmation-modal-overlay">
-          <div className="confirmation-modal">
-            <p>Are you sure you want to reject this transaction?</p>
-            <button className="confirm" onClick={confirmReject}>
-              Yes
-            </button>
-            <button className="cancel" onClick={cancelApproveReject}>
-              No
-            </button>
-          </div>
-        </div>
-      )}
+                        {/* New Fields for Note and File URL */}
+                        {tx.note && (
+                            <p><strong>Note:</strong> {tx.note}</p>
+                        )}
+                        {tx.fileUrl && (
+    <div className="file-url-section mt-3">
+        <p><strong>File URL:</strong> 
+            <a
+                href={tx.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="file-url-button px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition duration-300"
+            >
+                View File
+            </a>
+        </p>
     </div>
-  );
+)}
+
+
+                        {/* Approve & Reject Buttons (Only if still pending) */}
+                        {tx.status === "Pending" && (
+                            <div className="mt-3">
+                                <button
+                                    className="approve-btn px-3 py-1 bg-green-500 text-white rounded-md mr-2"
+                                    onClick={() => handleApproveModal(tx)} // Open approve modal
+                                >
+                                    Approve
+                                </button>
+
+                                <button
+                                    className="reject-btn px-3 py-1 bg-red-500 text-white rounded-md"
+                                    onClick={() => handleRejectModal(tx)} // Open reject modal
+                                >
+                                    Reject
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            {/* Reject Confirmation Modal */}
+            {showRejectModal && (
+                <div className="modal-overlay fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
+                    <div className="modal-content bg-white p-6 rounded-lg w-96">
+                        <h3 className="text-lg font-semibold mb-4">Are you sure you want to reject this transaction?</h3>
+                        <div className="mb-4">
+                            <textarea
+                                placeholder="Enter rejection reason"
+                                className="rejection-textarea p-2 border rounded w-full"
+                                value={rejectionReasons[selectedTransaction._id] || ""}
+                                onChange={(e) =>
+                                    setRejectionReasons({ ...rejectionReasons, [selectedTransaction._id]: e.target.value })
+                                }
+                            />
+                        </div>
+                        <div className="flex justify-between">
+                            <button
+                                className="cancel-btn px-4 py-2 bg-gray-300 rounded"
+                                onClick={() => handleRejectConfirmation(false)}
+                            >
+                                No
+                            </button>
+                            <button
+                                className="confirm-btn px-4 py-2 bg-red-500 text-white rounded"
+                                onClick={() => handleRejectConfirmation(true)}
+                            >
+                                Yes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Approve Confirmation Modal */}
+            {showApproveModal && (
+                <div className="modal-overlay fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
+                    <div className="modal-content bg-white p-6 rounded-lg w-96">
+                        <h3 className="text-lg font-semibold mb-4">Are you sure you want to approve this transaction?</h3>
+                        <div className="flex justify-between">
+                            <button
+                                className="cancel-btn px-4 py-2 bg-gray-300 rounded"
+                                onClick={() => handleApproveConfirmation(false)}
+                            >
+                                No
+                            </button>
+                            <button
+                                className="confirm-btn px-4 py-2 bg-green-500 text-white rounded"
+                                onClick={() => handleApproveConfirmation(true)}
+                            >
+                                Yes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 };
 
 export default TradeTransactions;
