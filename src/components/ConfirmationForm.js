@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import Alert from "./Alert";
+import Alert from "./Alert"; // Import your custom alert component
 import { v4 as uuidv4 } from "uuid";
 
 const ConfirmationForm = ({ selectedService }) => {
@@ -12,7 +12,7 @@ const ConfirmationForm = ({ selectedService }) => {
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(false);
   const [transactionId, setTransactionId] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [apiUrl] = useState("https://mysterious-sands-29303-c1f04c424030.herokuapp.com");
 
   useEffect(() => {
@@ -36,7 +36,7 @@ const ConfirmationForm = ({ selectedService }) => {
   const generateTransactionId = () => {
     const timestamp = new Date().getTime();
     const randomPart = uuidv4().split("-")[0];
-    return `TRX-${timestamp}-${randomPart}-💸`;
+    return `TRX-${timestamp}-${randomPart}`;
   };
 
   const getUserIdFromToken = () => {
@@ -57,20 +57,20 @@ const ConfirmationForm = ({ selectedService }) => {
     setTimeout(() => setAlert(null), 5000);
   };
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
+  const handleFileChange = (e) => setFile(e.target.files[0]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!selectedServiceId || !file || !note || !transactionId) {
       showAlert("Please fill out all fields.", "error");
       return;
     }
-    setLoading(true);
 
+    setLoading(true);
     const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
     const userId = getUserIdFromToken();
+
     if (!userId) {
       showAlert("User not authenticated.", "error");
       setLoading(false);
@@ -86,15 +86,19 @@ const ConfirmationForm = ({ selectedService }) => {
 
     try {
       const response = await axios.post(`${apiUrl}/api/confirmations`, formData, {
-        headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       if (response.data.success) {
         showAlert("Confirmation submitted successfully!", "success");
         setSelectedServiceId("");
         setFile(null);
         setNote("");
         setTransactionId("");
-        setIsModalOpen(false);
+        setModalOpen(false);
       } else {
         showAlert("Error submitting confirmation.", "error");
       }
@@ -107,34 +111,32 @@ const ConfirmationForm = ({ selectedService }) => {
 
   return (
     <div>
-      <button onClick={() => setIsModalOpen(true)}>Submit Confirmation</button>
-      {isModalOpen && (
+      <button onClick={() => setModalOpen(true)} className="open-modal-button">
+        Open Confirmation Form
+      </button>
+
+      {modalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h4>Submit Confirmation</h4>
             {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
             <form onSubmit={handleSubmit}>
-              <div>
-                <label>Select Service</label>
-                <select value={selectedServiceId} onChange={(e) => setSelectedServiceId(e.target.value)}>
-                  <option value="">Select a service</option>
-                  {services.map((service) => (
-                    <option key={service._id} value={service._id}>{service.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label>Upload Document</label>
-                <input type="file" onChange={handleFileChange} />
-              </div>
-              <div>
-                <label>Note</label>
-                <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add any additional notes..." />
-              </div>
-              <div>
-                <button type="submit" disabled={loading}>{loading ? "Submitting..." : "Submit"}</button>
-                <button type="button" onClick={() => setIsModalOpen(false)}>Cancel</button>
-              </div>
+              <label>Select Service</label>
+              <select value={selectedServiceId} onChange={(e) => setSelectedServiceId(e.target.value)}>
+                <option value="">Select a service</option>
+                {services.map((service) => (
+                  <option key={service._id} value={service._id}>{service.name}</option>
+                ))}
+              </select>
+              
+              <label>Upload Document</label>
+              <input type="file" onChange={handleFileChange} />
+              
+              <label>Note</label>
+              <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add any additional notes..." />
+              
+              <button type="submit" disabled={loading}>{loading ? "Submitting..." : "Submit Confirmation"}</button>
+              <button type="button" onClick={() => setModalOpen(false)} className="close-modal-button">Close</button>
             </form>
           </div>
         </div>
