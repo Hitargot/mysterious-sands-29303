@@ -33,12 +33,12 @@ const ReceiptModal = ({ receiptData, onClose }) => {
     buttonsToHide.forEach(button => button.style.display = "none");
   
     try {
-      // Expand receipt for full capture and make it responsive
+      // Expand receipt for full capture
       receiptElement.style.maxHeight = "none";
       receiptElement.style.overflow = "visible";
-      receiptElement.style.width = "100%";  // Use full width on mobile
+      receiptElement.style.width = "375px";  // Standard mobile width
       receiptElement.style.maxWidth = "100%";
-      receiptElement.style.padding = "10px";  // Mobile padding
+      receiptElement.style.padding = "16px";
   
       // Allow DOM reflow before capture
       await new Promise(resolve => setTimeout(resolve, 200));
@@ -88,7 +88,6 @@ const ReceiptModal = ({ receiptData, onClose }) => {
       receiptElement.style.padding = "";
     }
   };
-  
   
   // Function to download image automatically
   const downloadImage = (imageData) => {
