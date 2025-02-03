@@ -41,7 +41,7 @@ const TradeTransactions = () => {
 
     useEffect(() => {
         fetchTransactions(); // Fetch transactions on component mount
-    }, [apiUrl]);
+    }, [apiUrl, fetchTransactions]);
 
     // Search function to filter transactions based on the search term
     const handleSearch = (e) => {
