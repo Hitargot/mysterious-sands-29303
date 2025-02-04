@@ -70,42 +70,63 @@ const TradeTransactions = () => {
 
     // ✅ Approve Confirmation
     const handleApprove = async (id) => {
-        try {
-            const token = localStorage.getItem('adminToken');
-            const headers = { Authorization: `Bearer ${token}` };
-            const response = await axios.patch(`${apiUrl}/api/admin/confirmations/${id}/approve`, {}, { headers });
-
-            setTransactions((prevTransactions) =>
-                prevTransactions.map((transaction) =>
-                    transaction._id === response.data.confirmation._id
-                        ? { ...transaction, status: 'Approved', approvedAt: response.data.confirmation.approvedAt }
-                        : transaction
-                )
-            );
-            setShowApproveModal(false); // Close the modal after approval
-        } catch (error) {
-            setError("Failed to approve transaction.");
-        }
-    };
-
-    const handleReject = async (id, rejectionReason) => {
-        try {
-            const token = localStorage.getItem('adminToken');
-            const headers = { Authorization: `Bearer ${token}` };
-            const response = await axios.patch(`${apiUrl}/api/admin/confirmations/${id}/reject`, { rejectionReason }, { headers });
-
-            setTransactions((prevTransactions) =>
-                prevTransactions.map((transaction) =>
-                    transaction._id === response.data.confirmation._id
-                        ? { ...transaction, status: 'Rejected', rejectionReason: response.data.confirmation.rejectionReason }
-                        : transaction
-                )
-            );
-            setShowRejectModal(false); // Close the modal after rejection
-        } catch (error) {
-            setError("Failed to reject transaction.");
-        }
-    };
+      try {
+          const token = localStorage.getItem('adminToken');
+          const headers = { Authorization: `Bearer ${token}` };
+          const response = await axios.patch(`${apiUrl}/api/admin/confirmations/${id}/approve`, {}, { headers });
+  
+          setTransactions((prevTransactions) =>
+              prevTransactions.map((transaction) =>
+                  transaction._id === response.data.confirmation._id
+                      ? { ...transaction, status: 'Approved', approvedAt: response.data.confirmation.approvedAt }
+                      : transaction
+              )
+          );
+  
+          // Also update the filtered list to reflect changes
+          setFilteredTransactions((prevFiltered) =>
+              prevFiltered.map((transaction) =>
+                  transaction._id === response.data.confirmation._id
+                      ? { ...transaction, status: 'Approved', approvedAt: response.data.confirmation.approvedAt }
+                      : transaction
+              )
+          );
+  
+          setShowApproveModal(false); // Close the modal after approval
+      } catch (error) {
+          setError("Failed to approve transaction.");
+      }
+  };
+  
+  const handleReject = async (id, rejectionReason) => {
+      try {
+          const token = localStorage.getItem('adminToken');
+          const headers = { Authorization: `Bearer ${token}` };
+          const response = await axios.patch(`${apiUrl}/api/admin/confirmations/${id}/reject`, { rejectionReason }, { headers });
+  
+          setTransactions((prevTransactions) =>
+              prevTransactions.map((transaction) =>
+                  transaction._id === response.data.confirmation._id
+                      ? { ...transaction, status: 'Rejected', rejectionReason: response.data.confirmation.rejectionReason }
+                      : transaction
+              )
+          );
+  
+          // Also update the filtered list to reflect changes
+          setFilteredTransactions((prevFiltered) =>
+              prevFiltered.map((transaction) =>
+                  transaction._id === response.data.confirmation._id
+                      ? { ...transaction, status: 'Rejected', rejectionReason: response.data.confirmation.rejectionReason }
+                      : transaction
+              )
+          );
+  
+          setShowRejectModal(false); // Close the modal after rejection
+      } catch (error) {
+          setError("Failed to reject transaction.");
+      }
+  };
+  
 
     const handleRejectModal = (transaction) => {
         setSelectedTransaction(transaction);

@@ -67,70 +67,55 @@ const WithdrawalRequests = () => {
 
   // Handle modal actions (Approve/Reject/Complete)
   const handleAction = () => {
-    const adminUsername = 'adminUsername';// Fetch admin username from JWT
-    if (!adminUsername) {
-      showAlert('Admin username is required', 'error');
-      return;
-    }
-  
-    const actionTime = new Date().toISOString(); // Capture the current timestamp
-  
+    const adminUsername = 'adminUsername'; // Replace with actual admin's username from JWT
+
     const url =
       modalAction === 'approve'
         ? `${apiUrl}/api/admin/withdrawal-request/approve/${transactionIdToConfirm}`
         : modalAction === 'reject'
         ? `${apiUrl}/api/admin/withdrawal-request/reject/${transactionIdToConfirm}`
         : `${apiUrl}/api/admin/withdrawal-request/complete/${transactionIdToConfirm}`;
-  
+
     axios
-      .patch(url, { adminActionBy: adminUsername, actionTime }, { headers: { Authorization: `Bearer ${token}` } })
-      .then(() => {
+      .patch(url, { adminActionBy: adminUsername }, { headers: { Authorization: `Bearer ${token}` } })
+      .then((response) => {
         const successMessage =
           modalAction === 'approve'
             ? 'Withdrawal request approved'
             : modalAction === 'reject'
             ? 'Withdrawal request rejected'
             : 'Withdrawal request completed';
-  
+
         showAlert(successMessage, 'success');
-  
-        // Update the local state with the new status, admin name, and timestamp
+
+        const updatedTransaction = response.data.updatedTransaction; // Ensure backend returns updated transaction data
+
         setWithdrawals((prev) =>
           prev.map((transaction) =>
             transaction.transactionId === transactionIdToConfirm
               ? {
                   ...transaction,
-                  status:
-                    modalAction === 'approve'
-                      ? 'approved'
-                      : modalAction === 'reject'
-                      ? 'rejected'
-                      : 'completed',
-                  adminActionBy: adminUsername,
-                  actionTime,
+                  status: updatedTransaction.status,
+                  adminActionBy: updatedTransaction.adminActionBy,
+                  actionTakenAt: updatedTransaction.actionTakenAt, // Ensure backend sends this timestamp
                 }
               : transaction
           )
         );
-  
+
         setFilteredWithdrawals((prev) =>
           prev.map((transaction) =>
             transaction.transactionId === transactionIdToConfirm
               ? {
                   ...transaction,
-                  status:
-                    modalAction === 'approve'
-                      ? 'approved'
-                      : modalAction === 'reject'
-                      ? 'rejected'
-                      : 'completed',
-                  adminActionBy: adminUsername,
-                  actionTime,
+                  status: updatedTransaction.status,
+                  adminActionBy: updatedTransaction.adminActionBy,
+                  actionTakenAt: updatedTransaction.actionTakenAt, 
                 }
               : transaction
           )
         );
-  
+
         closeModal();
       })
       .catch((error) => {
@@ -139,7 +124,6 @@ const WithdrawalRequests = () => {
         closeModal();
       });
   };
-  
 
   // Open modal for approve/reject or complete
   const openModal = (transactionId, action) => {
