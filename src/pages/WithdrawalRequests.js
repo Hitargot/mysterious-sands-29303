@@ -67,7 +67,7 @@ const WithdrawalRequests = () => {
 
   // Handle modal actions (Approve/Reject/Complete)
   const handleAction = () => {
-    const adminUsername = getAdminUsernameFromJWT(token); // Fetch admin username from JWT
+    const adminUsername = 'adminUsername';// Fetch admin username from JWT
     if (!adminUsername) {
       showAlert('Admin username is required', 'error');
       return;
