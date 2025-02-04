@@ -7,7 +7,6 @@ import '../styles/TradeTransactions.css';
 const TradeTransactions = () => {
     const [transactions, setTransactions] = useState([]);
     const [filteredTransactions, setFilteredTransactions] = useState([]);
-    const [error, setError] = useState(null);
     const [alertMessage, setAlertMessage] = useState("");
     const [alertType, setAlertType] = useState(""); // 'success' or 'error'
     const [rejectionReasons, setRejectionReasons] = useState({});
@@ -22,7 +21,6 @@ const TradeTransactions = () => {
         try {
             const token = localStorage.getItem('adminToken');
             if (!token) {
-                setError("Unauthorized: Admin token missing.");
                 setAlertMessage("Unauthorized: Admin token missing.");
                 setAlertType("error");
                 return;
@@ -40,7 +38,6 @@ const TradeTransactions = () => {
             console.log(decodedToken.username);  // Logging decoded username
         } catch (err) {
             const errorMessage = err.response?.data?.message || 'Failed to fetch trade transactions.';
-            setError(errorMessage);
             setAlertMessage(errorMessage);
             setAlertType("error");
         }
