@@ -74,7 +74,7 @@ const WithdrawalRequests = () => {
       modalAction === 'approve'
         ? `${apiUrl}/api/admin/withdrawal-request/approve/${transactionIdToConfirm}`
         : modalAction === 'reject'
-        ? `${apiUrl}/admin/withdrawal-request/reject/${transactionIdToConfirm}`
+        ? `${apiUrl}/api/admin/withdrawal-request/reject/${transactionIdToConfirm}`
         : `${apiUrl}/api/admin/withdrawal-request/complete/${transactionIdToConfirm}`;
 
     // Send the admin username along with the action request
