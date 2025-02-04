@@ -65,63 +65,51 @@ const WithdrawalRequests = () => {
     setAlerts((prevAlerts) => prevAlerts.filter((_, i) => i !== index));
   };
 
-  // Handle modal actions (Approve/Reject/Complete)
   const handleAction = () => {
-    // Get the admin username (this can be fetched dynamically if necessary)
-    const adminUsername = 'adminUsername'; // Replace this with the actual admin's username, which can be fetched from JWT
-
-    const url =
-      modalAction === 'approve'
-        ? `${apiUrl}/api/admin/withdrawal-request/approve/${transactionIdToConfirm}`
-        : modalAction === 'reject'
-        ? `${apiUrl}/api/admin/withdrawal-request/reject/${transactionIdToConfirm}`
-        : `${apiUrl}/api/admin/withdrawal-request/complete/${transactionIdToConfirm}`;
-
-    // Send the admin username along with the action request
+    // Extract admin username from JWT or state
+    const adminUsername = getAdminUsernameFromJWT(token); // Implement this function
+  
+    if (!adminUsername) {
+      showAlert('Admin username is required', 'error');
+      return;
+    }
+  
+    // Define action URLs
+    const actionUrls = {
+      approve: `${apiUrl}/api/admin/withdrawal-request/approve/${transactionIdToConfirm}`,
+      reject: `${apiUrl}/api/admin/withdrawal-request/reject/${transactionIdToConfirm}`,
+      complete: `${apiUrl}/api/admin/withdrawal-request/complete/${transactionIdToConfirm}`,
+    };
+  
+    const url = actionUrls[modalAction];
+  
+    if (!url) {
+      showAlert('Invalid action', 'error');
+      return;
+    }
+  
     axios
-      .patch(url, { adminActionBy: adminUsername },  { headers: { Authorization: `Bearer ${token}` } })
+      .patch(url, { adminActionBy: adminUsername }, { headers: { Authorization: `Bearer ${token}` } })
       .then(() => {
-        const successMessage =
-          modalAction === 'approve'
-            ? 'Withdrawal request approved'
-            : modalAction === 'reject'
-            ? 'Withdrawal request rejected'
-            : 'Withdrawal request completed';
-
-        showAlert(successMessage, 'success');
-
-        setWithdrawals((prev) =>
-          prev.map((transaction) =>
+        const successMessages = {
+          approve: 'Withdrawal request approved',
+          reject: 'Withdrawal request rejected',
+          complete: 'Withdrawal request completed',
+        };
+  
+        showAlert(successMessages[modalAction], 'success');
+  
+        // Update transaction status in state
+        const updateTransactionStatus = (transactions) =>
+          transactions.map((transaction) =>
             transaction.transactionId === transactionIdToConfirm
-              ? {
-                  ...transaction,
-                  status:
-                    modalAction === 'approve'
-                      ? 'approved'
-                      : modalAction === 'reject'
-                      ? 'rejected'
-                      : 'completed',
-                }
+              ? { ...transaction, status: modalAction }
               : transaction
-          )
-        );
-
-        setFilteredWithdrawals((prev) =>
-          prev.map((transaction) =>
-            transaction.transactionId === transactionIdToConfirm
-              ? {
-                  ...transaction,
-                  status:
-                    modalAction === 'approve'
-                      ? 'approved'
-                      : modalAction === 'reject'
-                      ? 'rejected'
-                      : 'completed',
-                }
-              : transaction
-          )
-        );
-
+          );
+  
+        setWithdrawals(updateTransactionStatus);
+        setFilteredWithdrawals(updateTransactionStatus);
+  
         closeModal();
       })
       .catch((error) => {
@@ -130,6 +118,7 @@ const WithdrawalRequests = () => {
         closeModal();
       });
   };
+  
 
   // Open modal for approve/reject or complete
   const openModal = (transactionId, action) => {
