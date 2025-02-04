@@ -67,7 +67,8 @@ const WithdrawalRequests = () => {
 
   // Handle modal actions (Approve/Reject/Complete)
   const handleAction = () => {
-    const adminUsername = 'adminUsername'; // Replace with actual admin's username from JWT
+    const adminUsername = 'adminUsername'; // Replace this with actual admin's username from JWT
+    const actionTime = new Date().toISOString(); // Capture current timestamp
 
     const url =
       modalAction === 'approve'
@@ -78,7 +79,7 @@ const WithdrawalRequests = () => {
 
     axios
       .patch(url, { adminActionBy: adminUsername }, { headers: { Authorization: `Bearer ${token}` } })
-      .then((response) => {
+      .then(() => {
         const successMessage =
           modalAction === 'approve'
             ? 'Withdrawal request approved'
@@ -88,16 +89,20 @@ const WithdrawalRequests = () => {
 
         showAlert(successMessage, 'success');
 
-        const updatedTransaction = response.data.updatedTransaction; // Ensure backend returns updated transaction data
-
+        // ✅ Instantly update UI without waiting for reload
         setWithdrawals((prev) =>
           prev.map((transaction) =>
             transaction.transactionId === transactionIdToConfirm
               ? {
                   ...transaction,
-                  status: updatedTransaction.status,
-                  adminActionBy: updatedTransaction.adminActionBy,
-                  actionTakenAt: updatedTransaction.actionTakenAt, // Ensure backend sends this timestamp
+                  status:
+                    modalAction === 'approve'
+                      ? 'approved'
+                      : modalAction === 'reject'
+                      ? 'rejected'
+                      : 'completed',
+                  adminActionBy: adminUsername, // Update admin name instantly
+                  actionTakenAt: actionTime, // Update action time instantly
                 }
               : transaction
           )
@@ -108,9 +113,14 @@ const WithdrawalRequests = () => {
             transaction.transactionId === transactionIdToConfirm
               ? {
                   ...transaction,
-                  status: updatedTransaction.status,
-                  adminActionBy: updatedTransaction.adminActionBy,
-                  actionTakenAt: updatedTransaction.actionTakenAt, 
+                  status:
+                    modalAction === 'approve'
+                      ? 'approved'
+                      : modalAction === 'reject'
+                      ? 'rejected'
+                      : 'completed',
+                  adminActionBy: adminUsername, // Update admin name instantly
+                  actionTakenAt: actionTime, // Update action time instantly
                 }
               : transaction
           )
