@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Alert from "../components/Alert"; // Your alert component
 import { jwtDecode } from 'jwt-decode'; // Ensure jwt-decode is installed
-import '../styles/TradeTransactions.css';
 
 const TradeTransactions = () => {
     const [transactions, setTransactions] = useState([]);
@@ -10,11 +9,11 @@ const TradeTransactions = () => {
     const [error, setError] = useState(null);
     const [rejectionReasons, setRejectionReasons] = useState({});
     const [adminUsername, setAdminUsername] = useState(""); // Admin username extracted from JWT
+    const [alertMessage, setAlertMessage] = useState(""); // For showing alerts
     const [showRejectModal, setShowRejectModal] = useState(false); // Modal state for rejection
     const [showApproveModal, setShowApproveModal] = useState(false); // Modal state for approval
     const [selectedTransaction, setSelectedTransaction] = useState(null); // For selected transaction
     const [searchTerm, setSearchTerm] = useState(""); // For search term
-    const [alertMessage, setAlertMessage] = useState(""); // For showing alerts
 
     const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
 
@@ -40,7 +39,7 @@ const TradeTransactions = () => {
             const decodedToken = jwtDecode(token);
             setAdminUsername(decodedToken.username);
             console.log(decodedToken.username); // Corrected logging
-          console.log(adminUsername); // Just to use the variable
+            console.log(adminUsername); // Just to use the variable
         } catch (err) {
             const errorMessage = err.response?.data?.message || 'Failed to fetch trade transactions.';
             setError(errorMessage);
@@ -205,25 +204,6 @@ const TradeTransactions = () => {
                                 <p><strong>Rejected At:</strong> {new Date(tx.rejectedAt).toLocaleString()}</p>
                                 <p><strong>Reason:</strong> {tx.rejectionReason}</p>
                             </>
-                        )}
-
-                        {/* New Fields for Note and File URL */}
-                        {tx.note && (
-                            <p><strong>Note:</strong> {tx.note}</p>
-                        )}
-                        {tx.fileUrl && (
-                            <div className="file-url-section mt-3">
-                                <p><strong>File URL:</strong> 
-                                    <a
-                                        href={tx.fileUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="file-url-button px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition duration-300"
-                                    >
-                                        View File
-                                    </a>
-                                </p>
-                            </div>
                         )}
 
                         {/* Approve & Reject Buttons (Only if still pending) */}
