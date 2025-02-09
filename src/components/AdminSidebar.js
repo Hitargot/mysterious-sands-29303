@@ -58,6 +58,10 @@ const AdminSidebar = () => {
           <FaUserShield className="sidebar-icon" />
           {isExpanded && <span>Roles</span>}
         </Link>
+        <Link to="/admin/banks-list">
+          <FaAddressBook className="sidebar-icon" />  {/* Updated to FaAddressBook */}
+          {isExpanded && <span>Bank Accounts list</span>}
+        </Link>
         <Link to="/admin/audit-logs">
           <FaClipboardList className="sidebar-icon" />
           {isExpanded && <span>Audit Logs</span>}

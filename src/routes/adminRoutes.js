@@ -9,6 +9,8 @@ import RoleManagement from '../pages/RoleManagement';
 import NotificationsManagement from '../pages/NotificationsManagement';
 import AuditLogs from '../pages/AuditLogs';
 import ManageContacts from '../pages/ManageContacts';
+import  BankAccountList from '../pages/BankAccountList';
+
 
 const adminRoutes = [
   { path: '/admin', component: AdminHome},
@@ -21,6 +23,8 @@ const adminRoutes = [
   { path: '/admin/notifications', component: NotificationsManagement, permissions: ['view_notifications'] },
   { path: '/admin/audit-logs', component: AuditLogs, permissions: ['view_audit_logs'] },
   { path: '/admin/manage-contacts', component: ManageContacts, permissions: ['manage_contacts'] },
+  { path: '/admin/Banks-list', component: BankAccountList, permissions: ['manage_contacts'] },
+
 ];
 
 export default adminRoutes;

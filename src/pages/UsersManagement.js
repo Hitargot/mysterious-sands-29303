@@ -29,8 +29,8 @@ const UserManagement = () => {
   const [userId, setUserId] = useState(null); // Store the currently selected user ID
   const [filteredUsers, setFilteredUsers] = useState([]); // New state for filtered users
   const [isLoading, setIsLoading] = useState(false); // Loading indicator state
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222"; 
+  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = "http://localhost:22222"; 
 
 
 
@@ -169,24 +169,6 @@ const UserManagement = () => {
       triggerAlert("Error blocking/unblocking user", "error");
     }
   };
-
-  // const addNotification = async (userId) => {
-  //   try {
-  //     const response = await axios.post(`http://localhost:22222/api/users/users/${userId}/notifications`, {
-  //       message: newNotification,
-  //       status: 'info',
-  //       type: 'system',
-  //     });
-  //     setNotifications((prev) => ({
-  //       ...prev,
-  //       [userId]: [...(prev[userId] || []), response.data],
-  //     }));
-  //     setNewNotification("");
-  //     triggerAlert("Notification added successfully", "success");
-  //   } catch (error) {
-  //     triggerAlert("Error adding notification", "error");
-  //   }
-  // };
 
   useEffect(() => {
     fetchUsers();

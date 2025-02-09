@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Overview.css';
-import { FaArrowRight, FaDollarSign, FaMoneyCheckAlt } from 'react-icons/fa';
-import axios from 'axios'; // Don't forget to import axios
+import { FaArrowRight, FaDollarSign, FaMoneyCheckAlt, FaEye, FaEyeSlash } from 'react-icons/fa';
+import axios from 'axios';
 
 const Overview = ({ setActiveComponent }) => {
   const [walletBalance, setWalletBalance] = useState(0);
@@ -9,62 +9,54 @@ const Overview = ({ setActiveComponent }) => {
   const [isBalanceVisible, setBalanceVisible] = useState(false);
   const isMobile = window.innerWidth <= 768;
 
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222"; 
+  const apiUrl = "http://localhost:22222";
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
-        
-        // Fetch wallet balance
-        const balanceResponse = await fetch(`${apiUrl}/api/wallet/data`, {
-          method: 'GET',
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const balanceData = await balanceResponse.json();
-        setWalletBalance(balanceData.balance);
+        if (!token) return;
 
-        // Fetch recent transactions
-        const transactionsResponse = await fetch(`${apiUrl}/api/transaction/transaction-history`, {
-          method: 'GET',
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const transactionsData = await transactionsResponse.json();
+        const [balanceRes, transactionsRes, confirmationsRes] = await Promise.all([
+          fetch(`${apiUrl}/api/wallet/data`, { method: 'GET', headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`${apiUrl}/api/transaction/transaction-history`, { method: 'GET', headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(`${apiUrl}/api/confirmations`, { headers: { Authorization: `Bearer ${token}` } }),
+        ]);
 
-        // Fetch confirmations
-        const confirmationsResponse = await axios.get(`${apiUrl}/api/confirmations`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const balanceData = await balanceRes.json();
+        const transactionsData = await transactionsRes.json();
+        const confirmationsData = confirmationsRes.data;
 
-        const transactions = transactionsData.transactions.map((transaction) => ({
-          ...transaction,
-          type: 'Transaction',
+        setWalletBalance(balanceData?.balance || 0);
+
+        const transactions = (transactionsData?.transactions || []).map((t) => ({
+          ...t,
+          type: 'withdrawal',
         }));
 
-        const confirmations = confirmationsResponse.data.confirmations.map((confirmation) => ({
+        const confirmations = confirmationsData.confirmations.map((confirmation) => ({
           ...confirmation,
-          type: 'Confirmation',
+          type: 'Trade Confirmation',
+          serviceName: confirmation.serviceId?.name || 'N/A', // Fetch service name
         }));
 
-        // Combine transactions and confirmations and sort them by the latest date
-        const combinedActivities = [...transactions, ...confirmations].sort(
-          (a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)
-        );
+        const combinedActivities = [...transactions, ...confirmations].map((activity) => {
+            // Add a time field to each activity based on its createdAt or date
+            return {
+                ...activity,
+                time: new Date(activity.createdAt || activity.date).getTime(), // Convert to timestamp for easier comparison
+            };
+        }).sort((a, b) => b.time - a.time); // Sort by the time in descending order
+        
 
-        // Set the combined activities
-        setRecentActivities(combinedActivities.slice(0, 3)); // Show the latest 3 activities
+        setRecentActivities(combinedActivities.slice(0, 3));
       } catch (error) {
         console.error('Error fetching wallet data:', error);
       }
     };
 
     fetchData();
-  }, [apiUrl]);
-
-  const toggleBalanceVisibility = () => {
-    setBalanceVisible(!isBalanceVisible);
-  };
+  }, []); // ✅ `useEffect` now correctly wraps `fetchData()`
 
   return (
     <div className="overview">
@@ -72,12 +64,10 @@ const Overview = ({ setActiveComponent }) => {
       <div className="card balance-card">
         <h3>Wallet Balance</h3>
         <p className="balance-amount">
-          {isBalanceVisible
-            ? `₦${walletBalance ? walletBalance.toLocaleString() : '0'}`
-            : '****'}
+          {isBalanceVisible ? `₦${walletBalance.toLocaleString()}` : '****'}
         </p>
-        <span onClick={toggleBalanceVisibility} className="eye-icon">
-          {isBalanceVisible ? '👁️' : '👁️‍🗨️'}
+        <span onClick={() => setBalanceVisible(!isBalanceVisible)} className="eye-icon">
+          {isBalanceVisible ? <FaEyeSlash /> : <FaEye />}
         </span>
       </div>
 
@@ -97,21 +87,31 @@ const Overview = ({ setActiveComponent }) => {
       {/* Recent Activities Card */}
       <div className="card recent-transactions-card">
         <h3>Recent Activities</h3>
-        {Array.isArray(recentActivities) && recentActivities.length > 0 ? (
+        {recentActivities.length > 0 ? (
           recentActivities.map((activity, index) => (
             <div className="transaction-card-1" key={activity.id || index}>
               <div className="transaction-type">{activity.type}</div>
               <div className="transaction-amount">
                 {activity.type === 'withdrawal' 
                   ? `₦${activity.amount ? activity.amount.toLocaleString() : '0'}` 
-                  : activity.type === 'Trade'
-                  ? activity.serviceId?.name
+                  : activity.type === 'Trade Confirmation' || activity.type === 'Confirmation'
+                  ? activity.serviceName // Show service name for trades and confirmations
                   : 'N/A'}
               </div>
               <div className={`transaction-status ${activity.status ? activity.status.toLowerCase() : ''}`}>
                 {activity.status || 'N/A'}
               </div>
-              {!isMobile && <div className="transaction-date">{new Date(activity.createdAt || activity.date).toLocaleDateString()}</div>}
+              {
+    !isMobile ? (
+        <div className="transaction-date">
+            {new Date(activity.createdAt || activity.date).toLocaleString()}
+        </div>
+    ) : (
+        <div className="transaction-date-mobile">
+            {new Date(activity.createdAt || activity.date).toLocaleString('en-GB')}
+        </div>
+    )
+}
             </div>
           ))
         ) : (

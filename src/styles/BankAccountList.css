@@ -1,0 +1,179 @@
+/* General Body and Container Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7fa;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* Search Input Styles */
+  .search-input {
+    width: 100%;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: #007bff;
+  }
+  
+  /* Card Styles */
+  .bank-account-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  
+  .card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .card-header {
+    background-color: #007bff;
+    color: white;
+    padding: 12px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .card-body {
+    padding: 15px;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .card-body div {
+    margin-bottom: 8px;
+  }
+  
+  .card-footer {
+    padding: 12px;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .card-footer button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .card-footer button:hover {
+    background-color: #0056b3;
+  }
+  
+  .edit-btn {
+    background-color: #28a745;
+  }
+  
+  .edit-btn:hover {
+    background-color: #218838;
+  }
+  
+  .delete-btn {
+    background-color: #dc3545;
+  }
+  
+  .delete-btn:hover {
+    background-color: #c82333;
+  }
+  
+  /* Modal Styles for Delete Confirmation */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+  }
+  
+  .modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    width: 300px;
+  }
+  
+  .modal-content h3 {
+    margin-bottom: 20px;
+  }
+  
+  .confirm-btn,
+  .cancel-btn {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .confirm-btn {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .confirm-btn:hover {
+    background-color: #218838;
+  }
+  
+  .cancel-btn {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .cancel-btn:hover {
+    background-color: #c82333;
+  }
+  
+  /* Responsive Design for Smaller Screens */
+  @media (max-width: 768px) {
+    .search-input {
+      padding: 10px;
+    }
+  
+    .card {
+      font-size: 14px;
+    }
+  
+    .card-footer {
+      flex-direction: column;
+    }
+  
+    .card-footer button {
+      width: 100%;
+      margin-top: 5px;
+    }
+  }
+  

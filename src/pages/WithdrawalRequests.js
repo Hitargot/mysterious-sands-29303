@@ -17,8 +17,8 @@ const WithdrawalRequests = () => {
   const [modalAction, setModalAction] = useState('');
   const navigate = useNavigate(); // Use navigate for routing
   const token = localStorage.getItem('adminToken');
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222"; 
+  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = "http://localhost:22222";
 
   // Function to check if the token is expired
   const isTokenExpired = (token) => {
@@ -74,8 +74,8 @@ const WithdrawalRequests = () => {
       modalAction === 'approve'
         ? `${apiUrl}/api/admin/withdrawal-request/approve/${transactionIdToConfirm}`
         : modalAction === 'reject'
-        ? `${apiUrl}/api/admin/withdrawal-request/reject/${transactionIdToConfirm}`
-        : `${apiUrl}/api/admin/withdrawal-request/complete/${transactionIdToConfirm}`;
+          ? `${apiUrl}/api/admin/withdrawal-request/reject/${transactionIdToConfirm}`
+          : `${apiUrl}/api/admin/withdrawal-request/complete/${transactionIdToConfirm}`;
 
     axios
       .patch(url, { adminActionBy: adminUsername }, { headers: { Authorization: `Bearer ${token}` } })
@@ -84,8 +84,8 @@ const WithdrawalRequests = () => {
           modalAction === 'approve'
             ? 'Withdrawal request approved'
             : modalAction === 'reject'
-            ? 'Withdrawal request rejected'
-            : 'Withdrawal request completed';
+              ? 'Withdrawal request rejected'
+              : 'Withdrawal request completed';
 
         showAlert(successMessage, 'success');
 
@@ -94,16 +94,16 @@ const WithdrawalRequests = () => {
           prev.map((transaction) =>
             transaction.transactionId === transactionIdToConfirm
               ? {
-                  ...transaction,
-                  status:
-                    modalAction === 'approve'
-                      ? 'approved'
-                      : modalAction === 'reject'
+                ...transaction,
+                status:
+                  modalAction === 'approve'
+                    ? 'approved'
+                    : modalAction === 'reject'
                       ? 'rejected'
                       : 'completed',
-                  adminActionBy: adminUsername, // Update admin name instantly
-                  actionTakenAt: actionTime, // Update action time instantly
-                }
+                adminActionBy: adminUsername, // Update admin name instantly
+                actionTakenAt: actionTime, // Update action time instantly
+              }
               : transaction
           )
         );
@@ -112,16 +112,16 @@ const WithdrawalRequests = () => {
           prev.map((transaction) =>
             transaction.transactionId === transactionIdToConfirm
               ? {
-                  ...transaction,
-                  status:
-                    modalAction === 'approve'
-                      ? 'approved'
-                      : modalAction === 'reject'
+                ...transaction,
+                status:
+                  modalAction === 'approve'
+                    ? 'approved'
+                    : modalAction === 'reject'
                       ? 'rejected'
                       : 'completed',
-                  adminActionBy: adminUsername, // Update admin name instantly
-                  actionTakenAt: actionTime, // Update action time instantly
-                }
+                adminActionBy: adminUsername, // Update admin name instantly
+                actionTakenAt: actionTime, // Update action time instantly
+              }
               : transaction
           )
         );
@@ -203,16 +203,16 @@ const WithdrawalRequests = () => {
         ))}
 
       {loading ? (
-         <DartsSpinnerOverlay
-         active={true}
-         spinnerSize={50}
-         color="#36d7b7"
-         backgroundColor="rgba(0, 0, 0, 0.5)"
-       />
+        <DartsSpinnerOverlay
+          active={true}
+          spinnerSize={50}
+          color="#36d7b7"
+          backgroundColor="rgba(0, 0, 0, 0.5)"
+        />
       ) : (
         <div className="withdrawal-cards">
           {filteredWithdrawals.map((transaction) => {
-            const {  disabled } = getButtonConfig(transaction);
+            const { disabled } = getButtonConfig(transaction);
             return (
               <div key={transaction.transactionId} className="withdrawal-card">
                 <h3>Transaction ID: {transaction.transactionId}</h3>
@@ -226,6 +226,10 @@ const WithdrawalRequests = () => {
                     : 'Not available'}
                 </p>
                 <p>
+                  <strong>Amount:</strong> {transaction.amount ? `₦${transaction.amount.toLocaleString()}` : 'N/A'}
+                </p>
+
+                <p>
                   <strong>Date:</strong> {transaction.formattedDate || 'Not available'}
                 </p>
                 <p>
@@ -233,35 +237,38 @@ const WithdrawalRequests = () => {
                 </p>
 
                 {transaction.adminActionBy && (
-  <>
-    {transaction.status === 'approved' && (
-      <p>
-        <strong>Approved by:</strong> {transaction.adminActionBy} <br />
-        <small>Action taken on: {new Date(transaction.adminActionAt).toLocaleString()}</small>
-      </p>
-    )}
+                  <>
+                    {transaction.status === 'approved' && (
+                      <p>
+                        <strong>Approved by:</strong> {transaction.adminActionBy} <br />
+                        <small>
+                          Action taken on: {transaction.adminActionAt ? new Date(transaction.adminActionAt).toLocaleString() : 'N/A'}
+                        </small>
+                      </p>
+                    )}
 
-    {transaction.status === 'completed' && (
-      <>
-        <p>
-          <strong>Approved by:</strong> {transaction.adminActionBy} <br />
-          <small>Action taken on: {new Date(transaction.adminActionAt).toLocaleString()}</small>
-        </p>
-        <p>
-          <strong>Completed by:</strong> {transaction.completedBy} <br />
-          <small>Action taken on: {new Date(transaction.completedAt).toLocaleString()}</small>
-        </p>
-      </>
-    )}
+                    {transaction.status === 'completed' && (
+                      <>
+                        <p>
+                          <strong>Completed by:</strong> {transaction.completedBy || 'N/A'} <br />
+                          <small>
+                            Action taken on: {transaction.completedAt ? new Date(transaction.completedAt).toLocaleString() : 'N/A'}
+                          </small>
+                        </p>
+                      </>
+                    )}
 
-    {transaction.status === 'rejected' && (
-      <p>
-        <strong>Rejected by:</strong> {transaction.adminActionBy} <br />
-        <small>Action taken on: {new Date(transaction.adminActionAt).toLocaleString()}</small>
-      </p>
-    )}
-  </>
-)}
+                    {transaction.status === 'rejected' && (
+                      <p>
+                        <strong>Rejected by:</strong> {transaction.adminActionBy} <br />
+                        <small>
+                          Action taken on: {transaction.adminActionAt ? new Date(transaction.adminActionAt).toLocaleString() : 'N/A'}
+                        </small>
+                      </p>
+                    )}
+                  </>
+                )}
+
 
 
                 <div className="actions">
@@ -305,8 +312,8 @@ const WithdrawalRequests = () => {
               {modalAction === 'approve'
                 ? 'approve'
                 : modalAction === 'reject'
-                ? 'reject'
-                : 'complete'}{' '}
+                  ? 'reject'
+                  : 'complete'}{' '}
               this transaction?
             </h3>
             <div className="modal-actions">
@@ -314,8 +321,8 @@ const WithdrawalRequests = () => {
                 {modalAction === 'approve'
                   ? 'Approve'
                   : modalAction === 'reject'
-                  ? 'Reject'
-                  : 'Complete'}
+                    ? 'Reject'
+                    : 'Complete'}
               </button>
               <button className="close-btn" onClick={closeModal}>
                 Cancel

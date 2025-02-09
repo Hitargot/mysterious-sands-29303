@@ -1,166 +1,237 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Alert from '../components/Alert';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import eye icons
+import '../styles/AdminWallet.css';
 
 const AdminWallet = () => {
-  const [totalBalance, setTotalBalance] = useState(1000000); // Example system balance
-  const [userId, setUserId] = useState('');
+  const [adminBalance, setAdminBalance] = useState(0);
   const [fundAmount, setFundAmount] = useState('');
-  const [operations, setOperations] = useState([
-    { id: 1, type: 'Funding', user: 'User123', amount: 5000, date: '2025-01-01' },
-    { id: 2, type: 'Withdrawal', user: 'User456', amount: 3000, date: '2025-01-05' },
-  ]);
+  const [transactions, setTransactions] = useState([]);
+  const [displayedTransactions, setDisplayedTransactions] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [alert, setAlert] = useState(null);
+  const [showAllTransactions, setShowAllTransactions] = useState(false);
+  const [showBalance, setShowBalance] = useState(true); // State to control the visibility of the balance
+  const [filterType, setFilterType] = useState('all'); // Filter transactions by type
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [fundNote, setFundNote] = useState('');
+  const [withdrawNote, setWithdrawNote] = useState('');
 
-  const handleFundWallet = () => {
-    if (!userId || !fundAmount) {
-      alert('Please provide both user ID and funding amount.');
+  // Fetch Admin Wallet Data
+  const fetchWalletData = async () => {
+    try {
+      const { data } = await axios.get('http://localhost:22222/api/wallet', { withCredentials: true });
+      setAdminBalance(data.balance);
+      setTransactions(data.transactions);
+    } catch (error) {
+      setAlert({ type: 'error', message: error.response?.data?.message || error.message });
+    }
+  };
+
+  // Update displayed transactions whenever transactions or showAllTransactions or filterType change
+  useEffect(() => {
+    const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Filter transactions based on filterType
+    const filtered = sortedTransactions.filter(tx => {
+      if (filterType === 'all') return true;
+      return tx.type.toLowerCase() === filterType;
+    });
+
+    setDisplayedTransactions(showAllTransactions ? filtered : filtered.slice(0, 10));
+  }, [transactions, showAllTransactions, filterType]);
+
+  useEffect(() => {
+    fetchWalletData();
+  }, []);
+
+  // Fund Admin Wallet
+  const handleFundWallet = async () => {
+    if (!fundAmount || fundAmount <= 0) {
+      setAlert({ type: 'error', message: 'Please enter a valid amount.' });
       return;
     }
 
-    // Simulate funding the user's wallet
-    const newOperation = {
-      id: operations.length + 1,
-      type: 'Funding',
-      user: userId,
-      amount: parseFloat(fundAmount),
-      date: new Date().toISOString().split('T')[0],
-    };
+    try {
+      const { data } = await axios.post(
+        'http://localhost:22222/api/wallet/fund',
+        { amount: parseFloat(fundAmount), note: fundNote },  // Include note
+        { withCredentials: true }
+      );
+      setAlert({ type: 'success', message: data.message });
+      setFundAmount('');
+      setFundNote(''); // Clear the note input after success
+      fetchWalletData();
+    } catch (error) {
+      setAlert({ type: 'error', message: error.response?.data?.message || 'Error funding wallet' });
+    }
+  };
 
-    setOperations([...operations, newOperation]);
-    setTotalBalance((prev) => prev - parseFloat(fundAmount));
-    setUserId('');
-    setFundAmount('');
-    alert(`Funded ${fundAmount} to user ${userId}'s wallet.`);
+
+  // Withdraw from Admin Wallet
+  const handleWithdrawFunds = async (withdrawAmount) => {
+    if (!withdrawAmount || withdrawAmount <= 0) {
+      setAlert({ type: 'error', message: 'Please enter a valid amount to withdraw.' });
+      return;
+    }
+
+    try {
+      const { data } = await axios.post(
+        'http://localhost:22222/api/admin/wallet/withdraw',
+        { amount: parseFloat(withdrawAmount), note: withdrawNote },  // Include note
+        { withCredentials: true }
+      );
+      setAlert({ type: 'success', message: data.message });
+      setWithdrawAmount('');
+      setWithdrawNote(''); // Clear the note input after success
+      fetchWalletData();
+    } catch (error) {
+      setAlert({ type: 'error', message: error.response?.data?.message || 'Error withdrawing funds' });
+    }
+  };
+
+
+  // Filter transactions based on search term
+  const filteredTransactions = displayedTransactions.filter((tx) =>
+    tx._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tx.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tx.amount.toString().includes(searchTerm)
+  );
+
+  // Handle "See More" button click to show all transactions
+  const handleSeeMore = () => {
+    setShowAllTransactions(true);
+  };
+
+  // Function to format balance value safely
+  const formatBalance = (balance) => {
+    return balance && !isNaN(balance) ? balance.toLocaleString() : 'N/A';
   };
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.header}>Admin Wallet/Finance</h1>
-      
-      <div style={styles.card}>
-        <h2 style={styles.sectionHeader}>System's Total Balance</h2>
-        <p style={styles.balance}>₦{totalBalance.toLocaleString()}</p>
-      </div>
-      
-      <div style={styles.card}>
-        <h2 style={styles.sectionHeader}>Fund User Wallet</h2>
-        <div style={styles.inputGroup}>
-          <input
-            type="text"
-            placeholder="User ID"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            style={styles.input}
-          />
+    <div className="admin-wallet-container">
+      <h1 className="admin-wallet-header">Admin Wallet</h1>
+
+      {alert && <Alert message={alert.message} type={alert.type} />}
+
+      {/* Balance visibility toggle with eye icon */}
+      <button className="toggle-balance-button" onClick={() => setShowBalance(!showBalance)}>
+        {showBalance ? <FaEyeSlash /> : <FaEye />}
+        {showBalance ? 'Hide Balance' : 'Show Balance'}
+      </button>
+
+      {/* Balance display */}
+      {showBalance && (
+        <div className="admin-card">
+          <h2 className="section-header">Admin Wallet Balance</h2>
+          <p className="balance">₦{formatBalance(adminBalance)}</p>
+        </div>
+      )}
+      <div className="admin-card">
+        <h2 className="section-header">Fund Admin Wallet</h2>
+        <div className="input-group">
           <input
             type="number"
-            placeholder="Amount (₦)"
+            placeholder="Enter amount (₦)"
             value={fundAmount}
             onChange={(e) => setFundAmount(e.target.value)}
-            style={styles.input}
+            className="input-field"
           />
+          <input
+            type="text"
+            placeholder="Enter note (optional)"
+            value={fundNote}
+            onChange={(e) => setFundNote(e.target.value)}
+            className="input-field"
+          />
+          <button className="fund-button" onClick={handleFundWallet}>
+            Fund Wallet
+          </button>
         </div>
-        <button style={styles.button} onClick={handleFundWallet}>
-          Fund Wallet
-        </button>
       </div>
 
-      <div style={styles.card}>
-        <h2 style={styles.sectionHeader}>Manual Operations</h2>
-        <table style={styles.table}>
+      <div className="admin-card">
+        <h2 className="section-header">Withdraw Funds</h2>
+        <div className="input-group">
+          <input
+            type="number"
+            placeholder="Enter withdrawal amount (₦)"
+            value={withdrawAmount}
+            onChange={(e) => setWithdrawAmount(e.target.value)}
+            className="input-field"
+          />
+          <input
+            type="text"
+            placeholder="Enter note (optional)"
+            value={withdrawNote}
+            onChange={(e) => setWithdrawNote(e.target.value)}
+            className="input-field"
+          />
+          <button className="withdraw-button" onClick={() => handleWithdrawFunds(withdrawAmount)}>
+            Withdraw
+          </button>
+        </div>
+      </div>
+
+      <div className="admin-card">
+        <h2 className="section-header">Search Transactions</h2>
+        <input
+          type="text"
+          placeholder="Search by ID, Type, or Amount"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-bar"
+        />
+      </div>
+
+      {/* Filter Transactions by Type */}
+      <div className="filter-type">
+        <label>Filter by Type:</label>
+        <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="filter-select">
+          <option value="all">All</option>
+          <option value="funding">Funding</option>
+          <option value="withdrawal">Withdrawal</option>
+        </select>
+      </div>
+
+      <div className="admin-card">
+        <h2 className="section-header">Transaction History</h2>
+        <table className="transaction-table">
           <thead>
             <tr>
-              <th style={styles.th}>ID</th>
-              <th style={styles.th}>Type</th>
-              <th style={styles.th}>User</th>
-              <th style={styles.th}>Amount</th>
-              <th style={styles.th}>Date</th>
+              <th>Transaction ID</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Note</th>  {/* Add a Note column */}
+              <th>Date</th>
             </tr>
           </thead>
           <tbody>
-            {operations.map((op) => (
-              <tr key={op.id}>
-                <td style={styles.td}>{op.id}</td>
-                <td style={styles.td}>{op.type}</td>
-                <td style={styles.td}>{op.user}</td>
-                <td style={styles.td}>₦{op.amount.toLocaleString()}</td>
-                <td style={styles.td}>{op.date}</td>
+            {filteredTransactions.map((tx) => (
+              <tr key={tx._id}>
+                <td>{tx._id}</td>
+                <td>{tx.type}</td>
+                <td style={{ color: tx.type === 'Funding' ? 'green' : 'red' }}>
+                  {tx.type === 'Funding' ? `+₦${tx.amount.toLocaleString()}` : `-₦${tx.amount.toLocaleString()}`}
+                </td>
+                <td>{tx.note || 'N/A'}</td>  {/* Display the note or 'N/A' if none */}
+                <td>{new Date(tx.date).toLocaleDateString()} {new Date(tx.date).toLocaleTimeString()}</td>
               </tr>
             ))}
           </tbody>
+
         </table>
+
+        {/* Show "See More" button if not all transactions are shown */}
+        {!showAllTransactions && transactions.length > 10 && (
+          <button className="see-more-button" onClick={handleSeeMore}>
+            See More
+          </button>
+        )}
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    padding: '20px',
-    fontFamily: 'Arial, sans-serif',
-    maxWidth: '800px',
-    margin: '0 auto',
-  },
-  header: {
-    fontSize: '2rem',
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: '20px',
-  },
-  card: {
-    backgroundColor: '#fff',
-    padding: '20px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    marginBottom: '20px',
-  },
-  sectionHeader: {
-    fontSize: '1.5rem',
-    color: '#007BFF',
-    marginBottom: '10px',
-  },
-  balance: {
-    fontSize: '1.25rem',
-    fontWeight: 'bold',
-    color: '#28a745',
-  },
-  inputGroup: {
-    display: 'flex',
-    gap: '10px',
-    marginBottom: '10px',
-  },
-  input: {
-    flex: '1',
-    padding: '10px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
-    fontSize: '1rem',
-  },
-  button: {
-    padding: '10px 20px',
-    backgroundColor: '#007BFF',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '1rem',
-    transition: 'background-color 0.3s ease',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-  },
-  th: {
-    textAlign: 'left',
-    padding: '10px',
-    borderBottom: '1px solid #ccc',
-    color: '#333',
-    fontWeight: 'bold',
-  },
-  td: {
-    padding: '10px',
-    borderBottom: '1px solid #ccc',
-    color: '#555',
-  },
 };
 
 export default AdminWallet;

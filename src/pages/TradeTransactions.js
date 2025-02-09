@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState,useCallback } from "react";
 import axios from "axios";
 import Alert from "../components/Alert"; // Your alert component
 import { jwtDecode } from 'jwt-decode'; // Ensure jwt-decode is installed
@@ -8,15 +8,14 @@ const TradeTransactions = () => {
     const [transactions, setTransactions] = useState([]);
     const [filteredTransactions, setFilteredTransactions] = useState([]);
     const [error, setError] = useState(null);
-    const [successMessage, setSuccessMessage] = useState(""); // State for success messages
     const [rejectionReasons, setRejectionReasons] = useState({});
     const [adminUsername, setAdminUsername] = useState(""); // Admin username extracted from JWT
     const [showRejectModal, setShowRejectModal] = useState(false); // Modal state for rejection
     const [showApproveModal, setShowApproveModal] = useState(false); // Modal state for approval
     const [selectedTransaction, setSelectedTransaction] = useState(null); // For selected transaction
     const [searchTerm, setSearchTerm] = useState(""); // For search term
-    //const apiUrl = "http://localhost:22222"; 
-    const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+    const apiUrl = "http://localhost:22222"; 
+      //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
 
 
     // Fetch transactions function
@@ -42,12 +41,15 @@ const TradeTransactions = () => {
           setAdminUsername(decodedToken.username);
           console.log(decodedToken.username); // Corrected logging
           console.log(adminUsername); // Just to use the variable
+
   
       } catch (err) {
           const errorMessage = err.response?.data?.message || 'Failed to fetch trade transactions.';
           setError(errorMessage);
       }
   }, [apiUrl, adminUsername]);
+  
+  
 
     useEffect(() => {
       fetchTransactions();
@@ -90,12 +92,11 @@ const TradeTransactions = () => {
               )
           );
           setShowApproveModal(false); // Close the modal after approval
-          setSuccessMessage("Transaction approved successfully!"); // Success message for approval
       } catch (error) {
           setError("Failed to approve transaction.");
       }
   };
-
+  
   const handleReject = async (id, rejectionReason) => {
       try {
           const token = localStorage.getItem('adminToken');
@@ -120,11 +121,11 @@ const TradeTransactions = () => {
           );
   
           setShowRejectModal(false); // Close the modal after rejection
-          setSuccessMessage("Transaction rejected successfully!"); // Success message for rejection
       } catch (error) {
           setError("Failed to reject transaction.");
       }
   };
+  
 
     const handleRejectModal = (transaction) => {
         setSelectedTransaction(transaction);
@@ -139,12 +140,7 @@ const TradeTransactions = () => {
     const handleRejectConfirmation = (confirmation) => {
         if (confirmation) {
             const rejectionReason = rejectionReasons[selectedTransaction._id];
-            // If no reason, trigger reminder alert
-            if (!rejectionReason || rejectionReason.trim() === "") {
-                setError("Reminder: Please provide a rejection reason.");
-            } else {
-                handleReject(selectedTransaction._id, rejectionReason);
-            }
+            handleReject(selectedTransaction._id, rejectionReason);
         }
         setShowRejectModal(false);
     };
@@ -162,9 +158,6 @@ const TradeTransactions = () => {
 
             {/* Show Alert if there's an error */}
             {error && <Alert type="error" message={error} />}
-
-            {/* Show Success Alert if there's a success message */}
-            {successMessage && <Alert type="success" message={successMessage} />}
 
             {/* Search Bar */}
             <div className="mb-4">
@@ -207,6 +200,26 @@ const TradeTransactions = () => {
                                 <p><strong>Reason:</strong> {tx.rejectionReason}</p>
                             </>
                         )}
+
+                        {/* New Fields for Note and File URL */}
+                        {tx.note && (
+                            <p><strong>Note:</strong> {tx.note}</p>
+                        )}
+                        {tx.fileUrl && (
+    <div className="file-url-section mt-3">
+        <p><strong>File URL:</strong> 
+            <a
+                href={tx.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="file-url-button px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition duration-300"
+            >
+                View File
+            </a>
+        </p>
+    </div>
+)}
+
 
                         {/* Approve & Reject Buttons (Only if still pending) */}
                         {tx.status === "Pending" && (
