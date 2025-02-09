@@ -1,4 +1,4 @@
-import { useEffect, useState,useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Alert from "../components/Alert"; // Your alert component
 import { jwtDecode } from 'jwt-decode'; // Ensure jwt-decode is installed
@@ -14,46 +14,46 @@ const TradeTransactions = () => {
     const [showApproveModal, setShowApproveModal] = useState(false); // Modal state for approval
     const [selectedTransaction, setSelectedTransaction] = useState(null); // For selected transaction
     const [searchTerm, setSearchTerm] = useState(""); // For search term
-    const apiUrl = "http://localhost:22222"; 
-      //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+    //const apiUrl = "http://localhost:22222";
+    const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
 
 
     // Fetch transactions function
     const fetchTransactions = useCallback(async () => {
-      try {
-          const token = localStorage.getItem('adminToken');
-          if (!token) {
-              setError("Unauthorized: Admin token missing.");
-              return;
-          }
-  
-          const headers = { Authorization: `Bearer ${token}` };
-          const response = await axios.get(`${apiUrl}/api/admin/confirmations`, { headers });
-  
-          const sortedTransactions = response.data.confirmations.sort((a, b) => 
-              new Date(b.createdAt) - new Date(a.createdAt)
-          );
-  
-          setTransactions(sortedTransactions);
-          setFilteredTransactions(sortedTransactions);
-  
-          const decodedToken = jwtDecode(token);
-          setAdminUsername(decodedToken.username);
-          console.log(decodedToken.username); // Corrected logging
-          console.log(adminUsername); // Just to use the variable
+        try {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                setError("Unauthorized: Admin token missing.");
+                return;
+            }
 
-  
-      } catch (err) {
-          const errorMessage = err.response?.data?.message || 'Failed to fetch trade transactions.';
-          setError(errorMessage);
-      }
-  }, [apiUrl, adminUsername]);
-  
-  
+            const headers = { Authorization: `Bearer ${token}` };
+            const response = await axios.get(`${apiUrl}/api/admin/confirmations`, { headers });
+
+            const sortedTransactions = response.data.confirmations.sort((a, b) =>
+                new Date(b.createdAt) - new Date(a.createdAt)
+            );
+
+            setTransactions(sortedTransactions);
+            setFilteredTransactions(sortedTransactions);
+
+            const decodedToken = jwtDecode(token);
+            setAdminUsername(decodedToken.username);
+            console.log(decodedToken.username); // Corrected logging
+            console.log(adminUsername); // Just to use the variable
+
+
+        } catch (err) {
+            const errorMessage = err.response?.data?.message || 'Failed to fetch trade transactions.';
+            setError(errorMessage);
+        }
+    }, [apiUrl, adminUsername]);
+
+
 
     useEffect(() => {
-      fetchTransactions();
-  }, [fetchTransactions]);
+        fetchTransactions();
+    }, [fetchTransactions]);
 
     // Search function to filter transactions based on the search term
     const handleSearch = (e) => {
@@ -70,62 +70,62 @@ const TradeTransactions = () => {
 
     // ✅ Approve Confirmation
     const handleApprove = async (id) => {
-      try {
-          const token = localStorage.getItem('adminToken');
-          const headers = { Authorization: `Bearer ${token}` };
-          const response = await axios.patch(`${apiUrl}/api/admin/confirmations/${id}/approve`, {}, { headers });
-  
-          setTransactions((prevTransactions) =>
-              prevTransactions.map((transaction) =>
-                  transaction._id === response.data.confirmation._id
-                      ? { ...transaction, status: 'Approved', approvedAt: response.data.confirmation.approvedAt }
-                      : transaction
-              )
-          );
-  
-          // Also update the filtered list to reflect changes
-          setFilteredTransactions((prevFiltered) =>
-              prevFiltered.map((transaction) =>
-                  transaction._id === response.data.confirmation._id
-                      ? { ...transaction, status: 'Approved', approvedAt: response.data.confirmation.approvedAt }
-                      : transaction
-              )
-          );
-          setShowApproveModal(false); // Close the modal after approval
-      } catch (error) {
-          setError("Failed to approve transaction.");
-      }
-  };
-  
-  const handleReject = async (id, rejectionReason) => {
-      try {
-          const token = localStorage.getItem('adminToken');
-          const headers = { Authorization: `Bearer ${token}` };
-          const response = await axios.patch(`${apiUrl}/api/admin/confirmations/${id}/reject`, { rejectionReason }, { headers });
-  
-          setTransactions((prevTransactions) =>
-              prevTransactions.map((transaction) =>
-                  transaction._id === response.data.confirmation._id
-                      ? { ...transaction, status: 'Rejected', rejectionReason: response.data.confirmation.rejectionReason }
-                      : transaction
-              )
-          );
-  
-          // Also update the filtered list to reflect changes
-          setFilteredTransactions((prevFiltered) =>
-              prevFiltered.map((transaction) =>
-                  transaction._id === response.data.confirmation._id
-                      ? { ...transaction, status: 'Rejected', rejectionReason: response.data.confirmation.rejectionReason }
-                      : transaction
-              )
-          );
-  
-          setShowRejectModal(false); // Close the modal after rejection
-      } catch (error) {
-          setError("Failed to reject transaction.");
-      }
-  };
-  
+        try {
+            const token = localStorage.getItem('adminToken');
+            const headers = { Authorization: `Bearer ${token}` };
+            const response = await axios.patch(`${apiUrl}/api/admin/confirmations/${id}/approve`, {}, { headers });
+
+            setTransactions((prevTransactions) =>
+                prevTransactions.map((transaction) =>
+                    transaction._id === response.data.confirmation._id
+                        ? { ...transaction, status: 'Approved', approvedAt: response.data.confirmation.approvedAt }
+                        : transaction
+                )
+            );
+
+            // Also update the filtered list to reflect changes
+            setFilteredTransactions((prevFiltered) =>
+                prevFiltered.map((transaction) =>
+                    transaction._id === response.data.confirmation._id
+                        ? { ...transaction, status: 'Approved', approvedAt: response.data.confirmation.approvedAt }
+                        : transaction
+                )
+            );
+            setShowApproveModal(false); // Close the modal after approval
+        } catch (error) {
+            setError("Failed to approve transaction.");
+        }
+    };
+
+    const handleReject = async (id, rejectionReason) => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const headers = { Authorization: `Bearer ${token}` };
+            const response = await axios.patch(`${apiUrl}/api/admin/confirmations/${id}/reject`, { rejectionReason }, { headers });
+
+            setTransactions((prevTransactions) =>
+                prevTransactions.map((transaction) =>
+                    transaction._id === response.data.confirmation._id
+                        ? { ...transaction, status: 'Rejected', rejectionReason: response.data.confirmation.rejectionReason }
+                        : transaction
+                )
+            );
+
+            // Also update the filtered list to reflect changes
+            setFilteredTransactions((prevFiltered) =>
+                prevFiltered.map((transaction) =>
+                    transaction._id === response.data.confirmation._id
+                        ? { ...transaction, status: 'Rejected', rejectionReason: response.data.confirmation.rejectionReason }
+                        : transaction
+                )
+            );
+
+            setShowRejectModal(false); // Close the modal after rejection
+        } catch (error) {
+            setError("Failed to reject transaction.");
+        }
+    };
+
 
     const handleRejectModal = (transaction) => {
         setSelectedTransaction(transaction);
@@ -206,21 +206,19 @@ const TradeTransactions = () => {
                             <p><strong>Note:</strong> {tx.note}</p>
                         )}
                         {tx.fileUrl && (
-    <div className="file-url-section mt-3">
-        <p><strong>File URL:</strong> 
-            <a
-                href={tx.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="file-url-button px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition duration-300"
-            >
-                View File
-            </a>
-        </p>
-    </div>
-)}
-
-
+                            <div className="file-url-section mt-3">
+                                <p><strong>File URL:</strong>
+                                    <a
+                                        href={tx.fileUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="file-url-button px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition duration-300"
+                                    >
+                                        View File
+                                    </a>
+                                </p>
+                            </div>
+                        )}
                         {/* Approve & Reject Buttons (Only if still pending) */}
                         {tx.status === "Pending" && (
                             <div className="mt-3">

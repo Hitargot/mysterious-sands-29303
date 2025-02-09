@@ -18,10 +18,13 @@ const AdminWallet = () => {
   const [fundNote, setFundNote] = useState('');
   const [withdrawNote, setWithdrawNote] = useState('');
 
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "http://localhost:22222";
+
   // Fetch Admin Wallet Data
   const fetchWalletData = async () => {
     try {
-      const { data } = await axios.get('http://localhost:22222/api/wallet', { withCredentials: true });
+      const { data } = await axios.get(`${apiUrl}/api/wallet`, { withCredentials: true });
       setAdminBalance(data.balance);
       setTransactions(data.transactions);
     } catch (error) {
@@ -44,7 +47,7 @@ const AdminWallet = () => {
 
   useEffect(() => {
     fetchWalletData();
-  }, []);
+  }, [apiUrl]);
 
   // Fund Admin Wallet
   const handleFundWallet = async () => {
@@ -55,7 +58,7 @@ const AdminWallet = () => {
 
     try {
       const { data } = await axios.post(
-        'http://localhost:22222/api/wallet/fund',
+        `${apiUrl}/api/wallet/fund`,
         { amount: parseFloat(fundAmount), note: fundNote },  // Include note
         { withCredentials: true }
       );
@@ -78,7 +81,7 @@ const AdminWallet = () => {
 
     try {
       const { data } = await axios.post(
-        'http://localhost:22222/api/admin/wallet/withdraw',
+        `${apiUrl}/api/admin/wallet/withdraw`,
         { amount: parseFloat(withdrawAmount), note: withdrawNote },  // Include note
         { withCredentials: true }
       );

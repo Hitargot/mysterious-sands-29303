@@ -9,7 +9,8 @@ const Overview = ({ setActiveComponent }) => {
   const [isBalanceVisible, setBalanceVisible] = useState(false);
   const isMobile = window.innerWidth <= 768;
 
-  const apiUrl = "http://localhost:22222";
+  //const apiUrl = "http://localhost:22222";
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
 
   useEffect(() => {
     const fetchData = async () => {

@@ -23,10 +23,13 @@ const BankAccountList = () => {
   // Alert state
   const [alert, setAlert] = useState({ message: '', type: '' });
 
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "http://localhost:22222"; 
+
   // Fetch bank accounts from the backend API
   const fetchBankAccounts = async () => {
     try {
-      const response = await axios.get('http://localhost:22222/api/bankaccounts');
+      const response = await axios.get(`${apiUrl}/api/bankaccounts`);
       setBankAccounts(response.data.bankAccounts);
       setFilteredAccounts(response.data.bankAccounts);
     } catch (err) {
@@ -40,7 +43,7 @@ const BankAccountList = () => {
 
   useEffect(() => {
     fetchBankAccounts();
-  }, []);
+  }, [apiUrl]);
 
   // Handle search bar input
   const handleSearchChange = (e) => {
@@ -65,7 +68,7 @@ const BankAccountList = () => {
   // Handle delete action (deletes from UI and backend)
   const handleDelete = async () => {
     try {
-      const response = await axios.delete(`http://localhost:22222/api/bankaccounts/${accountToDelete}`);
+      const response = await axios.delete(`${apiUrl}/api/bankaccounts/${accountToDelete}`);
       console.log(response.data.message);
       const updatedAccounts = filteredAccounts.filter(account => account._id !== accountToDelete);
       setFilteredAccounts(updatedAccounts);
@@ -97,7 +100,7 @@ const BankAccountList = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.put(`http://localhost:22222/api/bankaccounts/${editingAccount._id}`, editForm);
+      const response = await axios.put(`${apiUrl}/api/bankaccounts/${editingAccount._id}`, editForm);
       const updatedAccounts = filteredAccounts.map(account =>
         account._id === editingAccount._id ? response.data.bankAccount : account
       );
