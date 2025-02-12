@@ -3,9 +3,9 @@
   max-width: 900px;
   margin: auto;
   padding: 20px;
-  background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+  background: linear-gradient(135deg, #004d00, #0f660f);
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.2);
   color: #fff;
   font-family: 'Poppins', sans-serif;
   transition: all 0.3s ease-in-out;
@@ -15,17 +15,17 @@
   text-align: center;
   font-size: 26px;
   font-weight: bold;
-  color: gold;
+  color: #ff8c00;
   margin-bottom: 20px;
-  text-shadow: 0 2px 5px rgba(255, 215, 0, 0.4);
+  text-shadow: 0 2px 5px rgba(255, 140, 0, 0.4);
 }
 
 /* Cards */
 .admin-card {
-  background: rgba(255, 215, 0, 0.1);
+  background: rgba(255, 140, 0, 0.1);
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(255, 215, 0, 0.15);
+  box-shadow: 0 3px 10px rgba(255, 140, 0, 0.15);
   margin-bottom: 20px;
 }
 
@@ -33,15 +33,15 @@
 .balance {
   font-size: 30px;
   font-weight: bold;
-  color: gold;
-  text-shadow: 0 2px 5px rgba(255, 215, 0, 0.6);
+  color: #ff8c00;
+  text-shadow: 0 2px 5px rgba(255, 140, 0, 0.6);
   text-align: center;
 }
 
 /* Buttons */
 .fund-button, .withdraw-button, .see-more-button, .toggle-balance-button {
-  background: gold;
-  color: black;
+  background: #ff8c00;
+  color: white;
   font-weight: bold;
   padding: 12px;
   border: none;
@@ -54,7 +54,7 @@
 }
 
 .fund-button:hover, .withdraw-button:hover, .see-more-button:hover, .toggle-balance-button:hover {
-  background: #ffcc00;
+  background: #e67e00;
   transform: scale(1.05);
 }
 
@@ -62,7 +62,7 @@
 .input-field, .search-bar, .filter-select {
   width: 100%;
   padding: 12px;
-  border: 1px solid rgba(255, 215, 0, 0.3);
+  border: 1px solid rgba(255, 140, 0, 0.3);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
   color: white;
@@ -76,15 +76,15 @@
 }
 
 .input-field:focus, .search-bar:focus {
-  border-color: gold;
+  border-color: #ff8c00;
   background: rgba(255, 255, 255, 0.15);
 }
 
-/* Transaction Table (Desktop View) */
+/* Transaction Table */
 .transaction-table {
   width: 100%;
   border-collapse: collapse;
-  background: rgba(255, 215, 0, 0.05);
+  background: rgba(255, 140, 0, 0.05);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -92,20 +92,20 @@
 .transaction-table th, .transaction-table td {
   padding: 12px;
   text-align: center;
-  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 140, 0, 0.2);
 }
 
 .transaction-table th {
-  background: gold;
+  background: #ff8c00;
   color: black;
   font-weight: bold;
 }
 
 .transaction-table tr:hover {
-  background: rgba(255, 215, 0, 0.1);
+  background: rgba(255, 140, 0, 0.1);
 }
 
-/* Mobile View: Convert Table to Cards */
+/* Mobile View */
 @media (max-width: 768px) {
   .admin-wallet-container {
       padding: 15px;
@@ -128,7 +128,6 @@
       padding: 10px;
   }
 
-  /* Hide table and switch to card view */
   .transaction-table {
       display: none;
   }
@@ -140,10 +139,10 @@
   }
 
   .transaction-card {
-      background: rgba(255, 215, 0, 0.1);
+      background: rgba(255, 140, 0, 0.1);
       padding: 15px;
       border-radius: 10px;
-      box-shadow: 0 3px 10px rgba(255, 215, 0, 0.15);
+      box-shadow: 0 3px 10px rgba(255, 140, 0, 0.15);
       display: flex;
       flex-direction: column;
       gap: 5px;
@@ -156,7 +155,7 @@
 
   .transaction-card .label {
       font-weight: bold;
-      color: gold;
+      color: #ff8c00;
   }
 }
 

@@ -233,12 +233,7 @@ const AdminWallet = () => {
 
         </table>
 
-        {/* Show "See More" button if not all transactions are shown */}
-        {!showAllTransactions && transactions.length > 10 && (
-          <button className="see-more-button" onClick={handleSeeMore}>
-            See More
-          </button>
-        )}
+       
         {isMobile ? (
           <div className="transaction-cards">
             {filteredTransactions.map((tx) => (
@@ -276,6 +271,13 @@ const AdminWallet = () => {
               ))}
             </tbody>
           </table>
+        )}
+
+         {/* Show "See More" button if not all transactions are shown */}
+         {!showAllTransactions && transactions.length > 10 && (
+          <button className="see-more-button" onClick={handleSeeMore}>
+            See More
+          </button>
         )}
       </div>
     </div>
