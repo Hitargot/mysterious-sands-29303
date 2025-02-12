@@ -1,190 +1,167 @@
-/* General container styling */
+/* General Styling */
 .admin-wallet-container {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 20px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Page Header */
-  .admin-wallet-header {
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #333;
-  }
-  
-  /* Card Styling */
-  .admin-card {
-    background: #f8f8f8;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 6px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .section-header {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: #444;
-  }
-  
-  /* Balance Display */
-  .balance {
-    font-size: 28px;
-    font-weight: bold;
-    color: #27ae60;
-    text-align: center;
-    margin-top: 10px;
-  }
-  
-  /* Eye Icon Button */
-  .toggle-balance-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    background: #2980b9;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-bottom: 15px;
-    font-weight: 500;
-  }
-  
-  .toggle-balance-button:hover {
-    background: #1f6690;
-  }
-  
-  /* Input Group */
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .input-field {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 16px;
-  }
-  
-  /* Buttons */
-  .fund-button,
-  .withdraw-button,
-  .see-more-button {
-    padding: 10px;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-    font-weight: 600;
-    text-align: center;
-    transition: 0.3s;
-  }
-  
-  .fund-button {
-    background: #27ae60;
-    color: white;
-  }
-  
-  .fund-button:hover {
-    background: #219150;
-  }
-  
-  .withdraw-button {
-    background: #c0392b;
-    color: white;
-  }
-  
-  .withdraw-button:hover {
-    background: #a93226;
-  }
-  
-  .see-more-button {
-    background: #f39c12;
-    color: white;
-    width: 100%;
-    margin-top: 10px;
-  }
-  
-  .see-more-button:hover {
-    background: #e67e22;
-  }
-  
-  /* Search Bar */
-  .search-bar {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 16px;
-  }
-  
-  /* Filter Transactions */
-  .filter-type {
-    margin-bottom: 15px;
-  }
-  
-  .filter-select {
-    width: 100%;
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-  }
-  
-  /* Transaction Table */
-  .transaction-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-  }
-  
-  .transaction-table th,
-  .transaction-table td {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .transaction-table th {
-    background: #34495e;
-    color: white;
-    font-weight: bold;
-  }
-  
-  .transaction-table tbody tr:nth-child(even) {
-    background: #f8f8f8;
-  }
-  
-  .transaction-table tbody tr:hover {
-    background: #ecf0f1;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .admin-wallet-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease-in-out;
+}
+
+.admin-wallet-header {
+  text-align: center;
+  font-size: 26px;
+  font-weight: bold;
+  color: gold;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 5px rgba(255, 215, 0, 0.4);
+}
+
+/* Cards */
+.admin-card {
+  background: rgba(255, 215, 0, 0.1);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(255, 215, 0, 0.15);
+  margin-bottom: 20px;
+}
+
+.section-header {
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+/* Balance Display */
+.balance {
+  font-size: 30px;
+  font-weight: bold;
+  color: gold;
+  text-shadow: 0 2px 5px rgba(255, 215, 0, 0.6);
+  text-align: center;
+}
+
+/* Buttons */
+.fund-button, .withdraw-button, .see-more-button, .toggle-balance-button {
+  background: gold;
+  color: black;
+  font-weight: bold;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.fund-button:hover, .withdraw-button:hover, .see-more-button:hover, .toggle-balance-button:hover {
+  background: #ffcc00;
+  transform: scale(1.05);
+}
+
+/* Inputs */
+.input-field, .search-bar, .filter-select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 16px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.input-field::placeholder, .search-bar::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.input-field:focus, .search-bar:focus {
+  border-color: gold;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Table */
+.transaction-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 215, 0, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.transaction-table th, .transaction-table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.transaction-table th {
+  background: gold;
+  color: black;
+  font-weight: bold;
+}
+
+.transaction-table tr:hover {
+  background: rgba(255, 215, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-wallet-container {
       padding: 15px;
-    }
-  
-    .transaction-table th,
-    .transaction-table td {
+  }
+
+  .admin-card {
+      padding: 15px;
+  }
+
+  .input-field, .search-bar, .filter-select {
+      font-size: 14px;
+      padding: 10px;
+  }
+
+  .balance {
+      font-size: 24px;
+  }
+
+  .fund-button, .withdraw-button, .see-more-button, .toggle-balance-button {
+      padding: 10px;
+  }
+
+  .transaction-table th, .transaction-table td {
       padding: 8px;
-    }
-  
-    .fund-button,
-    .withdraw-button {
+      font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-wallet-header {
+      font-size: 22px;
+  }
+
+  .balance {
+      font-size: 20px;
+  }
+
+  .input-field, .search-bar, .filter-select {
+      font-size: 12px;
+      padding: 8px;
+  }
+
+  .fund-button, .withdraw-button, .see-more-button, .toggle-balance-button {
       font-size: 14px;
       padding: 8px;
-    }
   }
-  
+
+  .transaction-table th, .transaction-table td {
+      font-size: 12px;
+      padding: 6px;
+  }
+}
