@@ -207,13 +207,28 @@ const AdminWallet = () => {
 
       <div className="admin-card">
         <h2 className="section-header">Transaction History</h2>
+        {isMobile ? (
+        <div className="transaction-cards">
+          {filteredTransactions.map((tx) => (
+            <div key={tx._id} className="transaction-card">
+              <p><strong>ID:</strong> {tx._id}</p>
+              <p><strong>Type:</strong> {tx.type}</p>
+              <p style={{ color: tx.type === 'Funding' ? 'green' : 'orangered' }}>
+                <strong>Amount:</strong> {tx.type === 'Funding' ? `+₦${tx.amount.toLocaleString()}` : `-₦${tx.amount.toLocaleString()}`}
+              </p>
+              <p><strong>Note:</strong> {tx.note || 'N/A'}</p>
+              <p><strong>Date:</strong> {new Date(tx.date).toLocaleDateString()} {new Date(tx.date).toLocaleTimeString()}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
         <table className="transaction-table">
           <thead>
             <tr>
               <th>Transaction ID</th>
               <th>Type</th>
               <th>Amount</th>
-              <th>Note</th>  {/* Add a Note column */}
+              <th>Note</th>
               <th>Date</th>
             </tr>
           </thead>
@@ -222,56 +237,16 @@ const AdminWallet = () => {
               <tr key={tx._id}>
                 <td>{tx._id}</td>
                 <td>{tx.type}</td>
-                <td style={{ color: tx.type === 'Funding' ? 'green' : 'red' }}>
+                <td style={{ color: tx.type === 'Funding' ? 'green' : 'orangered' }}>
                   {tx.type === 'Funding' ? `+₦${tx.amount.toLocaleString()}` : `-₦${tx.amount.toLocaleString()}`}
                 </td>
-                <td>{tx.note || 'N/A'}</td>  {/* Display the note or 'N/A' if none */}
+                <td>{tx.note || 'N/A'}</td>
                 <td>{new Date(tx.date).toLocaleDateString()} {new Date(tx.date).toLocaleTimeString()}</td>
               </tr>
             ))}
           </tbody>
-
         </table>
-
-       
-        {isMobile ? (
-          <div className="transaction-cards">
-            {filteredTransactions.map((tx) => (
-              <div key={tx._id} className="transaction-card">
-                <p><strong>ID:</strong> {tx._id}</p>
-                <p><strong>Type:</strong> {tx.type}</p>
-                <p><strong>Amount:</strong> {tx.type === 'Funding' ? `+₦${tx.amount.toLocaleString()}` : `-₦${tx.amount.toLocaleString()}`}</p>
-                <p><strong>Note:</strong> {tx.note || 'N/A'}</p>
-                <p><strong>Date:</strong> {new Date(tx.date).toLocaleDateString()} {new Date(tx.date).toLocaleTimeString()}</p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <table className="transaction-table">
-            <thead>
-              <tr>
-                <th>Transaction ID</th>
-                <th>Type</th>
-                <th>Amount</th>
-                <th>Note</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTransactions.map((tx) => (
-                <tr key={tx._id}>
-                  <td>{tx._id}</td>
-                  <td>{tx.type}</td>
-                  <td style={{ color: tx.type === 'Funding' ? 'green' : 'red' }}>
-                    {tx.type === 'Funding' ? `+₦${tx.amount.toLocaleString()}` : `-₦${tx.amount.toLocaleString()}`}
-                  </td>
-                  <td>{tx.note || 'N/A'}</td>
-                  <td>{new Date(tx.date).toLocaleDateString()} {new Date(tx.date).toLocaleTimeString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      )}
 
          {/* Show "See More" button if not all transactions are shown */}
          {!showAllTransactions && transactions.length > 10 && (
