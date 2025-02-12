@@ -1,8 +1,9 @@
-import { FaSignOutAlt, FaUserCircle } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaBars, FaSignOutAlt, FaUserCircle, FaTimes } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Notifications from './Notifications';
 import '../styles/DashboardHeader.css';
-import {jwtDecode} from 'jwt-decode'; // Ensure jwt-decode is correctly imported
+import { jwtDecode } from 'jwt-decode';
 
 const DashboardHeader = ({
   clearJwtToken,
@@ -12,27 +13,34 @@ const DashboardHeader = ({
   handleAlert,
 }) => {
   const navigate = useNavigate();
-  let userName = 'User'; // Default username
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  // Decode token to fetch username
+  let userName = 'User';
   try {
-    const token = localStorage.getItem('token'); // Retrieve token from local storage
+    const token = localStorage.getItem('token');
     if (token) {
-      const decodedToken = jwtDecode(token); // Decode the JWT token
-      userName = decodedToken?.username || 'User'; // Extract username
+      const decodedToken = jwtDecode(token);
+      userName = decodedToken?.username || 'User';
     }
   } catch (error) {
-    console.error('Error decoding token:', error); // Handle decoding error
+    console.error('Error decoding token:', error);
     handleAlert('Session expired. Please log in again.', 'error');
     navigate('/login');
   }
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleLogout = () => {
     clearJwtToken();
-    localStorage.removeItem('token'); // Remove token on logout
-    if (typeof setBankAccounts === 'function') {
-      setBankAccounts([]);
-    }
+    localStorage.removeItem('token');
+    setBankAccounts?.([]);
     setSelectedBankAccount?.(null);
     setWalletBalance?.(0);
     navigate('/login');
@@ -53,13 +61,36 @@ const DashboardHeader = ({
   return (
     <header className="dashboard-header">
       <h1>{`${getGreeting()}, ${userName}`}</h1>
-      <div className="header-icons">
-        <Notifications />
-        <FaUserCircle className="user-icon" aria-label="User Profile" onClick={navigateToProfile} />
-        <button className="logout-button" onClick={handleLogout} aria-label="Logout">
-          <FaSignOutAlt /> Logout
-        </button>
+
+      {/* Right section with icons */}
+      <div className="header-right">
+        <Notifications className="notification-icon" />
+
+        {!isMobile && (
+          <>
+            <FaUserCircle className="user-icon" onClick={navigateToProfile} aria-label="User Profile" />
+            <button className="logout-button" onClick={handleLogout} aria-label="Logout">
+              <FaSignOutAlt /> Logout
+            </button>
+          </>
+        )}
+
+        {/* Menu Icon for Mobile */}
+        {isMobile && <FaBars className="menu-icon" onClick={() => setMenuOpen(true)} />}
       </div>
+
+      {/* Mobile Overlay Menu */}
+      {isMobile && (
+        <nav className={`nav-overlay ${menuOpen ? 'open' : ''}`}>
+          <div className="nav-content">
+            <FaTimes className="close-btn" onClick={() => setMenuOpen(false)} />
+            <ul>
+              <li onClick={navigateToProfile}>Profile</li>
+              <li onClick={handleLogout}>Logout</li>
+            </ul>
+          </div>
+        </nav>
+      )}
     </header>
   );
 };

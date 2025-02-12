@@ -14,10 +14,10 @@ const TradeHistory = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [selectedReceipt, setSelectedReceipt] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("");
 
-  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  const apiUrl = "http://localhost:22222"; 
-
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "http://localhost:22222";
 
   useEffect(() => {
     const fetchConfirmations = async () => {
@@ -51,37 +51,47 @@ const TradeHistory = () => {
     setSearchQuery(event.target.value);
   };
 
+  const handleStatusFilter = (event) => {
+    setStatusFilter(event.target.value);
+  };
+
   const handleViewReceipt = (confirmation) => {
     const receiptData = {
-        title: "Transaction Receipt",
-        fields: [
-            { label: "Service", value: confirmation.serviceId?.name || "N/A" },
-            { label: "Transaction ID", value: confirmation.transactionId || "N/A", copyable: true },
-            { label: "Date", value: new Date(confirmation.createdAt).toLocaleString() || "N/A" },
-            { label: "Status", value: confirmation.status || "N/A" },
-            { label: "Note", value: confirmation.note || "No additional notes." },  // ✅ Added Note
-            { 
-                label: "Receipt File", 
-                value: confirmation.fileUrl ? 
-                    <a href={confirmation.fileUrl} target="_blank" rel="noopener noreferrer">
-                        Download Receipt
-                    </a> : "No receipt available"  // ✅ Added File URL
-            },
-        ],
+      title: "Transaction Receipt",
+      fields: [
+        { label: "Service", value: confirmation.serviceId?.name || "N/A" },
+        { label: "Transaction ID", value: confirmation.transactionId || "N/A", copyable: true },
+        { label: "Date", value: new Date(confirmation.createdAt).toLocaleString() || "N/A" },
+        { label: "Status", value: confirmation.status || "N/A" },
+        { label: "Note", value: confirmation.note || "No additional notes." },
+        {
+          label: "Receipt File",
+          value: confirmation.fileUrl ?
+            <a href={confirmation.fileUrl} target="_blank" rel="noopener noreferrer">
+              Download Receipt
+            </a> : "No receipt available"
+        },
+      ],
     };
 
-    // Add rejection reason if the status is rejected
+    // ✅ Show "Amount in Naira" if status is "Funded"
+    if (confirmation.status === "Funded") {
+      receiptData.fields.push({
+        label: "Amount in Naira",
+        value: confirmation.amountInNaira ? `₦${confirmation.amountInNaira.toLocaleString()}` : "N/A",
+      });
+    }
+
+
     if (confirmation.status === "Rejected") {
-        receiptData.fields.push({
-            label: "Rejection Reason", 
-            value: confirmation.rejectionReason || "No reason provided"
-        });
+      receiptData.fields.push({
+        label: "Rejection Reason",
+        value: confirmation.rejectionReason || "No reason provided"
+      });
     }
 
     setSelectedReceipt(receiptData);
-};
-
-  
+  };
 
   const handleCloseReceipt = () => {
     setSelectedReceipt(null);
@@ -89,8 +99,9 @@ const TradeHistory = () => {
 
   const filteredConfirmations = confirmations.filter(
     (confirmation) =>
-      confirmation.serviceId?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      confirmation.transactionId.toLowerCase().includes(searchQuery.toLowerCase())
+      (confirmation.serviceId?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        confirmation.transactionId.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (statusFilter ? confirmation.status === statusFilter : true)
   );
 
   if (loading) return <div className="loading-container"><div className="spinner"></div></div>;
@@ -106,6 +117,12 @@ const TradeHistory = () => {
           className="search-bar"
           placeholder="Search by Service Name or Transaction ID"
         />
+        <select value={statusFilter} onChange={handleStatusFilter} className="filter-dropdown">
+          <option value="">All Statuses</option>
+          <option value="Success">Success</option>
+          <option value="Pending">Pending</option>
+          <option value="Rejected">Rejected</option>
+        </select>
       </div>
       {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage("")} />}
 
@@ -147,7 +164,6 @@ const TradeHistory = () => {
         )}
       </div>
 
-      {/* Receipt Modal using Reusable Component */}
       {selectedReceipt && <ReceiptModal receiptData={selectedReceipt} onClose={handleCloseReceipt} />}
     </div>
   );

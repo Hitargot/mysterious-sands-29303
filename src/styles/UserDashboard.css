@@ -6,18 +6,6 @@
   overflow: hidden;
 }
 
-/* Header styling */
-.dashboard-header {
-  height: 60px;
- 
-  background-color: #1e1e2f;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  padding: 0 20px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-}
-
 /* Main area containing sidebar and content */
 .dashboard-main {
   display: flex;

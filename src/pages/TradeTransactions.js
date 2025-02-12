@@ -3,6 +3,8 @@ import axios from "axios";
 import Alert from "../components/Alert"; // Your alert component
 import { jwtDecode } from 'jwt-decode'; // Ensure jwt-decode is installed
 import '../styles/TradeTransactions.css';
+import FundConfirmationModal from "../components/FundConfirmationModal.js"; // Import the modal component
+
 
 const TradeTransactions = () => {
     const [transactions, setTransactions] = useState([]);
@@ -16,6 +18,8 @@ const TradeTransactions = () => {
     const [searchTerm, setSearchTerm] = useState(""); // For search term
     //const apiUrl = "http://localhost:22222";
     const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [confirmationId, setConfirmationId] = useState(null);
 
 
     // Fetch transactions function
@@ -96,6 +100,47 @@ const TradeTransactions = () => {
             setError("Failed to approve transaction.");
         }
     };
+    const userId = localStorage.getItem('userId'); // or from AuthContext
+
+    // const handleFunding = async (confirmationId, userId, amount) => {
+    //     try {
+    //         const token = localStorage.getItem('adminToken');
+    //         if (!token) {
+    //             alert("Admin authentication token missing. Please log in again.");
+    //             return;
+    //         }
+
+    //         const headers = { Authorization: `Bearer ${token}` };
+
+    //          ✅ Send funding request
+    //         const response = await axios.post(`${apiUrl}/api/admin/confirmations/${confirmationId}/fund`, {
+    //             userId,
+    //             amount
+    //         }, { headers });
+
+    //         ✅ Show success alert
+    //         alert(`Wallet funded successfully with ₦${amount}`);
+
+    //          ✅ Update state to mark transaction as funded
+    //         setTransactions((prev) =>
+    //             prev.map((tx) =>
+    //                 tx._id === confirmationId ? { ...tx, funded: true } : tx
+    //             )
+    //         );
+    //         setFilteredTransactions((prev) =>
+    //             prev.map((tx) =>
+    //                 tx._id === confirmationId ? { ...tx, funded: true } : tx
+    //             )
+    //         );
+
+    //     } catch (error) {
+    //         console.error("Funding Error:", error.response?.data || error.message);
+    //         alert(error.response?.data?.message || "Failed to fund wallet. Try again.");
+    //     }
+    // };
+
+
+
 
     const handleReject = async (id, rejectionReason) => {
         try {
@@ -152,6 +197,11 @@ const TradeTransactions = () => {
         setShowApproveModal(false);
     };
 
+    const handleOpenModal = (confirmationId) => {
+        setIsModalOpen(true);
+        setConfirmationId(confirmationId); // Ensure you're setting a single confirmationId
+    };
+
     return (
         <div className="p-4">
             <h2 className="text-xl font-semibold mb-4">Trade Transactions</h2>
@@ -191,9 +241,28 @@ const TradeTransactions = () => {
                         <p><strong>Approved/Rejected By:</strong> {tx.adminUsername || "N/A"}</p>
 
                         {/* Show timestamps */}
-                        {tx.status === "Approved" && (
-                            <p><strong>Approved At:</strong> {new Date(tx.approvedAt).toLocaleString()}</p>
-                        )}
+                        {
+                            tx.status === "Approved" && (
+                                <>
+                                    <p><strong>Approved At:</strong> {new Date(tx.approvedAt).toLocaleString()}</p>
+
+                                    {/* Display Funded At after successful funding */}
+                                    {tx.status === "Funded" && tx.fundedAt && (
+                                        <p><strong>Funded At:</strong> {new Date(tx.fundedAt).toLocaleString()}</p>
+                                    )}
+
+                                    {/* ✅ New Funding Button (Only for Approved Transactions) */}
+                                    <button
+                                        onClick={() => handleOpenModal(tx._id)}  // Use tx here, not transaction
+                                        className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+                                    >
+                                        Fund
+                                    </button>
+                                </>
+                            )
+                        }
+
+
                         {tx.status === "Rejected" && (
                             <>
                                 <p><strong>Rejected At:</strong> {new Date(tx.rejectedAt).toLocaleString()}</p>
@@ -219,6 +288,7 @@ const TradeTransactions = () => {
                                 </p>
                             </div>
                         )}
+
                         {/* Approve & Reject Buttons (Only if still pending) */}
                         {tx.status === "Pending" && (
                             <div className="mt-3">
@@ -296,6 +366,17 @@ const TradeTransactions = () => {
                     </div>
                 </div>
             )}
+
+            {isModalOpen && (
+                <FundConfirmationModal
+                    confirmationId={confirmationId}
+                    userId={userId}  // Make sure userId is defined here
+                    onClose={() => setIsModalOpen(false)}
+                />
+            )}
+
+
+
         </div>
     );
 };

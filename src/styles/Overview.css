@@ -1,111 +1,138 @@
 /* General Styling */
 .overview {
   padding: 20px;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f4f4f4;
 }
 
-.card {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+/* Glassmorphism Card Styling */
+.overview .card {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
   padding: 20px;
   margin-bottom: 20px;
+  transition: all 0.3s ease-in-out;
 }
 
-/* Balance Card */
-.balance-card {
+.overview .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Wallet Balance */
+.overview .balance-card {
   text-align: center;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 25px;
 }
 
-.balance-amount {
-  font-size: 24px;
-  font-weight: bold;
+.overview .balance-amount {
+  font-size: 26px;
+  font-weight: 700;
+  color: #333;
 }
 
-.eye-icon {
+/* Eye Icon */
+.overview .eye-icon {
   cursor: pointer;
-  font-size: 18px;
-  margin-top: 10px;
+  font-size: 20px;
+  margin-top: 12px;
+  color: #007bff;
+  transition: color 0.3s ease;
 }
 
-/* Action Buttons */
-.button-container {
+.overview .eye-icon:hover {
+  color: #ff9800;
+}
+
+/* Button Styling */
+.overview .button-container {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-button {
-  padding: 10px 20px;
-  background-color: #007bff;
+.overview button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #007bff, #0056b3);
   color: #fff;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-button:hover {
-  background-color: #0056b3;
+.overview button:hover {
+  background: linear-gradient(135deg, #ff9800, #e65100);
+  transform: scale(1.05);
 }
 
-.icon {
+/* Icons Inside Buttons */
+.overview .icon {
   margin-right: 10px;
 }
 
-/* Recent Transactions Card */
-.recent-transactions-card {
+/* Recent Transactions */
+.overview .recent-transactions-card {
   display: flex;
   flex-direction: column;
 }
 
-.transaction-card-1 {
+.overview .transaction-card-1 {
   display: flex;
   justify-content: space-between;
-  padding: 10px;
-  margin-bottom: 10px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
-.transaction-card-1:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+.overview .transaction-card-1:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
 }
 
-.transaction-status {
-  text-transform: capitalize;
-  font-weight: bold;
-}
-
-.transaction-type,
-.transaction-amount,
-.transaction-status,
-.transaction-date {
+/* Transaction Text */
+.overview .transaction-type,
+.overview .transaction-amount,
+.overview .transaction-status,
+.overview .transaction-date {
   flex: 1;
   text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: #444;
 }
 
-.transaction-status.success {
+/* Transaction Status Colors */
+.overview .transaction-status.success {
   color: #28a745;
 }
 
-.transaction-status.error {
+.overview .transaction-status.error {
   color: #dc3545;
 }
 
-button.see-more-button {
+/* See More Button */
+.overview .see-more-button {
   align-self: center;
   margin-top: 15px;
-  background-color: #007bff;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  padding: 12px 24px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
-button.see-more-button:hover{
-  background: orange;
-  border-radius: 5px;
-  border: 1px solid transparent;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+.overview .see-more-button:hover {
+  background: linear-gradient(135deg, #ff9800, #e65100);
   transform: scale(1.05);
 }
 
@@ -115,54 +142,43 @@ button.see-more-button:hover{
     padding: 15px;
   }
 
-  .card {
-    padding: 15px;
+  .overview .card {
+    padding: 18px;
   }
 
-  .balance-card {
+  .overview .balance-card {
     text-align: center;
-    padding: 15px;
+    padding: 18px;
   }
 
-  .balance-amount {
-    font-size: 20px;
+  .overview .balance-amount {
+    font-size: 22px;
   }
 
-  .button-container {
+  .overview .button-container {
     flex-direction: column;
     align-items: center;
   }
 
-  button {
+  .overview button {
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
 
-  .transaction-card-1 {
+  .overview .transaction-card-1 {
     flex-direction: column;
     padding: 15px;
   }
 
-  .transaction-type,
-  .transaction-amount,
-  .transaction-status,
-  .transaction-date {
+  .overview .transaction-type,
+  .overview .transaction-amount,
+  .overview .transaction-status,
+  .overview .transaction-date {
     text-align: left;
     margin-bottom: 5px;
   }
 
-  .transaction-status {
-    text-align: left;
-  }
-
-  .transaction-date {
-    display: block;
-    text-align: left;
-    margin-top: 5px;
-  }
-
-  .see-more-button {
+  .overview .see-more-button {
     width: 100%;
   }
 }
-

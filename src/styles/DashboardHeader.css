@@ -1,75 +1,119 @@
-/* Dashboard Header Styling */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  background-color: #2c2c3e;
+  background: black;
+  padding: 15px 20px;
+  border: 1px solid green;
   color: white;
-  font-size: 1.2em;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.dashboard-header h1 {
-  margin: 0;
-  font-size: 1.5em;
-  font-weight: 400;
-}
-
-.header-icons {
+/* Make space free for desktop */
+.header-right {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 30px; /* More space between items */
+  flex-grow: 1; /* Allow them to spread */
+  justify-content: flex-end;
 }
 
-.header-icons .user-icon {
-  font-size: 1.5em;
+/* Center greeting while allowing icons to be free */
+h1 {
+  font-size: 1.2rem;
+  flex-grow: 1;
+  text-align: center;
+  margin: 0 auto;
+}
+
+/* Ensure all icons are properly spaced */
+.user-icon, .logout-button, .menu-icon, .notification-icon {
+  font-size: 1.5rem;
   cursor: pointer;
+  transition: 0.3s;
 }
 
+/* Make the logout button align better */
 .logout-button {
   display: flex;
   align-items: center;
-  background-color: transparent;
+  gap: 5px;
+  background: transparent;
   border: none;
   color: white;
-  font-size: 1em;
   cursor: pointer;
-  padding: 5px 10px;
-  transition: background-color 0.3s ease;
+  font-size: 1rem;
 }
 
-.logout-button:hover {
-  background-color: #f0ad4e;
-  color: #1e1e2f;
+/* Larger Menu Icon for Mobile */
+.menu-icon {
+  font-size: 2rem;
+  display: none;
 }
 
-/* Mobile responsiveness */
-@media (max-width: 768px) {
+/* Free layout for desktop */
+@media (min-width: 769px) {
   .dashboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+/* Show menu icon and hide profile/logout only on mobile */
+@media (max-width: 768px) {
+  .menu-icon {
+    display: block;
   }
 
-  .dashboard-header h1 {
-    font-size: 1.2em;
-    margin-bottom: 10px;
+  .user-icon, .logout-button {
+    display: none; /* Hide profile/logout in header on mobile */
   }
+}
 
-  .header-icons {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    margin-top: 10px;
-  }
+/* Fullscreen Overlay */
+.nav-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(5px);
+  transform: translateX(100%);
+  transition: transform 0.4s ease-in-out;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .header-icons .user-icon {
-    font-size: 1.2em;
-  }
+.nav-overlay.open {
+  transform: translateX(0);
+}
 
-  .logout-button {
-    font-size: 0.9em;
-    padding: 5px 8px;
-  }
+.nav-content {
+  text-align: center;
+}
+
+.nav-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.nav-content li {
+  margin: 20px 0;
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+}
+
+.close-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  font-size: 2.5rem;
+  color: white;
+  cursor: pointer;
 }

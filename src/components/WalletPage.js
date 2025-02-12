@@ -282,7 +282,7 @@ const handleWithdraw = async () => {
   return (
     <div className="wallet-page">
        <div className="balance">
-      <h2>Wallet Balance: {isBalanceVisible ? `${walletBalance} NGN` : '*****'}</h2>
+      <h2>Wallet Balance: {isBalanceVisible ? `${walletBalance.toLocaleString()} NGN` : '*****'}</h2>
       <span onClick={toggleBalanceVisibility} style={{ cursor: 'pointer' }}>
         {isBalanceVisible ? <FaEyeSlash /> : <FaEye />}
       </span>
