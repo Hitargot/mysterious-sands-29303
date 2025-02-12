@@ -29,13 +29,6 @@
   margin-bottom: 20px;
 }
 
-.section-header {
-  font-size: 20px;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 10px;
-}
-
 /* Balance Display */
 .balance {
   font-size: 30px;
@@ -87,7 +80,7 @@
   background: rgba(255, 255, 255, 0.15);
 }
 
-/* Table */
+/* Transaction Table (Desktop View) */
 .transaction-table {
   width: 100%;
   border-collapse: collapse;
@@ -112,7 +105,7 @@
   background: rgba(255, 215, 0, 0.1);
 }
 
-/* Responsive Design */
+/* Mobile View: Convert Table to Cards */
 @media (max-width: 768px) {
   .admin-wallet-container {
       padding: 15px;
@@ -135,9 +128,35 @@
       padding: 10px;
   }
 
-  .transaction-table th, .transaction-table td {
-      padding: 8px;
+  /* Hide table and switch to card view */
+  .transaction-table {
+      display: none;
+  }
+
+  .transaction-card-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+  }
+
+  .transaction-card {
+      background: rgba(255, 215, 0, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(255, 215, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+  }
+
+  .transaction-card span {
       font-size: 14px;
+      color: #fff;
+  }
+
+  .transaction-card .label {
+      font-weight: bold;
+      color: gold;
   }
 }
 
@@ -158,10 +177,5 @@
   .fund-button, .withdraw-button, .see-more-button, .toggle-balance-button {
       font-size: 14px;
       padding: 8px;
-  }
-
-  .transaction-table th, .transaction-table td {
-      font-size: 12px;
-      padding: 6px;
   }
 }

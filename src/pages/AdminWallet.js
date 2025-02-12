@@ -17,6 +17,13 @@ const AdminWallet = () => {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [fundNote, setFundNote] = useState('');
   const [withdrawNote, setWithdrawNote] = useState('');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   //const apiUrl = "http://localhost:22222";
@@ -231,6 +238,44 @@ const AdminWallet = () => {
           <button className="see-more-button" onClick={handleSeeMore}>
             See More
           </button>
+        )}
+        {isMobile ? (
+          <div className="transaction-cards">
+            {filteredTransactions.map((tx) => (
+              <div key={tx._id} className="transaction-card">
+                <p><strong>ID:</strong> {tx._id}</p>
+                <p><strong>Type:</strong> {tx.type}</p>
+                <p><strong>Amount:</strong> {tx.type === 'Funding' ? `+₦${tx.amount.toLocaleString()}` : `-₦${tx.amount.toLocaleString()}`}</p>
+                <p><strong>Note:</strong> {tx.note || 'N/A'}</p>
+                <p><strong>Date:</strong> {new Date(tx.date).toLocaleDateString()} {new Date(tx.date).toLocaleTimeString()}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <table className="transaction-table">
+            <thead>
+              <tr>
+                <th>Transaction ID</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Note</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredTransactions.map((tx) => (
+                <tr key={tx._id}>
+                  <td>{tx._id}</td>
+                  <td>{tx.type}</td>
+                  <td style={{ color: tx.type === 'Funding' ? 'green' : 'red' }}>
+                    {tx.type === 'Funding' ? `+₦${tx.amount.toLocaleString()}` : `-₦${tx.amount.toLocaleString()}`}
+                  </td>
+                  <td>{tx.note || 'N/A'}</td>
+                  <td>{new Date(tx.date).toLocaleDateString()} {new Date(tx.date).toLocaleTimeString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>
