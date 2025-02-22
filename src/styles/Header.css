@@ -6,8 +6,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px;
-  background-color: #0A0A23;
-  color: white;
+  background-color: #576238; /* Dark Olive Green */
+  color: #f0eadc; /* Warm Beige */
   position: sticky;
   top: 0;
   z-index: 1000; /* Ensure the header stays above all content */
@@ -29,8 +29,15 @@
 
 /* Navigation Links - Mobile Hidden */
 .nav-links a {
-  color: white;
+  color: #f0eadc; /* Warm Beige */
   text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease-in-out;
+}
+
+/* Navigation Hover Effect */
+.nav-links a:hover {
+  color: #ffd95d; /* Golden Yellow */
 }
 
 /* Hamburger Menu Icon (Hidden on Desktop) */
@@ -38,7 +45,7 @@
   display: none;
   cursor: pointer;
   font-size: 1.5rem; /* Larger icon size for better tap targets */
-  color: white;
+  color: #f0eadc; /* Warm Beige */
 }
 
 /* Open State for Navigation (Mobile) */
@@ -48,7 +55,7 @@
   position: absolute;
   top: 60px;
   right: 15px;
-  background-color: #0A0A23;
+  background-color: #576238; /* Dark Olive Green */
   border-radius: 5px;
   padding: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);

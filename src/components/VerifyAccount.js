@@ -7,7 +7,8 @@ const VerifyAccount = () => {
   const [messageType, setMessageType] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = "http://localhost:22222"; // Replace with your API URL
 
 
   useEffect(() => {

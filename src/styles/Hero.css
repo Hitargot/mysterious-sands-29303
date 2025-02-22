@@ -1,13 +1,11 @@
-/* src/styles/Hero.css */
-
 /* General Styles */
 .hero-section {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 80vh; /* Full-height section */
-  background-color: #0A0A23; /* Dark background */
-  color: white;
+  background-color: #162660; /* Deep Navy Blue */
+  color: #f1e4d1; /* Soft Beige */
   text-align: center;
   padding: 20px;
   box-sizing: border-box; /* Ensure consistent padding behavior */
@@ -26,6 +24,7 @@
   margin-bottom: 20px;
   font-weight: bold; /* Emphasize the title */
   line-height: 1.2; /* Better spacing between lines */
+  color: #d0e6fd; /* Light Sky Blue */
 }
 
 /* Paragraph */
@@ -33,23 +32,25 @@
   font-size: 1.2rem;
   margin-bottom: 20px;
   line-height: 1.6; /* Better readability */
+  color: #f1e4d1; /* Soft Beige */
 }
 
 /* Button */
 .btn {
-  background-color: #f39c12; /* Warm button color */
-  color: white;
+  background-color: #d0e6fd; /* Light Sky Blue */
+  color: #162660; /* Deep Navy Blue for contrast */
   padding: 12px 25px;
-  border-radius: 5px;
+  border-radius: 8px; /* Rounded corners */
   border: none;
   cursor: pointer;
   font-size: 1rem;
+  font-weight: bold;
   transition: background-color 0.3s, transform 0.2s ease-in-out;
 }
 
 /* Button Hover */
 .btn:hover {
-  background-color: #e67e22; /* Darker orange on hover */
+  background-color: #b0d4fa; /* Slightly darker sky blue */
   transform: scale(1.05); /* Subtle hover effect */
 }
 
@@ -90,3 +91,72 @@
     padding: 12px 30px; /* Adjust button padding for larger screens */
   }
 }
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80vh; /* Full viewport height */
+  padding: 0 5%;
+  overflow: hidden;
+}
+
+.hero-content {
+  flex: 1;
+  max-width: 50%;
+  z-index: 2;
+}
+
+.canvas-container {
+  flex: 1;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-3d-model {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* General Styles */
+.hero-content {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeIn 1.5s ease-out forwards 0.5s; /* Delay text fade-in */
+}
+
+/* Fade-In Animation */
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    flex-direction: column-reverse; /* 3D model below text */
+    align-items: center;
+    text-align: center;
+    height: auto;
+  }
+
+  .hero-content {
+    max-width: 90%;
+  }
+
+  .canvas-container {
+    width: 100%;
+    height: 50vh;
+  }
+}
+
+.canvas-container {
+  position: relative;
+  z-index: 1;
+}
+
+

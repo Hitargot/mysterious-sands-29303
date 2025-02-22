@@ -8,11 +8,11 @@ const HeaderContainer = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: black;
+  background-color: #162660; /* Deep Navy Blue */
   padding: 20px;
-  position: sticky; /* Make it sticky */
-  top: 0; /* Stick to the top */
-  z-index: 1000; /* Stay above other elements */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 `;
 
 const Logo = styled.div`
@@ -26,17 +26,17 @@ const Logo = styled.div`
 
   span {
     font-size: 24px;
-    color: #00ffcc;
+    color: #d0e6fd; /* Light Sky Blue */
     font-weight: bold;
   }
 `;
 
 const MenuIcon = styled.div`
-  display: none; /* Initially hidden */
+  display: none;
   font-size: 1.8rem;
-  color: white;
+  color: #f1e4d1; /* Soft Beige */
   cursor: pointer;
-  padding: 0 10px; /* Same padding as logo */
+  padding: 0 10px;
 
   @media (max-width: 768px) {
     display: block; /* Show on mobile */
@@ -53,8 +53,13 @@ const Nav = styled.nav`
     }
 
     a {
-      color: white;
+      color: #f1e4d1;
       text-decoration: none;
+      transition: color 0.3s ease-in-out;
+    }
+
+    a:hover {
+      color: #d0e6fd;
     }
   }
 
@@ -64,69 +69,58 @@ const Nav = styled.nav`
       flex-direction: column;
       position: fixed;
       top: 0;
-      right: 0;
       left: 0;
-      bottom: 0;
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      align-items: center; /* Center menu items */
-      justify-content: center;
       width: 100%;
-      z-index: 999;
-      transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-      background-color: rgba(0, 0, 0, 0.9); /* Semi-transparent black background */
+      height: 100vh;
+      background-color: rgba(22, 38, 96, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateY(-100%);
+      transition: transform 0.4s ease-in-out, opacity 0.3s ease-in-out;
+      opacity: 0;
     }
 
     ul.open {
-      max-height: 100vh; /* Full viewport height */
+      transform: translateY(0);
       opacity: 1;
     }
 
     li {
-      margin: 20px 0; /* Increased margin for better spacing */
-      position: relative; /* Position for underline */
+      margin: 20px 0;
+      font-size: 24px;
     }
 
-    li a {
-      font-size: 24px; /* Increase font size for better readability */
-      position: relative; /* Ensure stacking context for ::after */
-    }
-
-    li a::after {
-      content: '';
-      display: block;
-      width: 0;
-      height: 2px;
-      background-color: #237a57; /* Green underline color */
-      transition: width 0.3s ease;
-      position: absolute;
-      bottom: -2px; /* Position it below the link */
-      left: 0;
-    }
-
+    /* Hide close icon on desktop */
     .close-icon {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: 15px;
+      right: 100px;
       font-size: 30px;
       cursor: pointer;
-      color: #ffffff;
-      display: block; /* Ensure it shows */
+      color: #fff;
+      display: none; /* Hide by default */
+    }
+
+    ul.open .close-icon {
+      display: block; /* Show only when menu is open on mobile */
     }
 
     body.no-scroll {
-      overflow: hidden; /* Prevent scrolling when overlay is active */
+      overflow: hidden;
     }
   }
 `;
+
+
+export { HeaderContainer, Logo, MenuIcon, Nav };
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => {
     setIsOpen((prevState) => !prevState);
-    document.body.classList.toggle('no-scroll', !isOpen); // Prevent body scroll when menu is open
+    document.body.classList.toggle('no-scroll', !isOpen);
   };
 
   return (

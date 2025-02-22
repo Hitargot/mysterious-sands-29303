@@ -44,6 +44,10 @@ const Sidebar = ({ setActiveComponent }) => {
           <FaUser />
           {isExpanded && <span>Profile</span>}
         </button>
+        {/* <button onClick={() => setActiveComponent('chatbot')} aria-label="Go to Chat Bot">
+          <FaUser />
+          {isExpanded && <span>Chat bot</span>}
+        </button> */}
       </nav>
     </div>
   );

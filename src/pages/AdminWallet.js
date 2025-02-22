@@ -25,8 +25,8 @@ const AdminWallet = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222";
+  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = "http://localhost:22222";
 
   // Fetch Admin Wallet Data
   const fetchWalletData = async () => {

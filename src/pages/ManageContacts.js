@@ -15,8 +15,8 @@ const ManageContacts = () => {
   const [alert, setAlert] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [adminName, setAdminName] = useState("");
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222"; 
+  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = "http://localhost:22222"; 
 
 
   // Utility to decode admin token

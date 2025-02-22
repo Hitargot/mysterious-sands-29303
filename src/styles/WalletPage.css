@@ -94,7 +94,6 @@ input:focus {
 /* Buttons */
 button {
   display: inline-block;
-  width: 100%;
   padding: 12px;
   background: #007bff;
   color: #fff;
