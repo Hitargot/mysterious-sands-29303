@@ -13,7 +13,7 @@ const Signup = () => {
   });
 
   const [alertMessage, setAlertMessage] = useState("");
-  const [alertDuration, setAlertDuration] = useState(3000);
+  const [alertDuration] = useState(3000);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
