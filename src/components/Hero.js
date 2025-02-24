@@ -5,9 +5,9 @@ import { OrbitControls, useGLTF } from "@react-three/drei";
 import "../styles/Hero.css";
 
 const models = [
-  { path: "/models/realistic_3d_bitcoin_model__crypto_asset.glb", scale: 3, position: [0, 0, 0] },
+  { path: "/models/realistic_3d_bitcoin_model__crypto_asset.glb", scale: 2.7, position: [0, 0, 0] },
   { path: "/models/bag_of_money.glb", scale: 30, position: [0, 1.5, 0] },
-  { path: "/models/realistic_3d_bitcoin_model__crypto_asset.glb", scale: 3, position: [0, 0, 0] },
+  { path: "/models/realistic_3d_bitcoin_model__crypto_asset.glb", scale: 2.7, position: [0, 0, 0] },
 ];
 
 const AnimatedModel = ({ model, visible }) => {

@@ -1,164 +1,234 @@
-/* General Layout for the component */
+/* General Layout */
 .transaction-history {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  background-color: #d0e6fd; /* Light blue background */
+  border-radius: 10px;
+  animation: fadeIn 0.8s ease-in-out;
 }
 
+/* Fade-in Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Section Title */
 .section-title {
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: bold;
-  color: #333;
+  color: #162660; /* Dark blue */
+  text-align: center;
+  margin-bottom: 20px;
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Search Bar */
+.search-bar-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
   margin-bottom: 20px;
 }
 
-/* Cards Grid */
+.search-bar {
+  width: 100%;
+  max-width: 400px;
+  padding: 12px 15px;
+  font-size: 1rem;
+  border: 2px solid #162660; /* Dark blue */
+  border-radius: 8px;
+  background-color: transparent;
+  color: #162660;
+  transition: 0.3s ease;
+}
+
+.search-bar:hover {
+  background-color: rgba(22, 38, 96, 0.1);
+}
+
+.search-bar:focus {
+  border-color: #4caf50; /* Green border focus */
+  background-color: #fff;
+  outline: none;
+}
+
+/* Transaction Cards Grid */
 .transaction-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
 }
 
-.card {
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  padding: 20px;
+/* Mobile Responsive Grid */
+@media (max-width: 768px) {
+  .transaction-cards {
+    grid-template-columns: 1fr;
+  }
 }
 
+/* Transaction Card */
+.card {
+  background-color: #162660; /* Dark blue */
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  color: #d0e6fd; /* Light blue text */
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.6s ease-in-out;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Card Hover Animation */
 .card:hover {
   transform: translateY(-5px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.card-header {
-  background-color: #f7f7f7;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* Subtle Background Animation */
+@keyframes pulse {
+  0% {
+    background-color: #162660;
+  }
+  50% {
+    background-color: #1a2d6f;
+  }
+  100% {
+    background-color: #162660;
+  }
 }
 
+.card:hover {
+  animation: pulse 1s infinite;
+}
+
+/* Service Name */
 .card-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #333;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #f1e4d1;
+  flex: 1;
 }
 
+/* Status Badge */
 .status-badge {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-weight: 500;
-  color: white;
-}
-
-.status-badge.success {
-  background-color: #4caf50;
-}
-
-.status-badge.error {
-  background-color: #f44336;
-}
-
-.card-content {
-  padding: 16px;
-  font-size: 1rem;
-  color: #555;
-}
-
-.transaction-id {
-  margin-bottom: 12px;
-}
-
-.clipboard-icon {
-  cursor: pointer;
-  margin-left: 8px;
-  color: #9ca3af;
-  transition: color 0.3s ease;
-}
-
-.clipboard-icon:hover {
-  color: #374151;
-}
-
-.card-footer {
-  padding: 16px;
-  display: flex;
-  justify-content: flex-end;
-  border-top: 1px solid #f0f0f0;
-}
-
-.card-footer button {
-  margin-left: 8px;
-}
-
-/* Loading Spinner */
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-}
-
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 2s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Error Message */
-.error-container {
-  text-align: center;
-  color: #f44336;
-}
-
-.retry-btn {
-  margin-top: 16px;
-}
-
-/* No History Found */
-.no-history {
-  text-align: center;
-  color: #777;
-  grid-column: span 3;
-}
-
-/* Card Header - Service Name and Status inline */
-.service-status-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-
-.card-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-}
-
-.status-badge {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-weight: 500;
-  color: white;
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-weight: bold;
+  color: #f1e4d1;
   white-space: nowrap;
 }
 
 .status-badge.success {
-  background-color: #4caf50;
+  background-color: #4caf50; /* Green */
 }
 
 .status-badge.error {
+  background-color: #f44336; /* Red */
+}
+
+/* Card Content */
+.card-content {
+  padding: 12px 0;
+  font-size: 0.95rem;
+}
+
+/* Transaction ID */
+.transaction-id {
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+/* Copy to Clipboard Icon */
+.clipboard-icon {
+  cursor: pointer;
+  margin-left: 5px;
+  color: #f1e4d1;
+  transition: color 0.3s ease;
+}
+
+.clipboard-icon:hover {
+  color: #d0e6fd;
+}
+
+/* Card Footer */
+.card-footer {
+  text-align: right;
+  margin-top: 12px;
+}
+
+/* Receipt Button */
+.card-footer button {
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+  color: #f1e4d1;
+}
+.card-button{
+  background-color: #f1e4d1;
+  color: #162660;
+
+}
+
+.card-button:hover{
+  background-color: #d0e6fd;
+  color: #162660;
+}
+/* Button Hover Effect */
+.card-footer button:hover {
+  background-color: #45a049;
+}
+
+/* Mobile-Friendly Button */
+@media (max-width: 480px) {
+  .card-footer {
+    text-align: center;
+  }
+  .card-button {
+    width: 100%;
+  }
+}
+
+/* Disabled Button */
+.card-footer button:disabled {
   background-color: #f44336;
+  cursor: not-allowed;
+}
+
+/* No History Message */
+.no-history {
+  text-align: center;
+  font-size: 1rem;
+  color: #162660;
+  grid-column: span 3;
+}
+
+/* Service Status Container */
+.service-status-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Slide-up Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

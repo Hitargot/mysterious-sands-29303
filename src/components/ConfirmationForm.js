@@ -13,14 +13,14 @@ const ConfirmationForm = ({ selectedService }) => {
   const [loading, setLoading] = useState(false);
   const [transactionId, setTransactionId] = useState("");
   const [showModal, setShowModal] = useState(false);
-  //const [apiUrl] = useState("https://mysterious-sands-29303-c1f04c424030.herokuapp.com");
-  const [apiUrl] = useState("http://localhost:22222");
+  //const [apiUrl] = useState("http://localhost:22222");
+
+  const [apiUrl] = useState("https://mysterious-sands-29303-c1f04c424030.herokuapp.com");
 
 
   useEffect(() => {
     if (selectedServiceId) {
-      const generatedTransactionId = generateTransactionId();
-      setTransactionId(generatedTransactionId);
+      setTransactionId(generateTransactionId());
     }
   }, [selectedServiceId]);
 
@@ -46,11 +46,9 @@ const ConfirmationForm = ({ selectedService }) => {
     const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
     if (token) {
       try {
-        const decodedToken = jwtDecode(token);
-        return decodedToken.id;
+        return jwtDecode(token).id;
       } catch (error) {
         console.error("Error decoding token:", error);
-        return null;
       }
     }
     return null;
@@ -58,7 +56,6 @@ const ConfirmationForm = ({ selectedService }) => {
 
   const showAlert = (message, type) => {
     setAlert({ message, type });
-    console.log("Alert set:", { message, type }); // Debugging alert
     setTimeout(() => setAlert(null), 5000);
   };
 
@@ -117,31 +114,26 @@ const ConfirmationForm = ({ selectedService }) => {
   };
 
   return (
-    <div className="confirmation-container">
-      {alert && (
-        <Alert
-          type={alert.type}
-          message={alert.message}
-          onClose={() => setAlert(null)}
-        />
-      )}
+    <div style={styles.container}>
+      {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
 
       {/* Button to Open Modal */}
-      <button className="open-modal-btn" onClick={() => setShowModal(true)}>
+      <button style={styles.openModalBtn} onClick={() => setShowModal(true)}>
         Open Confirmation Form
       </button>
 
       {/* Modal */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h4>Submit Confirmation</h4>
-            <form onSubmit={handleSubmit}>
-              <div>
-                <label>Select Service</label>
+        <div style={styles.modalOverlay}>
+          <div style={styles.modalContent}>
+            <h2 style={styles.modalTitle}>Submit Confirmation</h2>
+            <form onSubmit={handleSubmit} style={styles.form}>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Select Service</label>
                 <select
                   value={selectedServiceId}
                   onChange={(e) => setSelectedServiceId(e.target.value)}
+                  style={styles.input}
                 >
                   <option value="">Select a service</option>
                   {services.map((service) => (
@@ -151,32 +143,128 @@ const ConfirmationForm = ({ selectedService }) => {
                   ))}
                 </select>
               </div>
-              <div>
-                <label>Upload Document</label>
-                <input type="file" onChange={handleFileChange} />
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Upload Document</label>
+                <input type="file" onChange={handleFileChange} style={styles.fileInput} />
               </div>
-              <div>
-                <label>Note</label>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Note</label>
                 <textarea
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Add any additional notes..."
+                  style={styles.textarea}
                 />
               </div>
-              <div>
-                <button type="submit" disabled={loading}>
+
+              <div style={styles.buttonGroup}>
+                <button type="submit" style={styles.submitButton} disabled={loading}>
                   {loading ? "Submitting..." : "Submit Confirmation"}
                 </button>
+                <button style={styles.closeButton} onClick={() => setShowModal(false)}>
+                  Close
+                </button>
               </div>
-              <button className="close-modal-btn" onClick={() => setShowModal(false)}>
-                Close
-              </button>
             </form>
           </div>
         </div>
       )}
     </div>
   );
+};
+
+const styles = {
+  container: {
+    textAlign: "center",
+    padding: "20px",
+  },
+  openModalBtn: {
+    backgroundColor: "#162660",
+    color: "#fff",
+    padding: "12px 20px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    fontSize: "16px",
+    transition: "0.3s",
+  },
+  modalOverlay: {
+    position: "fixed",
+    top: "0",
+    left: "0",
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#d0e6fd",
+    padding: "20px",
+    borderRadius: "10px",
+    width: "400px",
+    textAlign: "center",
+  },
+  modalTitle: {
+    color: "#162660",
+    marginBottom: "15px",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "15px",
+  },
+  formGroup: {
+    display: "flex",
+    flexDirection: "column",
+    textAlign: "left",
+  },
+  label: {
+    fontWeight: "bold",
+    color: "#162660",
+    marginBottom: "5px",
+  },
+  input: {
+    padding: "10px",
+    border: "1px solid #162660",
+    borderRadius: "5px",
+    backgroundColor: "#f1e4d1",
+  },
+  fileInput: {
+    padding: "10px",
+    border: "1px solid #162660",
+    borderRadius: "5px",
+  },
+  textarea: {
+    padding: "10px",
+    border: "1px solid #162660",
+    borderRadius: "5px",
+    backgroundColor: "#f1e4d1",
+    height: "80px",
+  },
+  buttonGroup: {
+    display: "flex",
+    justifyContent: "space-between",
+  },
+  submitButton: {
+    backgroundColor: "#162660",
+    color: "#fff",
+    padding: "10px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+  closeButton: {
+    backgroundColor: "#f1e4d1",
+    color: "#162660",
+    padding: "10px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
 };
 
 export default ConfirmationForm;

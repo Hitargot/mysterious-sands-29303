@@ -23,8 +23,8 @@ const WalletPage = () => {
     accountName: '',
   });
   const [isBalanceVisible, setIsBalanceVisible] = useState(false);
-  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  const apiUrl = "http://localhost:22222";
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "http://localhost:22222";
 
   const toggleBalanceVisibility = () => {
     setIsBalanceVisible(!isBalanceVisible);
@@ -280,80 +280,219 @@ const handleWithdraw = async () => {
   const handleCloseAlert = () => setShowAlert(false);
 
   return (
-    <div className="wallet-page">
-       <div className="balance">
-      <h2>Wallet Balance: {isBalanceVisible ? `${walletBalance.toLocaleString()} NGN` : '*****'}</h2>
-      <span onClick={toggleBalanceVisibility} style={{ cursor: 'pointer' }}>
-        {isBalanceVisible ? <FaEyeSlash /> : <FaEye />}
-      </span>
-    </div>
-
-      <div className="withdraw-section">
-        <h3>Withdraw Funds</h3>
-        <label>
+    <div
+      style={{
+        backgroundColor: "#d0e6fd",
+        padding: "20px",
+        borderRadius: "10px",
+        maxWidth: "500px",
+        margin: "auto",
+        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
+      {/* Wallet Balance Section */}
+      <div
+        style={{
+          backgroundColor: "#162660",
+          color: "#d0e6fd",
+          padding: "15px",
+          borderRadius: "8px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          fontWeight: "bold",
+        }}
+      >
+        <h2 style={{ fontSize: "18px", margin: 0 }}>
+          Wallet Balance:{" "}
+          <span style={{ color: "#f1e4d1" }}>
+            {isBalanceVisible ? `${walletBalance.toLocaleString()} NGN` : "*****"}
+          </span>
+        </h2>
+        <span
+          onClick={toggleBalanceVisibility}
+          style={{ cursor: "pointer", fontSize: "20px" }}
+        >
+          {isBalanceVisible ? <FaEyeSlash /> : <FaEye />}
+        </span>
+      </div>
+  
+      {/* Withdraw Funds Section */}
+      <div
+        style={{
+          backgroundColor: "#ffffff",
+          padding: "15px",
+          borderRadius: "8px",
+          marginTop: "15px",
+          boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.05)",
+        }}
+      >
+        <h3 style={{ color: "#162660", marginBottom: "10px" }}>Withdraw Funds</h3>
+  
+        {/* Bank Account Selection */}
+        <label style={{ color: "#162660", fontWeight: "bold", display: "block" }}>
           Select Bank Account:
-          <select value={selectedBankAccount} onChange={(e) => setSelectedBankAccount(e.target.value)}>
-            <option value="">Select a bank account</option>
-            {bankAccounts.map((account, index) => (
-              <option key={index} value={account._id}>
-                {account.bankName} - {account.accountNumber}
-              </option>
-            ))}
-          </select>
         </label>
-        <label>
+        <select
+          value={selectedBankAccount}
+          onChange={(e) => setSelectedBankAccount(e.target.value)}
+          style={{
+            display: "block",
+            width: "100%",
+            padding: "8px",
+            border: "1px solid #162660",
+            borderRadius: "5px",
+            marginBottom: "10px",
+            backgroundColor: "#f9f9f9",
+          }}
+        >
+          <option value="">Select a bank account</option>
+          {bankAccounts.map((account, index) => (
+            <option key={index} value={account._id}>
+              {account.bankName} - {account.accountNumber}
+            </option>
+          ))}
+        </select>
+  
+        {/* Withdraw Amount Input */}
+        <label style={{ color: "#162660", fontWeight: "bold", display: "block" }}>
           Withdraw Amount:
-          <input
-            type="number"
-            placeholder="Enter amount to withdraw"
-            value={withdrawAmount}
-            onChange={(e) => setWithdrawAmount(e.target.value)}
-          />
         </label>
+        <input
+          type="number"
+          placeholder="Enter amount"
+          value={withdrawAmount}
+          onChange={(e) => setWithdrawAmount(e.target.value)}
+          style={{
+            display: "block",
+            width: "100%",
+            padding: "8px",
+            border: "1px solid #162660",
+            borderRadius: "5px",
+            marginTop: "5px",
+            marginBottom: "10px",
+            backgroundColor: "#f9f9f9",
+          }}
+        />
+  
+        {/* Withdraw Button */}
         <button
           onClick={handleWithdraw}
           disabled={!selectedBankAccount || Number(withdrawAmount) <= 0 || Number(withdrawAmount) > walletBalance}
+          style={{
+            backgroundColor: "#162660",
+            color: "#f1e4d1",
+            padding: "10px",
+            borderRadius: "5px",
+            width: "100%",
+            border: "none",
+            cursor: "pointer",
+            fontWeight: "bold",
+            transition: "background 0.3s",
+          }}
+          onMouseOver={(e) => (e.target.style.backgroundColor = "#0f1c48")}
+          onMouseOut={(e) => (e.target.style.backgroundColor = "#162660")}
         >
           Submit Withdrawal
         </button>
       </div>
-
-      <button onClick={() => setShowAddBankForm(!showAddBankForm)} className="add-bank-button">
-        {showAddBankForm ? 'Cancel' : 'Add Bank Account'}
+  
+      {/* Add Bank Account Button */}
+      <button
+        onClick={() => setShowAddBankForm(!showAddBankForm)}
+        style={{
+          backgroundColor: "#162660",
+          color: "#f1e4d1",
+          padding: "10px",
+          borderRadius: "5px",
+          width: "100%",
+          marginTop: "10px",
+          border: "none",
+          cursor: "pointer",
+          fontWeight: "bold",
+        }}
+      >
+        {showAddBankForm ? "Cancel" : "Add Bank Account"}
       </button>
-
+  
+      {/* Add Bank Account Form */}
       {showAddBankForm && (
-        <div className="add-bank-form">
-          <h3>Add New Bank Account</h3>
-          <label>Bank Name:
-            <input
-              type="text"
-              value={newBankAccount.bankName}
-              onChange={(e) => setNewBankAccount({ ...newBankAccount, bankName: e.target.value })}
-            />
-          </label>
-          <label>Account Number:
-            <input
-              type="text"
-              value={newBankAccount.accountNumber}
-              onChange={(e) => setNewBankAccount({ ...newBankAccount, accountNumber: e.target.value })}
-            />
-          </label>
-          <label>Account Name:
-            <input
-              type="text"
-              value={newBankAccount.accountName}
-              onChange={(e) => setNewBankAccount({ ...newBankAccount, accountName: e.target.value })}
-            />
-          </label>
-          <button onClick={handleAddBankAccount}>Add Account</button>
+        <div
+          style={{
+            backgroundColor: "#ffffff",
+            padding: "15px",
+            borderRadius: "8px",
+            marginTop: "15px",
+            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.05)",
+          }}
+        >
+          <h3 style={{ color: "#162660", marginBottom: "10px" }}>Add New Bank Account</h3>
+  
+          {["Bank Name", "Account Number", "Account Name"].map((field, index) => (
+            <div key={index} style={{ marginBottom: "10px" }}>
+              <label style={{ color: "#162660", fontWeight: "bold", display: "block" }}>
+                {field}:
+              </label>
+              <input
+                type="text"
+                value={newBankAccount[field.toLowerCase().replace(" ", "")]}
+                onChange={(e) =>
+                  setNewBankAccount({ ...newBankAccount, [field.toLowerCase().replace(" ", "")]: e.target.value })
+                }
+                style={{
+                  display: "block",
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #162660",
+                  borderRadius: "5px",
+                  backgroundColor: "#f9f9f9",
+                }}
+              />
+            </div>
+          ))}
+  
+          <button
+            onClick={handleAddBankAccount}
+            style={{
+              backgroundColor: "#162660",
+              color: "#f1e4d1",
+              padding: "10px",
+              borderRadius: "5px",
+              width: "100%",
+              border: "none",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            Add Account
+          </button>
         </div>
       )}
-
+  
+      {/* Alert Component */}
       {showAlert && <Alert message={alertMessage} type={alertType} onClose={handleCloseAlert} />}
-      <button onClick={handleAddBalance}>Add 1000 NGN for testing</button>
+  
+      {/* Add Balance for Testing */}
+      <button
+        onClick={handleAddBalance}
+        style={{
+          backgroundColor: "#162660",
+          color: "#f1e4d1",
+          padding: "10px",
+          borderRadius: "5px",
+          width: "100%",
+          marginTop: "10px",
+          border: "none",
+          cursor: "pointer",
+          fontWeight: "bold",
+        }}
+      >
+        Add 1000 NGN for testing
+      </button>
     </div>
   );
+  
 };
 
 export default WalletPage;

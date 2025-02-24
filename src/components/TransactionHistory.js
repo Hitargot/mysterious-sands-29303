@@ -19,8 +19,9 @@ const TransactionHistory = () => {
   const [filterType, setFilterType] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [filteredTransactions, setFilteredTransactions] = useState([]);
-  const apiUrl = "http://localhost:22222"; // Replace with your API URL
-  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "http://localhost:22222";
+
 
 
   useEffect(() => {
@@ -175,42 +176,39 @@ const TransactionHistory = () => {
   return (
     <div className="transaction-history">
       <h2>Transaction History</h2>
+{/* Filter Section */}
+<div className="filter-section">
+  <div className="filter-group">
+    <select onChange={(e) => setStatusFilter(e.target.value)} value={statusFilter}>
+      <option value="">Filter by Status</option>
+      <option value="Completed">Completed</option>
+      <option value="Pending">Pending</option>
+      <option value="Failed">Failed</option>
+    </select>
+    
+    <input
+      type="number"
+      placeholder="Enter Amount"
+      onChange={(e) => setAmountFilter(e.target.value)}
+      value={amountFilter}
+    />
+  </div>
 
-      {/* Filter Section */}
-      <div className="filter-section">
-        <select
-          onChange={(e) => setStatusFilter(e.target.value)}
-          value={statusFilter}
-        >
-          <option value="">Filter by Status</option>
-          <option value="Completed">Completed</option>
-          <option value="Pending">Pending</option>
-          <option value="Failed">Failed</option>
-        </select>
-        <input
-          type="number"
-          placeholder="Filter by Amount"
-          onChange={(e) => setAmountFilter(e.target.value)}
-          value={amountFilter}
-        />
-      </div>
+  <div className="filter-group">
+    <select onChange={(e) => setFilterType(e.target.value)} value={filterType}>
+      <option value="">All Types</option>
+      <option value="Withdrawal">Withdrawal</option>
+      <option value="Deposit">Deposit</option>
+    </select>
 
-      {/* Additional Filter Section */}
-      <div className="filters">
-        <select
-          onChange={(e) => setFilterType(e.target.value)}
-          value={filterType}
-        >
-          <option value="">All Types</option>
-          <option value="Withdrawal">Withdrawal</option>
-          <option value="Deposit">Deposit</option>
-        </select>
-        <input
-          type="date"
-          value={filterDate}
-          onChange={(e) => setFilterDate(e.target.value)}
-        />
-      </div>
+    <input
+      type="date"
+      value={filterDate}
+      onChange={(e) => setFilterDate(e.target.value)}
+    />
+  </div>
+</div>
+
 
       {loading ? (
         <Spinner />

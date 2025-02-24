@@ -1,22 +1,26 @@
 .trade-calculator {
   max-width: 500px;
-  margin: 0 auto;
+  margin: 20px auto;
   padding: 20px;
-  background: #fff;
+  background: #f1e4d1; /* Soft beige */
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
+  overflow-y: auto; /* Ensure scrollability */
 }
 
 .trade-calculator h2 {
-  color: #333;
+  color: #162660;
   margin-bottom: 15px;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .trade-calculator label {
   display: block;
   margin-top: 10px;
   font-weight: bold;
+  color: #162660;
 }
 
 .trade-calculator select,
@@ -24,36 +28,37 @@
   width: 100%;
   padding: 10px;
   margin-top: 5px;
-  border: 1px solid #ccc;
+  border: 1px solid #162660;
   border-radius: 5px;
   font-size: 16px;
+  background: #d0e6fd;
+  color: #162660;
 }
 
-/* .trade-calculator button {
-  width: 100%;
+.trade-calculator button {
   padding: 12px;
   margin-top: 15px;
-  background: #ff6600;
+  background: #162660;
   color: white;
   border: none;
   border-radius: 5px;
   font-size: 18px;
   cursor: pointer;
-  transition: background 0.3s;
-} */
+  transition: background 0.3s ease-in-out;
+}
 
 .trade-calculator button:hover {
-  background: #e65c00;
+  background: #0f1c44;
 }
 
-.exchange-rate-display {
-  background: #f9f9f9;
-  padding: 10px;
-  border-radius: 5px;
-  margin-top: 10px;
-  text-align: left;
+/* Scroll Fix */
+.trade-calculator,
+.receipt {
+  overflow-y: auto; /* Enable scrolling */
+  max-height: 90vh; /* Prevent cutting off content */
 }
 
+/* Receipt Overlay */
 .receipt-overlay {
   position: fixed;
   top: 0;
@@ -67,13 +72,14 @@
 }
 
 .receipt {
-  background: white;
+  background: #f1e4d1;
   padding: 20px;
   border-radius: 10px;
   text-align: center;
   position: relative;
   max-width: 400px;
   width: 100%;
+  max-height: 80vh; /* Prevent content from overflowing */
 }
 
 .receipt .close-btn {
@@ -87,56 +93,25 @@
   color: #ff0000;
 }
 
-.receipt button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.receipt button:first-of-type {
-  background: #007bff;
-  color: white;
-}
-
-.receipt button:first-of-type:hover {
-  background: #0056b3;
-}
-
-.receipt button:last-of-type {
-  background: #25D366;
-  color: white;
-}
-
-.receipt button:last-of-type:hover {
-  background: #1DA851;
-}
-
-.trade-details-container {
-  margin-top: 20px;
-}
-
+/* Fixed WhatsApp Button */
 .whatsapp-support-btn {
   position: fixed;
   bottom: 20px;
-  right: 20px;
+  right: 20px; /* Ensures it's properly placed */
   background: #25D366;
   color: white;
   border: none;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 24px;
+  font-size: 30px;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   transition: background 0.3s;
+  z-index: 1000; /* Keeps it above other elements */
 }
 
 .whatsapp-support-btn:hover {

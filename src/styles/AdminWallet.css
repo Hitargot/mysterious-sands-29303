@@ -30,15 +30,6 @@
   color: #fff;
 }
 
-/* Balance Display */
-.balance {
-  font-size: 30px;
-  font-weight: bold;
-  color: #ff8c00;
-  text-shadow: 0 2px 5px rgba(255, 140, 0, 0.6);
-  text-align: center;
-}
-
 /* Buttons */
 .fund-button, .withdraw-button, .see-more-button, .toggle-balance-button {
   background: #ff8c00;

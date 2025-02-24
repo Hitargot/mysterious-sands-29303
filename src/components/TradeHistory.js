@@ -16,8 +16,9 @@ const TradeHistory = () => {
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [statusFilter, setStatusFilter] = useState("");
 
-  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  const apiUrl = "http://localhost:22222";
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "http://localhost:22222";
+
 
   useEffect(() => {
     const fetchConfirmations = async () => {
@@ -148,6 +149,7 @@ const TradeHistory = () => {
 
               <CardFooter className="card-footer">
                 <Button
+                className="card-button"
                   variant="outline"
                   size="sm"
                   disabled={!confirmation.fileUrl}

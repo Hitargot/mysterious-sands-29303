@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Alert from '../components/Alert'; // Import your Alert component
-import '../styles/Login.css'; // Import your CSS file
-import axios from 'axios'; // Import axios
-import {jwtDecode} from 'jwt-decode'; // Import jwt-decode
+import Alert from '../components/Alert';
+import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
-const Login = ({ setUserRole }) => { // Accept setUserRole as a prop
-  const [credentials, setCredentials] = useState({
-    identifier: '',
-    password: '',
-  });
+const Login = ({ setUserRole }) => {
+  const [credentials, setCredentials] = useState({ identifier: '', password: '' });
   const [alertMessage, setAlertMessage] = useState('');
+  const [isHovered, setIsHovered] = useState(false); // ✅ Fix hover state
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -18,132 +15,156 @@ const Login = ({ setUserRole }) => { // Accept setUserRole as a prop
     setCredentials({ ...credentials, [name]: value });
   };
 
-  const apiUrl = "http://localhost:22222";
-  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "http://localhost:22222";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const response = await axios.post(`${apiUrl}/api/auth/login`, {
-        identifier: credentials.identifier,
-        password: credentials.password,
-      });
-
-      // Check for success response
+      const response = await axios.post(`${apiUrl}/api/auth/login`, credentials);
       if (response.status === 200) {
         setAlertMessage('Login successful! Redirecting to dashboard...');
-
-        // Decode the JWT token
         const token = response.data.token;
         const decodedToken = jwtDecode(token);
-        const userName = decodedToken.username; // Assuming 'username' is in the decoded token payload
 
-        // Extract user role and user ID from the decoded token
-        const role = decodedToken.role; // Assuming 'role' is in token payload
-
-        // Set the user role based on decoded token data
-        setUserRole(role); // Update the user role in the App
-
-        // Store the token in local storage
-        localStorage.setItem('jwtToken', response.data.token);
-        localStorage.setItem('username', userName);
-        console.log(response.data); // Check if 'username' is part of the response
+        setUserRole(decodedToken.role);
+        localStorage.setItem('jwtToken', token);
+        localStorage.setItem('username', decodedToken.username);
 
         setTimeout(() => {
-          navigate('/dashboard'); // Redirect to the dashboard after login
+          navigate('/dashboard');
         }, 3000);
       }
     } catch (err) {
-      // Handle errors
-      if (err.response) {
-        setAlertMessage(err.response.data.message || 'Login failed');
-      } else {
-        setAlertMessage('An unexpected error occurred.');
-      }
+      setAlertMessage(err.response?.data?.message || 'Login failed');
     }
   };
-
-  const checkTokenExpiration = () => {
-    const token = localStorage.getItem('jwtToken');
-
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        if (decodedToken.exp * 1000 < Date.now()) {
-          localStorage.removeItem('jwtToken'); // Remove expired token
-          window.location.href = '/login'; // Redirect to login page
-        }
-      } catch (error) {
-        console.error('Token decoding error', error);
-      }
-    }
-  };
-
-  // Run the check function when your app loads or when a page requiring authentication is accessed
-  checkTokenExpiration();
-
 
   return (
-    <div className="login">
-      <div className="login-container">
-        {/* Header Section */}
-        <header className="login-header">
-          <div className="logo">
-            <img src={require('../assets/images/Exodollarium-01.png')} alt="Logo" />
+    <div style={styles.login}>
+      <div style={styles.loginContainer}>
+        <header style={styles.loginHeader}>
+          <div style={styles.logo}>
+            <img src={require('../assets/images/Exodollarium-01.png')} alt="Logo" style={styles.logoImg} />
             <span>Exdollarium</span>
           </div>
           <nav>
-            <Link to="/">Home</Link>
-            <Link to="/signup">Signup</Link>
+            <Link to="/" style={styles.navLink}>Home</Link>
+            <Link to="/signup" style={styles.navLink}>Signup</Link>
           </nav>
         </header>
 
-        {/* Alert Section */}
-        {alertMessage && (
-          <Alert
-            message={alertMessage}
-            onClose={() => setAlertMessage('')}
-          />
-        )}
+        {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage('')} />}
 
-        <h2>Login</h2>
-        {/* Login Form */}
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label htmlFor="identifier">Username/Email/Phone:</label>
-            <input
-              type="text"
-              name="identifier"
-              id="identifier"
-              value={credentials.identifier}
-              onChange={handleChange}
-              required
-            />
+        <h2 style={styles.heading}>Login</h2>
+        <form onSubmit={handleSubmit} style={styles.loginForm}>
+          <div style={styles.formGroup}>
+            <label htmlFor="identifier" style={styles.label}>Username/Email/Phone:</label>
+            <input type="text" name="identifier" id="identifier" value={credentials.identifier} onChange={handleChange} required style={styles.input} />
           </div>
-          <div className="form-group">
-            <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              value={credentials.password}
-              onChange={handleChange}
-              required
-            />
+          <div style={styles.formGroup}>
+            <label htmlFor="password" style={styles.label}>Password:</label>
+            <input type="password" name="password" id="password" value={credentials.password} onChange={handleChange} required style={styles.input} />
           </div>
-          <button type="submit">Login</button>
+          <button 
+            type="submit" 
+            style={isHovered ? { ...styles.button, backgroundColor: '#d0e6fd' } : styles.button}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            Login
+          </button>
         </form>
 
-        {/* Footer Links */}
-        <div className="footer-links">
-          <p>Don't have an account? <Link to="/signup">Signup here.</Link></p>
-          <p><Link to="/forgot-password">Forgot Password?</Link></p>
+        <div style={styles.footerLinks}>
+          <p>Don't have an account? <Link to="/signup" style={styles.footerLink}>Signup here.</Link></p>
+          <p><Link to="/forgot-password" style={styles.footerLink}>Forgot Password?</Link></p>
         </div>
       </div>
     </div>
   );
+};
+
+const styles = {
+  login: {
+    height: '100vh',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#d0e6fd', // Light Blue
+  },
+  loginContainer: {
+    maxWidth: '400px',
+    padding: '25px',
+    backgroundColor: '#162660', // Dark Blue
+    borderRadius: '10px',
+    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
+    textAlign: 'center',
+  },
+  loginHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '20px',
+  },
+  logo: {
+    display: 'flex',
+    alignItems: 'center',
+    color: '#f1e4d1', // Cream
+    fontSize: '1.2rem',
+    fontWeight: 'bold',
+  },
+  logoImg: {
+    height: '40px',
+    marginRight: '10px',
+  },
+  navLink: {
+    marginLeft: '15px',
+    textDecoration: 'none',
+    color: '#f1e4d1', // Cream
+    transition: 'color 0.3s ease-in-out',
+  },
+  heading: {
+    color: '#f1e4d1', // Cream
+  },
+  loginForm: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  formGroup: {
+    marginBottom: '15px',
+    textAlign: 'left',
+  },
+  label: {
+    color: '#f1e4d1', // Cream
+    fontWeight: 'bold',
+  },
+  input: {
+    width: '100%',
+    padding: '10px',
+    border: '1px solid #d0e6fd', // Light Blue
+    borderRadius: '5px',
+    background: 'transparent',
+    color: '#f1e4d1', // Cream
+  },
+  button: {
+    backgroundColor: '#d0e6fd', // Cream
+    color: '#162660', // Dark Blue
+    padding: '10px',
+    border: 'none',
+    borderRadius: '5px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease-in-out',
+  },
+  footerLinks: {
+    marginTop: '15px',
+    color: '#f1e4d1', // Cream
+  },
+  footerLink: {
+    color: '#d0e6fd', // Light Blue
+    textDecoration: 'none',
+  },
 };
 
 export default Login;

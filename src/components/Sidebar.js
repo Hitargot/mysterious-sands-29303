@@ -1,53 +1,102 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaHome, FaCalculator, FaHistory, FaUser, FaWallet, FaExchangeAlt } from 'react-icons/fa'; // Added FaExchangeAlt for Trade History
-import Logo from '../assets/images/Exodollarium-01.png'; // Ensure correct path for your logo
-import '../styles/Sidebar.css';
+import { FaHome, FaCalculator, FaHistory, FaUser, FaWallet, FaExchangeAlt } from 'react-icons/fa';
+import Logo from '../assets/images/Exodollarium-01.png'; // Ensure correct path
 
-const Sidebar = ({ setActiveComponent }) => {
+const Sidebar = ({ setActiveComponent, activeComponent }) => {
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [hoveredItem, setHoveredItem] = useState(null); // Track hovered item
+
+  // 🔹 Sidebar Items
+  const menuItems = [
+    { label: 'Overview', icon: <FaHome />, component: 'overview' },
+    { label: 'Trade Calculator', icon: <FaCalculator />, component: 'trade-calculator' },
+    { label: 'Wallet', icon: <FaWallet />, component: 'wallet' },
+    { label: 'Transaction History', icon: <FaHistory />, component: 'transaction-history' },
+    { label: 'Trade History', icon: <FaExchangeAlt />, component: 'trade-history' },
+    { label: 'Profile', icon: <FaUser />, component: 'profile' },
+  ];
+
+  // 🔹 Inline Styles
+  const styles = {
+    sidebar: {
+      width: isExpanded ? '200px' : '70px',
+      height: '100vh',
+      backgroundColor: '#162660', // Dark Blue
+      color: '#d0e6fd', // Light Blue
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      paddingTop: '20px',
+      position: 'fixed',
+      transition: 'width 0.3s ease-in-out',
+      boxShadow: '4px 0px 8px rgba(0, 0, 0, 0.2)',
+    },
+    sidebarHeader: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: isExpanded ? 'center' : 'flex-start',
+      gap: '10px',
+      cursor: 'pointer',
+      paddingBottom: '20px',
+    },
+    logoIcon: {
+      width: '40px',
+      height: '40px',
+      cursor: 'pointer',
+    },
+    nav: {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+    },
+    button: (isActive, isHovered) => ({
+      display: 'flex',
+      alignItems: 'center',
+      gap: isExpanded ? '12px' : '0px',
+      padding: '12px',
+      fontSize: '16px',
+      color: '#d0e6fd',
+      background: isActive ? '#1d3375' : isHovered ? '#1f3b82' : 'transparent', // Highlight active & hover
+      border: 'none',
+      width: '100%',
+      textAlign: 'left',
+      cursor: 'pointer',
+      transition: 'background 0.3s ease-in-out',
+    }),
+    icon: {
+      fontSize: '20px',
+      minWidth: '30px',
+    },
+  };
 
   return (
     <div
-      className={`sidebar ${isExpanded ? 'expanded' : ''}`}
+      style={styles.sidebar}
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
     >
-      <div className="sidebar-header" onClick={() => navigate('/')}>
-        <img src={Logo} alt="Logo" className="logo-icon" />
-        {isExpanded && <h2>Exdollarium</h2>}
+      {/* Logo and Title */}
+      <div style={styles.sidebarHeader} onClick={() => navigate('/')}>
+        <img src={Logo} alt="Logo" style={styles.logoIcon} />
+        {isExpanded && <h2 style={{ fontSize: '18px', color: '#f1e4d1' }}>Exdollarium</h2>}
       </div>
 
-      <nav className="sidebar-nav">
-        <button onClick={() => setActiveComponent('overview')} aria-label="Go to Overview">
-          <FaHome />
-          {isExpanded && <span>Overview</span>}
-        </button>
-        <button onClick={() => setActiveComponent('trade-calculator')} aria-label="Go to Trade Calculator">
-          <FaCalculator />
-          {isExpanded && <span>Trade Calculator</span>}
-        </button>
-        <button onClick={() => setActiveComponent('wallet')} aria-label="Go to Wallet">
-          <FaWallet />
-          {isExpanded && <span>Wallet</span>}
-        </button>
-        <button onClick={() => setActiveComponent('transaction-history')} aria-label="Go to Transaction History">
-          <FaHistory />
-          {isExpanded && <span>Transaction History</span>}
-        </button>
-        <button onClick={() => setActiveComponent('trade-history')} aria-label="Go to Trade History">
-          <FaExchangeAlt /> {/* Use a different icon for Trade History */}
-          {isExpanded && <span>Trade History</span>}
-        </button>
-        <button onClick={() => setActiveComponent('profile')} aria-label="Go to Profile">
-          <FaUser />
-          {isExpanded && <span>Profile</span>}
-        </button>
-        {/* <button onClick={() => setActiveComponent('chatbot')} aria-label="Go to Chat Bot">
-          <FaUser />
-          {isExpanded && <span>Chat bot</span>}
-        </button> */}
+      {/* Navigation Buttons */}
+      <nav style={styles.nav}>
+        {menuItems.map(({ label, icon, component }) => (
+          <button
+            key={label}
+            onClick={() => setActiveComponent(component)}
+            style={styles.button(activeComponent === component, hoveredItem === component)}
+            onMouseEnter={() => setHoveredItem(component)}
+            onMouseLeave={() => setHoveredItem(null)}
+          >
+            <span style={styles.icon}>{icon}</span>
+            {isExpanded && <span>{label}</span>}
+          </button>
+        ))}
       </nav>
     </div>
   );

@@ -1,7 +1,6 @@
 import React, { useState, Suspense, lazy, useEffect, useCallback } from 'react';
 import DashboardHeader from '../components/DashboardHeader';
 import Sidebar from '../components/Sidebar';
-import '../styles/UserDashboard.css';
 import { getJwtToken, clearJwtToken } from '../utils/auth';
 import axios from 'axios';
 
@@ -13,53 +12,26 @@ const Profile = lazy(() => import('../components/Profile'));
 const TradeHistory = lazy(() => import('../components/TradeHistory'));
 const Wallet = lazy(() => import('../components/WalletPage'));
 
-// ErrorBoundary component for better error handling
-class ErrorBoundary extends React.Component {
-  state = { hasError: false };
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error, info) {
-    console.error('ErrorBoundary caught an error', error, info);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div>
-          <p>Something went wrong. Please try again later.</p>
-          <button onClick={() => window.location.reload()}>Retry</button>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-
-}
-
 const UserDashboard = () => {
-  // Retrieve activeComponent from localStorage or default to 'overview'
   const storedComponent = localStorage.getItem('activeComponent') || 'overview';
   const [activeComponent, setActiveComponent] = useState(storedComponent);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false); // Manage sidebar state
 
   // Function to handle alerts
   const handleAlert = (message, type) => {
     console.log(`${type.toUpperCase()}: ${message}`);
   };
 
-  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  const apiUrl = "http://localhost:22222";
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "http://localhost:22222";
 
-  // Save activeComponent to localStorage whenever it changes
+
   useEffect(() => {
     localStorage.setItem('activeComponent', activeComponent);
   }, [activeComponent]);
 
-  // Fetch initial wallet and bank account data (example implementation)
   const fetchBankAccounts = useCallback(async () => {
-    const token = getJwtToken(); // Retrieve token as needed
+    const token = getJwtToken();
     try {
       await axios.get(`${apiUrl}/api/wallet/banks`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -67,13 +39,12 @@ const UserDashboard = () => {
     } catch (error) {
       handleAlert(error.response?.data?.message || 'Failed to load bank accounts.', 'error');
     }
-  }, [apiUrl]); // Empty dependency array to ensure it's only created once
+  }, [apiUrl]);
 
   useEffect(() => {
-    fetchBankAccounts(); // Now only runs once
-  }, [fetchBankAccounts]); // The effect now only runs when fetchBankAccounts changes
+    fetchBankAccounts();
+  }, [fetchBankAccounts]);
 
-  // Render component based on active selection
   const renderComponent = () => {
     switch (activeComponent) {
       case 'overview':
@@ -89,25 +60,73 @@ const UserDashboard = () => {
       case 'profile':
         return <Profile />;
       default:
-        console.error('Unknown component:', activeComponent);
         return <Overview setActiveComponent={setActiveComponent} />;
     }
   };
 
+  // 🔹 Dynamic Sidebar Width
+  const sidebarWidth = isSidebarExpanded ? '250px' : '70px';
+
+  // 🔹 Styles
+  const styles = {
+    dashboard: {
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100vh',
+      backgroundColor: '#f5f5f5',
+    },
+    header: {
+      position: 'sticky',
+      top: '0',
+      width: '100%',
+      backgroundColor: '#ffffff',
+      zIndex: '1000',
+      boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
+    },
+    dashboardMain: {
+      display: 'flex',
+      flex: 1,
+      overflow: 'hidden',
+    },
+    sidebarContainer: {
+      width: sidebarWidth,
+      transition: 'width 0.3s ease',
+    },
+    contentContainer: {
+      flex: 1,
+      padding: '20px',
+      backgroundColor: '#ffffff',
+      boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+      borderRadius: '8px',
+      margin: '20px',
+      overflowY: 'auto',
+      height: 'calc(100vh - 70px)',
+      transition: 'margin-left 0.3s ease',
+    },
+  };
+
   return (
-    <div className="dashboard">
-      <DashboardHeader
-        clearJwtToken={clearJwtToken}
-        handleAlert={handleAlert}
-      />
-      <div className="dashboard-main">
-        <Sidebar setActiveComponent={setActiveComponent} activeComponent={activeComponent} />
-        <div className="dashboard-content">
-          <ErrorBoundary>
-            <Suspense fallback={<div className="spinner">Loading...</div>}>
-              {renderComponent()}
-            </Suspense>
-          </ErrorBoundary>
+    <div style={styles.dashboard}>
+      {/* Sticky Header */}
+      <div style={styles.header}>
+        <DashboardHeader clearJwtToken={clearJwtToken} handleAlert={handleAlert} />
+      </div>
+
+      <div style={styles.dashboardMain}>
+        {/* Sidebar with Expandable Width */}
+        <div style={styles.sidebarContainer}>
+          <Sidebar 
+            setActiveComponent={setActiveComponent} 
+            activeComponent={activeComponent}
+            setIsSidebarExpanded={setIsSidebarExpanded} // Send state handler to Sidebar
+          />
+        </div>
+
+        {/* Content Area (Adjusted Based on Sidebar State) */}
+        <div style={styles.contentContainer}>
+          <Suspense fallback={<div className="spinner">Loading...</div>}>
+            {renderComponent()}
+          </Suspense>
         </div>
       </div>
     </div>

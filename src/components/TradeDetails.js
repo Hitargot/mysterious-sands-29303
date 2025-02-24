@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Alert from "./Alert";
-import ConfirmationForm from "./ConfirmationForm"; // Importing the ConfirmationForm component
+import ConfirmationForm from "./ConfirmationForm";
 
 const TradeDetails = ({ selectedService }) => {
   const [serviceDetails, setServiceDetails] = useState(null);
@@ -11,11 +11,10 @@ const TradeDetails = ({ selectedService }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const validityCheckedRef = useRef(false);
-  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  const apiUrl = "http://localhost:22222"; 
+  
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "http://localhost:22222";
 
-
-  // Fetch service details when the component mounts or when selectedService changes
   useEffect(() => {
     const fetchServiceDetails = async () => {
       try {
@@ -41,7 +40,6 @@ const TradeDetails = ({ selectedService }) => {
     if (selectedService) fetchServiceDetails();
   }, [selectedService, apiUrl]);
 
-  // Function to check validity based on service status
   const checkValidity = async () => {
     setRefreshing(true);
     try {
@@ -74,41 +72,74 @@ const TradeDetails = ({ selectedService }) => {
     }
   };
 
-  // Ensure the service exists, return null if it doesn't
   if (!serviceDetails) return null;
 
-  const service = serviceDetails;
-
   return (
-    <div className="trade-details">
-      <h3>Service Details</h3>
+    <div style={{ 
+      maxWidth: "500px", 
+      margin: "20px auto", 
+      padding: "20px", 
+      background: "#f1e4d1", 
+      borderRadius: "10px", 
+      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)", 
+      textAlign: "center" 
+    }}>
+      <h3 style={{ color: "#162660", fontSize: "22px", fontWeight: "bold" }}>Service Details</h3>
+
       {loading ? (
-        <p>Loading...</p>
+        <p style={{ fontSize: "16px", color: "#333" }}>Loading...</p>
       ) : (
         <>
-          <p><strong>Description:</strong> {service.description}</p>
-          <p><strong>Note:</strong> {service.note}</p>
+          <p style={{ fontSize: "16px", color: "#333" }}>
+            <strong>Description:</strong> {serviceDetails.description}
+          </p>
+          <p style={{ fontSize: "16px", color: "#333" }}>
+            <strong>Note:</strong> {serviceDetails.note}
+          </p>
 
-          {/* Add button to check validity and refresh status */}
-          <button onClick={checkValidity} disabled={refreshing}>
+          <button 
+            onClick={checkValidity} 
+            disabled={refreshing} 
+            style={{
+              width: "100%",
+              padding: "12px",
+              marginTop: "15px",
+              background: refreshing ? "#ccc" : "#162660",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              fontSize: "18px",
+              cursor: refreshing ? "not-allowed" : "pointer",
+              transition: "background 0.3s ease-in-out"
+            }}
+          >
             {refreshing ? "Refreshing..." : "Check Validity"}
           </button>
 
-          {/* Show validity status */}
           {!validityCheckedRef.current ? (
-            <p>Click "Check Validity" to see if the details are still valid.</p>
+            <p style={{ fontSize: "14px", color: "#666", marginTop: "10px" }}>
+              Click "Check Validity" to see if the details are still valid.
+            </p>
           ) : isValid ? (
-            <p style={{ color: "green" }}>The details are still valid.</p>
+            <p style={{ fontSize: "14px", color: "green", marginTop: "10px" }}>
+              The details are still valid.
+            </p>
           ) : (
-            <p style={{ color: "red" }}>The details have expired.</p>
+            <p style={{ fontSize: "14px", color: "red", marginTop: "10px" }}>
+              The details have expired.
+            </p>
           )}
 
-          {/* Show alert if there's any */}
           {alertMessage && <Alert message={alertMessage} type={alertType} />}
 
-          {/* Mount the ConfirmationForm component */}
-          <div className="confirmation-section">
-            <h4>Submit Your Confirmation</h4>
+          <div style={{
+            marginTop: "20px", 
+            padding: "15px", 
+            background: "#d0e6fd", 
+            borderRadius: "10px", 
+            textAlign: "center"
+          }}>
+            <h4 style={{ fontSize: "18px", color: "#162660" }}>Submit Your Confirmation</h4>
             <ConfirmationForm selectedService={selectedService} />
           </div>
         </>
