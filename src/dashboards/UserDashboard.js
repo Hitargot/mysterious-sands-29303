@@ -86,7 +86,7 @@ const UserDashboard = () => {
     dashboardMain: {
       display: 'flex',
       flex: 1,
-      overflow: 'hidden',
+      // overflow: 'hidden',
     },
     sidebarContainer: {
       width: sidebarWidth,
