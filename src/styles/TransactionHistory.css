@@ -23,7 +23,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1rem;
-  padding: 1rem;
+  padding-top: 20px;
 }
 
 /* Filter Section */
