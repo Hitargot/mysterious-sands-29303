@@ -126,7 +126,7 @@
 /* Card Header */
 .card-header {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 10px;
   color: #f1e4d1;
   background-color: transparent;
