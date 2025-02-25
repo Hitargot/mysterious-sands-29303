@@ -214,12 +214,6 @@
   grid-column: span 3;
 }
 
-/* Service Status Container */
-.service-status-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
 
 /* Slide-up Animation */
 @keyframes fadeInUp {
