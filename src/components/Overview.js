@@ -223,6 +223,7 @@ const styles = {
     cursor: 'pointer',
     fontWeight: '600',
     transition: 'all 0.3s ease',
+    with: '100%',
   },
   buttonHover: {
     background: '#162660',
@@ -255,7 +256,7 @@ const styles = {
   },
   transactionText: {
     flex: 1,
-    textAlign: 'center',
+    // textAlign: 'center',
     fontSize: '14px',
     fontWeight: '500',
     color: '#d0e6fd',
