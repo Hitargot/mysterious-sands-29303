@@ -105,6 +105,7 @@ const styles = {
     alignItems: "center",
     justifyContent: "space-between",
     width: "100%",
+    gap: "20px",
   },
   closeBtn: {
     background: "#f1e4d1", // Soft Beige
