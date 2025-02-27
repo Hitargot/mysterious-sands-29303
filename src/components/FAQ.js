@@ -1,71 +1,81 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const FAQ = () => {
+  const [faqs, setFaqs] = useState([]);
   const [activeIndex, setActiveIndex] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+    //const apiUrl = "http://localhost:22222";
+
+  // Fetch FAQs from the backend
+  useEffect(() => {
+    const fetchFAQs = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/faqs`);
+        setFaqs(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching FAQs:", err);
+        setError("Failed to load FAQs.");
+        setLoading(false);
+      }
+    };
+
+    fetchFAQs();
+  }, []);
 
   const toggleFAQ = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
   };
 
-  const faqData = [
-    {
-      question: "What services do you offer?",
-      answer:
-        "We provide PayPal, Payoneer, and cryptocurrency to Naira exchange services at competitive rates.",
-    },
-    {
-      question: "How long does a transaction take?",
-      answer:
-        "Most transactions are processed within a few minutes, but it may take up to an hour in some cases.",
-    },
-    {
-      question: "What payment methods do you support?",
-      answer:
-        "We support PayPal, Payoneer, Bitcoin, and other cryptocurrencies for exchanges to Naira.",
-    },
-    {
-      question: "Is my transaction secure?",
-      answer:
-        "Yes! We prioritize security and ensure all transactions are processed safely and efficiently.",
-    },
-  ];
-
   return (
     <section id="faq" style={styles.faqSection}>
       <h2 style={styles.title}>Frequently Asked Questions</h2>
-      <div style={styles.faqList}>
-        {faqData.map((faq, index) => (
-          <div key={index} style={styles.faqItem}>
-            <div
-              style={{
-                ...styles.faqQuestion,
-                background: activeIndex === index ? "#162660" : "#d0e6fd",
-                color: activeIndex === index ? "#f1e4d1" : "#162660",
-              }}
-              onClick={() => toggleFAQ(index)}
-            >
-              {faq.question}
-              <span
-                style={{
-                  ...styles.arrow,
-                  transform: activeIndex === index ? "rotate(180deg)" : "rotate(0)",
-                }}
-              >
-                ▼
-              </span>
-            </div>
-            <div
-              style={{
-                ...styles.faqAnswer,
-                maxHeight: activeIndex === index ? "150px" : "0px",
-                opacity: activeIndex === index ? "1" : "0",
-              }}
-            >
-              {faq.answer}
-            </div>
-          </div>
-        ))}
-      </div>
+
+      {loading && <p>Loading FAQs...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {!loading && !error && (
+        <div style={styles.faqList}>
+          {faqs.length > 0 ? (
+            faqs.map((faq, index) => (
+              <div key={faq._id} style={styles.faqItem}>
+                <div
+                  style={{
+                    ...styles.faqQuestion,
+                    background: activeIndex === index ? "#162660" : "#d0e6fd",
+                    color: activeIndex === index ? "#f1e4d1" : "#162660",
+                  }}
+                  onClick={() => toggleFAQ(index)}
+                >
+                  {faq.question}
+                  <span
+                    style={{
+                      ...styles.arrow,
+                      transform: activeIndex === index ? "rotate(180deg)" : "rotate(0)",
+                    }}
+                  >
+                    ▼
+                  </span>
+                </div>
+                <div
+                  style={{
+                    ...styles.faqAnswer,
+                    maxHeight: activeIndex === index ? "150px" : "0px",
+                    opacity: activeIndex === index ? "1" : "0",
+                  }}
+                >
+                  {faq.answer}
+                </div>
+              </div>
+            ))
+          ) : (
+            <p>No FAQs available.</p>
+          )}
+        </div>
+      )}
     </section>
   );
 };

@@ -14,6 +14,7 @@ const Signup = () => {
 
   const [alertMessage, setAlertMessage] = useState("");
   const [alertDuration] = useState(3000);
+  const [loading, setLoading] = useState(false); // Loading state
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -21,11 +22,12 @@ const Signup = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222";
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com" || "http://localhost:22222";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (loading) return; // Prevent multiple submissions
 
     // Validate password
     const passwordRegex =
@@ -41,6 +43,8 @@ const Signup = () => {
       setAlertMessage("Passwords do not match.");
       return;
     }
+
+    setLoading(true); // Start loading
 
     try {
       const response = await axios.post(`${apiUrl}/api/auth/signup`, {
@@ -63,6 +67,8 @@ const Signup = () => {
       setAlertMessage(
         err.response?.data?.message || "An unexpected error occurred."
       );
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -73,14 +79,14 @@ const Signup = () => {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      backgroundColor: "#d0e6fd", // Light Blue
-      padding: "20px", // Prevents cut-off content on smaller screens
+      backgroundColor: "#d0e6fd",
+      padding: "20px",
     },
     signupContainer: {
-      width: "90%", // Ensures it looks good on both mobile & desktop
-      maxWidth: "400px", // Restricts width on larger screens
+      width: "90%",
+      maxWidth: "400px",
       padding: "25px",
-      backgroundColor: "#162660", // Dark Blue
+      backgroundColor: "#162660",
       borderRadius: "10px",
       boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
       textAlign: "center",
@@ -94,7 +100,7 @@ const Signup = () => {
     logo: {
       display: "flex",
       alignItems: "center",
-      color: "#f1e4d1", // Cream
+      color: "#f1e4d1",
       fontSize: "1.2rem",
       fontWeight: "bold",
     },
@@ -105,56 +111,56 @@ const Signup = () => {
     navLink: {
       marginLeft: "15px",
       textDecoration: "none",
-      color: "#f1e4d1", // Cream
+      color: "#f1e4d1",
       transition: "color 0.3s ease-in-out",
     },
     heading: {
-      color: "#f1e4d1", // Cream
-      fontSize: "1.5rem", // Increased for desktop readability
+      color: "#f1e4d1",
+      fontSize: "1.5rem",
     },
     signupForm: {
       display: "flex",
       flexDirection: "column",
-      width: "100%", // Ensures form elements fit inside container
+      width: "100%",
     },
     formGroup: {
       marginBottom: "15px",
       textAlign: "left",
     },
     label: {
-      color: "#f1e4d1", // Cream
+      color: "#f1e4d1",
       fontWeight: "bold",
     },
     input: {
       width: "100%",
       padding: "10px",
-      border: "1px solid #d0e6fd", // Light Blue
+      border: "1px solid #d0e6fd",
       borderRadius: "5px",
       background: "transparent",
-      color: "#f1e4d1", // Cream
-      fontSize: "1rem", // Better readability on desktop
+      color: "#f1e4d1",
+      fontSize: "1rem",
     },
     button: {
-      backgroundColor: "#d0e6fd", // Light Blue
-      color: "#162660", // Dark Blue
+      backgroundColor: loading ? "#a3c0e5" : "#d0e6fd", // Dim button when loading
+      color: "#162660",
       padding: "10px",
       border: "none",
       borderRadius: "5px",
       fontWeight: "bold",
-      cursor: "pointer",
+      cursor: loading ? "not-allowed" : "pointer",
       transition: "background-color 0.3s ease-in-out",
-      fontSize: "1rem", // Ensures button text is not too small
+      fontSize: "1rem",
     },
     footerLinks: {
       marginTop: "15px",
-      color: "#f1e4d1", // Cream
+      color: "#f1e4d1",
     },
     footerLink: {
-      color: "#d0e6fd", // Light Blue
+      color: "#d0e6fd",
       textDecoration: "none",
     },
   };
-  
+
   return (
     <div style={styles.signup}>
       <div style={styles.signupContainer}>
@@ -200,6 +206,7 @@ const Signup = () => {
               onChange={handleChange}
               required
               style={styles.input}
+              disabled={loading}
             />
           </div>
           <div style={styles.formGroup}>
@@ -211,6 +218,7 @@ const Signup = () => {
               onChange={handleChange}
               required
               style={styles.input}
+              disabled={loading}
             />
           </div>
           <div style={styles.formGroup}>
@@ -222,6 +230,7 @@ const Signup = () => {
               onChange={handleChange}
               required
               style={styles.input}
+              disabled={loading}
             />
           </div>
           <div style={styles.formGroup}>
@@ -233,6 +242,7 @@ const Signup = () => {
               onChange={handleChange}
               required
               style={styles.input}
+              disabled={loading}
             />
           </div>
           <div style={styles.formGroup}>
@@ -244,10 +254,11 @@ const Signup = () => {
               onChange={handleChange}
               required
               style={styles.input}
+              disabled={loading}
             />
           </div>
-          <button type="submit" style={styles.button}>
-            Signup
+          <button type="submit" style={styles.button} disabled={loading}>
+            {loading ? "Signing up..." : "Signup"}
           </button>
         </form>
 

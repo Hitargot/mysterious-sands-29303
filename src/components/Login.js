@@ -15,8 +15,8 @@ const Login = ({ setUserRole }) => {
     setCredentials({ ...credentials, [name]: value });
   };
 
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222";
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com" || "http://localhost:22222";
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,8 +66,8 @@ const Login = ({ setUserRole }) => {
             <label htmlFor="password" style={styles.label}>Password:</label>
             <input type="password" name="password" id="password" value={credentials.password} onChange={handleChange} required style={styles.input} />
           </div>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             style={isHovered ? { ...styles.button, backgroundColor: '#d0e6fd' } : styles.button}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -79,6 +79,9 @@ const Login = ({ setUserRole }) => {
         <div style={styles.footerLinks}>
           <p>Don't have an account? <Link to="/signup" style={styles.footerLink}>Signup here.</Link></p>
           <p><Link to="/forgot-password" style={styles.footerLink}>Forgot Password?</Link></p>
+          <p>
+            Didn't receive the email? <a href="/resend-verification" style={styles.footerLink}>Resend Verification</a>
+          </p>
         </div>
       </div>
     </div>

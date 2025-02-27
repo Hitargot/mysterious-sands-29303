@@ -26,6 +26,8 @@ import AdminHome from './pages/AdminHome';
 import RoleLogin from './components/RoleLogin';
 import NoAccess from './components/NoAccess';
 import TradeHistory from './components/TradeHistory';
+import VerifyEmail from './components/VerifyEmail';
+import ResendVerification from './components/ResendVerification';
 
 
 
@@ -57,8 +59,9 @@ const App = () => {
           <Route path="/role/login" element={<RoleLogin />} />
           <Route path="/role/no-access" element={<NoAccess/>} />
           <Route path="/trade-history" element={<TradeHistory/>} />
+          <Route path="/verify-email" element={<VerifyEmail/>} />
+          <Route path="/resend-verification" element={<ResendVerification/>} />
 
-          
           <Route
             path="/admin"
             element={

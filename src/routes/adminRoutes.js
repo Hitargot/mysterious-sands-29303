@@ -10,6 +10,7 @@ import NotificationsManagement from '../pages/NotificationsManagement';
 import AuditLogs from '../pages/AuditLogs';
 import ManageContacts from '../pages/ManageContacts';
 import  BankAccountList from '../pages/BankAccountList';
+import AdminFAQ from '../pages/AdminFAQ';
 
 
 const adminRoutes = [
@@ -24,7 +25,7 @@ const adminRoutes = [
   { path: '/admin/audit-logs', component: AuditLogs, permissions: ['view_audit_logs'] },
   { path: '/admin/manage-contacts', component: ManageContacts, permissions: ['manage_contacts'] },
   { path: '/admin/Banks-list', component: BankAccountList, permissions: ['manage_contacts'] },
-
+  { path: '/admin/Admin-faq', component:AdminFAQ, permissions: ['manage_contacts'] },
 ];
 
 export default adminRoutes;

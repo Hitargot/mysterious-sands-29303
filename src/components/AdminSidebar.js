@@ -74,6 +74,10 @@ const AdminSidebar = () => {
           <FaAddressBook className="sidebar-icon" />  {/* Updated to FaAddressBook */}
           {isExpanded && <span>Manage Contacts</span>}
         </Link>
+        <Link to="/admin/Admin-faq">
+          <FaAddressBook className="sidebar-icon" />  {/* Updated to FaAddressBook */}
+          {isExpanded && <span>Admin Faq</span>}
+        </Link>
       </nav>
     </div>
   );
