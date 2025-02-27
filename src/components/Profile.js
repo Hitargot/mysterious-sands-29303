@@ -3,7 +3,7 @@ import Alert from "./Alert";
 import axios from "axios";
 
 const Profile = () => {
-  const [userInfo, setUserInfo] = useState({ fullName: "", email: "", phone: "" });
+  const [userInfo, setUserInfo] = useState({ fullName: "", email: "", phone: "", isVerified: false });
   const [newFullName, setNewFullName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -27,11 +27,11 @@ const Profile = () => {
         const response = await axios.get(`${apiUrl}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUserInfo(response.data);
+        setUserInfo(response.data); // Ensure backend sends 'isVerified'
       } catch (error) {
         setAlert({ message: "Error fetching profile data", type: "error", show: true });
       }
-    };
+    };    
 
     fetchProfileData();
   }, [token, apiUrl]);
@@ -102,9 +102,12 @@ const Profile = () => {
           )}
         </label>
         <label style={styles.label}>
-          Email:
-          <p style={styles.text}>{userInfo.email}</p>
-        </label>
+  Email:
+  <p style={styles.text}>
+    {userInfo.email} {userInfo.isVerified && <span style={{ color: "green", fontWeight: "bold" }}>✅ Verified</span>}
+  </p>
+</label>
+
         <label style={styles.label}>
           Phone Number:
           <p style={styles.text}>{userInfo.phone}</p>
