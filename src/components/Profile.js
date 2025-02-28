@@ -21,20 +21,22 @@ const Profile = () => {
       window.location.href = "/login";
       return;
     }
-
+  
     const fetchProfileData = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUserInfo(response.data); // Ensure backend sends 'isVerified'
+        console.log(response.data); // ✅ Debugging step
+        setUserInfo(response.data);
       } catch (error) {
         setAlert({ message: "Error fetching profile data", type: "error", show: true });
       }
-    };    
-
+    };
+  
     fetchProfileData();
   }, [token, apiUrl]);
+  
 
   const handleEditProfile = () => {
     setIsEditing(true);
@@ -102,12 +104,16 @@ const Profile = () => {
           )}
         </label>
         <label style={styles.label}>
-  Email:
-  <p style={styles.text}>
-    {userInfo.email} {userInfo.isVerified && <span style={{ color: "green", fontWeight: "bold" }}>✅ Verified</span>}
-  </p>
-</label>
-
+          Email:
+          <p style={styles.text}>
+            {userInfo.email}{" "}
+            {userInfo.isVerified ? (
+              <span style={{ color: "green", fontWeight: "bold" }}>✅ Verified</span>
+            ) : (
+              <span style={{ color: "red", fontWeight: "bold" }}>❌ Not Verified</span>
+            )}
+          </p>
+        </label>
         <label style={styles.label}>
           Phone Number:
           <p style={styles.text}>{userInfo.phone}</p>

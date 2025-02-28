@@ -11,8 +11,8 @@ const VerifyEmail = () => {
   const [loading, setLoading] = useState(true); // ✅ Loading state added
   const [isResendDisabled, setIsResendDisabled] = useState(false);
   const navigate = useNavigate();
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com" || "http://localhost:22222";
-
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "http://localhost:22222";
   useEffect(() => {
     if (!token) {
       setAlert({ message: 'Invalid verification link.', type: 'error' });
