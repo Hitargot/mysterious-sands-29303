@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FaBars, FaSignOutAlt, FaUserCircle, FaTimes } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Notifications from './Notifications';
@@ -15,14 +15,35 @@ const DashboardHeader = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [userName, setUserName] = useState('User');
+  const [logoutHover, setLogoutHover] = useState(false);
 
-  // Function to check token expiry
-  const checkTokenExpiration = () => {
+  const handleResize = useCallback(() => {
+    setIsMobile(window.innerWidth <= 768);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [handleResize]);
+
+  // ✅ Move handleLogout above checkTokenExpiration
+  const handleLogout = useCallback(() => {
+    clearJwtToken();
+    localStorage.removeItem('jwtToken');
+    setBankAccounts?.([]);
+    setSelectedBankAccount?.(null);
+    setWalletBalance?.(0);
+    navigate('/login');
+    handleAlert('Logged out successfully.', 'success');
+  }, [clearJwtToken, setBankAccounts, setSelectedBankAccount, setWalletBalance, navigate, handleAlert]);
+
+  // ✅ Now handleLogout is defined before use
+  const checkTokenExpiration = useCallback(() => {
     const token = localStorage.getItem('jwtToken');
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        const currentTime = Date.now() / 1000; // Convert to seconds
+        const currentTime = Date.now() / 1000;
 
         if (decodedToken.exp < currentTime) {
           handleAlert('Session expired. Please log in again.', 'error');
@@ -33,14 +54,14 @@ const DashboardHeader = ({
         handleLogout();
       }
     }
-  };
+  }, [handleAlert, handleLogout]);
 
-  // Auto-logout when token expires
+  // Auto-logout on token expiry
   useEffect(() => {
     checkTokenExpiration();
-    const interval = setInterval(checkTokenExpiration, 60000); // Check every 1 minute
-    return () => clearInterval(interval); // Cleanup
-  }, []);
+    const interval = setInterval(checkTokenExpiration, 60000);
+    return () => clearInterval(interval);
+  }, [checkTokenExpiration]);
 
   useEffect(() => {
     const fetchUserFromLocalStorage = () => {
@@ -60,25 +81,9 @@ const DashboardHeader = ({
         console.error('Error retrieving token:', error);
       }
     };
-  
+
     fetchUserFromLocalStorage();
-  }, [navigate, handleAlert]);  
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const handleLogout = () => {
-    clearJwtToken();
-    localStorage.removeItem('jwtToken');
-    setBankAccounts?.([]);
-    setSelectedBankAccount?.(null);
-    setWalletBalance?.(0);
-    navigate('/login');
-    handleAlert('Logged out successfully.', 'success');
-  };
+  }, [navigate, handleAlert, handleLogout]);
 
   const getGreeting = () => {
     const currentHour = new Date().getHours();
@@ -89,14 +94,15 @@ const DashboardHeader = ({
 
   const navigateToProfile = () => navigate('/profile');
 
-  // 🔹 Inline Styles
+
+  // Styles
   const styles = {
     header: {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      backgroundColor: '#162660', // Dark Blue
-      color: '#f1e4d1', // Cream
+      backgroundColor: '#162660',
+      color: '#f1e4d1',
       padding: '15px 25px',
       fontSize: '18px',
       fontWeight: '500',
@@ -105,7 +111,7 @@ const DashboardHeader = ({
     greeting: {
       fontSize: '20px',
       fontWeight: 'bold',
-      color: '#d0e6fd', // Light Blue
+      color: '#d0e6fd',
     },
     headerRight: {
       display: 'flex',
@@ -117,12 +123,9 @@ const DashboardHeader = ({
       cursor: 'pointer',
       transition: 'color 0.3s ease-in-out',
     },
-    iconHover: {
-      color: '#d0e6fd', // Light Blue
-    },
     logoutButton: {
-      backgroundColor: '#d0e6fd', // Light Blue
-      color: '#162660', // Dark Blue
+      backgroundColor: logoutHover ? '#b5d4fa' : '#d0e6fd',
+      color: '#162660',
       padding: '8px 15px',
       border: 'none',
       borderRadius: '5px',
@@ -132,9 +135,6 @@ const DashboardHeader = ({
       alignItems: 'center',
       gap: '5px',
       transition: 'background-color 0.3s ease-in-out',
-    },
-    logoutButtonHover: {
-      backgroundColor: '#b5d4fa', // Lighter Blue
     },
     menuIcon: {
       fontSize: '28px',
@@ -159,76 +159,40 @@ const DashboardHeader = ({
       cursor: 'pointer',
       color: '#d0e6fd',
     },
-    navList: {
-      listStyle: 'none',
-      padding: 0,
-      marginTop: '20px',
-    },
-    navItem: {
-      padding: '15px',
-      borderBottom: '1px solid #d0e6fd',
-      cursor: 'pointer',
-      transition: 'background 0.3s',
-    },
-    navItemHover: {
-      background: '#1d3375',
-    },
   };
 
   return (
     <header style={styles.header}>
       <h1 style={styles.greeting}>{`${getGreeting()}, ${userName}`}</h1>
 
-      {/* Right section with icons */}
       <div style={styles.headerRight}>
         <Notifications style={styles.icon} />
 
         {!isMobile && (
           <>
-            <FaUserCircle
-              style={styles.icon}
-              onClick={navigateToProfile}
-              onMouseEnter={(e) => (e.target.style.color = styles.iconHover.color)}
-              onMouseLeave={(e) => (e.target.style.color = '')}
-              aria-label="User Profile"
-            />
+            <FaUserCircle style={styles.icon} onClick={navigateToProfile} />
             <button
               style={styles.logoutButton}
               onClick={handleLogout}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = styles.logoutButtonHover.backgroundColor)}
-              onMouseLeave={(e) => (e.target.style.backgroundColor = styles.logoutButton.backgroundColor)}
-              aria-label="Logout"
+              onMouseEnter={() => setLogoutHover(true)}
+              onMouseLeave={() => setLogoutHover(false)}
             >
               <FaSignOutAlt /> Logout
             </button>
           </>
         )}
 
-        {/* Menu Icon for Mobile */}
-        {isMobile && (
-          <FaBars style={styles.menuIcon} onClick={() => setMenuOpen(true)} />
-        )}
+        {isMobile && <FaBars style={styles.menuIcon} onClick={() => setMenuOpen(true)} />}
       </div>
 
-      {/* Mobile Overlay Menu */}
       {isMobile && (
         <nav style={styles.navOverlay}>
           <FaTimes style={styles.closeButton} onClick={() => setMenuOpen(false)} />
-          <ul style={styles.navList}>
-            <li
-              style={styles.navItem}
-              onClick={navigateToProfile}
-              onMouseEnter={(e) => (e.target.style.background = styles.navItemHover.background)}
-              onMouseLeave={(e) => (e.target.style.background = '')}
-            >
+          <ul>
+            <li onClick={navigateToProfile} style={{ padding: '15px', cursor: 'pointer' }}>
               Profile
             </li>
-            <li
-              style={styles.navItem}
-              onClick={handleLogout}
-              onMouseEnter={(e) => (e.target.style.background = styles.navItemHover.background)}
-              onMouseLeave={(e) => (e.target.style.background = '')}
-            >
+            <li onClick={handleLogout} style={{ padding: '15px', cursor: 'pointer' }}>
               Logout
             </li>
           </ul>
