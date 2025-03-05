@@ -27,20 +27,28 @@ const TradeHistory = () => {
         const response = await axios.get(`${apiUrl}/api/confirmations`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
+  
         const sortedConfirmations = response.data.confirmations.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
-
-        setConfirmations(sortedConfirmations || []);
+  
+        // ✅ If the response is empty, set a custom message instead of an error
+        if (sortedConfirmations.length === 0) {
+          setError("No trade history found.");
+        } else {
+          setConfirmations(sortedConfirmations);
+          setError(""); // Clear any previous error
+        }
       } catch (err) {
         setError("Failed to load trade history. Please try again.");
       } finally {
         setLoading(false);
       }
     };
+  
     fetchConfirmations();
   }, [apiUrl]);
+  
 
   const copyToClipboard = (txid) => {
     if (!txid) return;

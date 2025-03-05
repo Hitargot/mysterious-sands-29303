@@ -16,6 +16,32 @@ const DashboardHeader = ({
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [userName, setUserName] = useState('User');
 
+  // Function to check token expiry
+  const checkTokenExpiration = () => {
+    const token = localStorage.getItem('jwtToken');
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        const currentTime = Date.now() / 1000; // Convert to seconds
+
+        if (decodedToken.exp < currentTime) {
+          handleAlert('Session expired. Please log in again.', 'error');
+          handleLogout();
+        }
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        handleLogout();
+      }
+    }
+  };
+
+  // Auto-logout when token expires
+  useEffect(() => {
+    checkTokenExpiration();
+    const interval = setInterval(checkTokenExpiration, 60000); // Check every 1 minute
+    return () => clearInterval(interval); // Cleanup
+  }, []);
+
   useEffect(() => {
     const fetchUserFromLocalStorage = () => {
       try {
@@ -27,8 +53,7 @@ const DashboardHeader = ({
             setUserName(extractedUsername);
           } catch (error) {
             handleAlert('Session expired. Please log in again.', 'error');
-            localStorage.removeItem('jwtToken'); 
-            navigate('/login');
+            handleLogout();
           }
         }
       } catch (error) {

@@ -28,7 +28,7 @@ import NoAccess from './components/NoAccess';
 import TradeHistory from './components/TradeHistory';
 import VerifyEmail from './components/VerifyEmail';
 import ResendVerification from './components/ResendVerification';
-
+import Chatbot from './components/Chatbot';
 
 
 const App = () => {
@@ -61,6 +61,7 @@ const App = () => {
           <Route path="/trade-history" element={<TradeHistory/>} />
           <Route path="/verify-email" element={<VerifyEmail/>} />
           <Route path="/resend-verification" element={<ResendVerification/>} />
+          <Route path="/chat-bot" element={<Chatbot/>} />
 
           <Route
             path="/admin"

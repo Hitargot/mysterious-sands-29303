@@ -11,11 +11,14 @@ const TransactionHistory = lazy(() => import('../components/TransactionHistory')
 const Profile = lazy(() => import('../components/Profile'));
 const TradeHistory = lazy(() => import('../components/TradeHistory'));
 const Wallet = lazy(() => import('../components/WalletPage'));
+const Chatbot = lazy(() => import('../components/Chatbot'));
+
 
 const UserDashboard = () => {
   const storedComponent = localStorage.getItem('activeComponent') || 'overview';
   const [activeComponent, setActiveComponent] = useState(storedComponent);
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false); // Manage sidebar state
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+
 
   // Function to handle alerts
   const handleAlert = (message, type) => {
@@ -26,18 +29,21 @@ const UserDashboard = () => {
   //const apiUrl = "http://localhost:22222";
 
 
+
   useEffect(() => {
     localStorage.setItem('activeComponent', activeComponent);
   }, [activeComponent]);
 
   const fetchBankAccounts = useCallback(async () => {
     const token = getJwtToken();
+    if (!token) return; // Prevent API call if no token
+
     try {
       await axios.get(`${apiUrl}/api/wallet/banks`, {
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (error) {
-      handleAlert(error.response?.data?.message || 'Failed to load bank accounts.', 'error');
+      console.error("Failed to load bank accounts.", error);
     }
   }, [apiUrl]);
 
@@ -57,6 +63,8 @@ const UserDashboard = () => {
         return <TransactionHistory />;
       case 'trade-history':
         return <TradeHistory />;
+      case 'chat-bot':
+        return <Chatbot />;
       case 'profile':
         return <Profile />;
       default:
@@ -98,7 +106,7 @@ const UserDashboard = () => {
       backgroundColor: '#ffffff',
       boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
       borderRadius: '8px',
-      margin: '20px',
+      // margin: '20px',
       overflowY: 'auto',
       height: 'calc(100vh - 70px)',
       transition: 'margin-left 0.3s ease',

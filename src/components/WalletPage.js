@@ -22,6 +22,15 @@ const WalletPage = () => {
     accountNumber: '',
     accountName: '',
   });
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    // Allow only numbers for accountNumber
+    if (name === "accountNumber" && !/^\d*$/.test(value)) return;
+
+    setNewBankAccount((prev) => ({ ...prev, [name]: value }));
+  };
+
   const [isBalanceVisible, setIsBalanceVisible] = useState(false);
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   //const apiUrl = "http://localhost:22222";
@@ -70,175 +79,196 @@ const WalletPage = () => {
     if (!token) return;
 
     try {
-        const response = await axios.get(`${apiUrl}/api/wallet/banks`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+      const response = await axios.get(`${apiUrl}/api/wallet/banks`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        console.log('Bank Accounts Response:', response.data);
+      console.log('Bank Accounts Response:', response.data);
 
-        if (Array.isArray(response.data.banks) && response.data.banks.length > 0) {
-            setBankAccounts(response.data.banks);
-            
-            // Set a default selected bank account ID if banks are available
-            setSelectedBankAccount(response.data.banks[0]._id);
-        } else {
-            handleAlert('No bank accounts available. Please add a bank account.', 'error');
-            setBankAccounts([]);
-            setSelectedBankAccount(null);
-        }
-    } catch (error) {
-        handleAlert(error.response?.data?.message || 'Failed to load bank accounts.', 'error');
-    }
-}, [getJwtToken, apiUrl]);
+      if (Array.isArray(response.data.banks) && response.data.banks.length > 0) {
+        setBankAccounts(response.data.banks);
 
-
-
-useEffect(() => {
-  fetchWalletData();
-  fetchBankAccounts();
-}, [fetchWalletData, fetchBankAccounts]);
-
-
-
-
-// Ensure useNotification and other hooks are at the top
-
-
-// Handle Withdraw logic
-const handleWithdraw = async () => {
-  const token = getJwtToken();
-  if (!token) return;
-
-  const amount = parseFloat(withdrawAmount);
-  console.log("Withdraw Amount:", amount);
-  console.log("Selected Bank Account ID:", selectedBankAccount);
-
-  if (!bankAccounts || bankAccounts.length === 0) {
-    handleAlert('No bank accounts found. Please add or refresh bank accounts.', 'error');
-    addNotification({
-      message: 'No bank accounts found. Please add or refresh bank accounts.',
-      type: 'error',
-      read: false,
-    });
-    return;
-  }
-
-  if (!selectedBankAccount) {
-    handleAlert('Please select a bank account.', 'error');
-    addNotification({
-      message: 'Please select a bank account.',
-      type: 'error',
-      read: false,
-    });
-    return;
-  }
-
-  const [bankName, accountNumber] = selectedBankAccount.split(' - ');
-  const selectedBank = bankAccounts.find(
-    bank => bank.bankName === bankName && bank.accountNumber === accountNumber
-  );
-
-  console.log("Selected Bank Object:", selectedBank);
-
-  if (!selectedBank) {
-    handleAlert('Invalid bank selection. Please select a valid bank account.', 'error');
-    addNotification({
-      message: 'Invalid bank selection. Please select a valid bank account.',
-      type: 'error',
-      read: false,
-    });
-    return;
-  }
-
-  if (isNaN(amount) || amount <= 0) {
-    handleAlert('Please enter a valid withdrawal amount greater than zero.', 'error');
-    addNotification({
-      message: 'Please enter a valid withdrawal amount greater than zero.',
-      type: 'error',
-      read: false,
-    });
-    return;
-  }
-
-  if (amount > walletBalance) {
-    handleAlert('Insufficient funds. Enter an amount within your wallet balance.', 'error');
-    addNotification({
-      message: 'Insufficient funds. Enter an amount within your wallet balance.',
-      type: 'error',
-      read: false,
-    });
-    return;
-  }
-
-  try {
-    console.log('Withdrawal Request Data:', {
-      amount,
-      bankId: selectedBank.id,
-      accountNumber: selectedBank.accountNumber
-    });
-
-    const response = await axios.post(
-      `${apiUrl}/api/wallet/withdraw`,
-      { 
-        amount, 
-        bankId: selectedBank.id,
-        accountNumber: selectedBank.accountNumber 
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        }
+        // Set a default selected bank account ID if banks are available
+        setSelectedBankAccount(response.data.banks[0]._id);
+      } else {
+        handleAlert('No bank accounts available. Please add a bank account.', 'error');
+        setBankAccounts([]);
+        setSelectedBankAccount(null);
       }
-    );
+    } catch (error) {
+      handleAlert(error.response?.data?.message || 'Failed to load bank accounts.', 'error');
+    }
+  }, [getJwtToken, apiUrl]);
 
-    console.log('Withdrawal Success:', response.data);
 
-    addNotification({
-      id: uuidv4(),
-      message: 'Withdrawal request submitted successfully!',
-      type: 'success',
-      read: false
-    });
 
-    handleAlert('Withdrawal request submitted successfully!', 'success');
-
-    setWithdrawAmount('');
+  useEffect(() => {
     fetchWalletData();
+    fetchBankAccounts();
+  }, [fetchWalletData, fetchBankAccounts]);
 
-  } catch (error) {
-    console.error('Error submitting withdrawal request:', error);
-    handleAlert(
-      error.response?.data?.message || 'Error submitting withdrawal request.',
-      'error'
+
+
+
+  // Ensure useNotification and other hooks are at the top
+
+
+  // Handle Withdraw logic
+  const handleWithdraw = async () => {
+    const token = getJwtToken();
+    if (!token) return;
+
+    const amount = parseFloat(withdrawAmount);
+    console.log("Withdraw Amount:", amount);
+    console.log("Selected Bank Account ID:", selectedBankAccount);
+
+    if (!bankAccounts || bankAccounts.length === 0) {
+      handleAlert('No bank accounts found. Please add or refresh bank accounts.', 'error');
+      addNotification({
+        message: 'No bank accounts found. Please add or refresh bank accounts.',
+        type: 'error',
+        read: false,
+      });
+      return;
+    }
+
+    if (!selectedBankAccount) {
+      handleAlert('Please select a bank account.', 'error');
+      addNotification({
+        message: 'Please select a bank account.',
+        type: 'error',
+        read: false,
+      });
+      return;
+    }
+
+    const [bankName, accountNumber] = selectedBankAccount.split(' - ');
+    const selectedBank = bankAccounts.find(
+      bank => bank.bankName === bankName && bank.accountNumber === accountNumber
     );
 
-    addNotification({
-      message: error.response?.data?.message || 'Error submitting withdrawal request.',
-      type: 'error',
-      read: false,
-    });
-  }
-};
+    console.log("Selected Bank Object:", selectedBank);
 
+    if (!selectedBank) {
+      handleAlert('Invalid bank selection. Please select a valid bank account.', 'error');
+      addNotification({
+        message: 'Invalid bank selection. Please select a valid bank account.',
+        type: 'error',
+        read: false,
+      });
+      return;
+    }
+
+    if (isNaN(amount) || amount <= 0) {
+      handleAlert('Please enter a valid withdrawal amount greater than zero.', 'error');
+      addNotification({
+        message: 'Please enter a valid withdrawal amount greater than zero.',
+        type: 'error',
+        read: false,
+      });
+      return;
+    }
+
+    if (amount > walletBalance) {
+      handleAlert('Insufficient funds. Enter an amount within your wallet balance.', 'error');
+      addNotification({
+        message: 'Insufficient funds. Enter an amount within your wallet balance.',
+        type: 'error',
+        read: false,
+      });
+      return;
+    }
+
+    try {
+      console.log('Withdrawal Request Data:', {
+        amount,
+        bankId: selectedBank.id,
+        accountNumber: selectedBank.accountNumber
+      });
+
+      const response = await axios.post(
+        `${apiUrl}/api/wallet/withdraw`,
+        {
+          amount,
+          bankId: selectedBank.id,
+          accountNumber: selectedBank.accountNumber
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+
+      console.log('Withdrawal Success:', response.data);
+
+      addNotification({
+        id: uuidv4(),
+        message: 'Withdrawal request submitted successfully!',
+        type: 'success',
+        read: false
+      });
+
+      handleAlert('Withdrawal request submitted successfully!', 'success');
+
+      setWithdrawAmount('');
+      fetchWalletData();
+
+    } catch (error) {
+      console.error('Error submitting withdrawal request:', error);
+      handleAlert(
+        error.response?.data?.message || 'Error submitting withdrawal request.',
+        'error'
+      );
+
+      addNotification({
+        message: error.response?.data?.message || 'Error submitting withdrawal request.',
+        type: 'error',
+        read: false,
+      });
+    }
+  };
+
+  const fetchUserBanks = async () => {
+    const token = getJwtToken();
+    if (!token) return;
+  
+    try {
+      const response = await axios.get(`${apiUrl}/api/wallet/banks`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      setBankAccounts(response.data.banks);
+    } catch (error) {
+      console.error("Error fetching banks:", error);
+    }
+  };
+  
   // Handle adding a new bank account
   const handleAddBankAccount = async () => {
     const token = getJwtToken();
     if (!token) return;
-
+  
     const { bankName, accountNumber, accountName } = newBankAccount;
     if (!bankName || !accountNumber || !accountName) {
       handleAlert('Please fill in all fields to add a bank account.', 'error');
       return;
     }
-
+  
     try {
       const response = await axios.post(
         `${apiUrl}/api/wallet/banks`,
         { bankName, accountNumber, accountName },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setBankAccounts([...bankAccounts, response.data.bank]);
+  
+      // ✅ Update state correctly
+      setBankAccounts((prevBanks) => [...prevBanks, response.data.bank]);
+  
+      // ✅ Ensure the withdrawal form updates with the latest banks
+      fetchUserBanks();
+  
       setNewBankAccount({ bankName: '', accountNumber: '', accountName: '' });
       setShowAddBankForm(false);
       handleAlert('Bank account added successfully!', 'success');
@@ -246,28 +276,28 @@ const handleWithdraw = async () => {
       handleAlert(error.response?.data?.message || 'Error adding bank account.', 'error');
     }
   };
-
+  
   // Handle adding balance (for testing)
   const handleAddBalance = async () => {
     const token = getJwtToken();
     if (!token) return;
-  
+
     const amount = 1000; // Static amount of 1000 NGN for testing
-  
+
     try {
       const response = await axios.post(
         `${apiUrl}/api/wallet/add-balance`,
         { amount },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       handleAlert('Balance added successfully!');
       setWalletBalance(response.data.newBalance);  // Use the new balance from the response
     } catch (error) {
       alert(error.response?.data?.message || 'Error adding balance.');
     }
   };
-  
+
 
   // Handle alert
   const handleAlert = (message, type) => {
@@ -317,7 +347,7 @@ const handleWithdraw = async () => {
           {isBalanceVisible ? <FaEyeSlash /> : <FaEye />}
         </span>
       </div>
-  
+
       {/* Withdraw Funds Section */}
       <div
         style={{
@@ -329,7 +359,7 @@ const handleWithdraw = async () => {
         }}
       >
         <h3 style={{ color: "#162660", marginBottom: "10px" }}>Withdraw Funds</h3>
-  
+
         {/* Bank Account Selection */}
         <label style={{ color: "#162660", fontWeight: "bold", display: "block" }}>
           Select Bank Account:
@@ -354,7 +384,7 @@ const handleWithdraw = async () => {
             </option>
           ))}
         </select>
-  
+
         {/* Withdraw Amount Input */}
         <label style={{ color: "#162660", fontWeight: "bold", display: "block" }}>
           Withdraw Amount:
@@ -375,7 +405,7 @@ const handleWithdraw = async () => {
             backgroundColor: "#f9f9f9",
           }}
         />
-  
+
         {/* Withdraw Button */}
         <button
           onClick={handleWithdraw}
@@ -397,7 +427,7 @@ const handleWithdraw = async () => {
           Submit Withdrawal
         </button>
       </div>
-  
+
       {/* Add Bank Account Button */}
       <button
         onClick={() => setShowAddBankForm(!showAddBankForm)}
@@ -415,7 +445,7 @@ const handleWithdraw = async () => {
       >
         {showAddBankForm ? "Cancel" : "Add Bank Account"}
       </button>
-  
+
       {/* Add Bank Account Form */}
       {showAddBankForm && (
         <div
@@ -428,30 +458,67 @@ const handleWithdraw = async () => {
           }}
         >
           <h3 style={{ color: "#162660", marginBottom: "10px" }}>Add New Bank Account</h3>
-  
-          {["Bank Name", "Account Number", "Account Name"].map((field, index) => (
-            <div key={index} style={{ marginBottom: "10px" }}>
-              <label style={{ color: "#162660", fontWeight: "bold", display: "block" }}>
-                {field}:
-              </label>
-              <input
-                type="text"
-                value={newBankAccount[field.toLowerCase().replace(" ", "")]}
-                onChange={(e) =>
-                  setNewBankAccount({ ...newBankAccount, [field.toLowerCase().replace(" ", "")]: e.target.value })
+
+          <div style={{ marginBottom: "10px" }}>
+            <label style={{ color: "#162660", fontWeight: "bold", display: "block" }}>Bank Name:</label>
+            <input
+              type="text"
+              name="bankName"
+              value={newBankAccount.bankName}
+              onChange={handleInputChange}
+              style={{
+                display: "block",
+                width: "100%",
+                padding: "8px",
+                border: "1px solid #162660",
+                borderRadius: "5px",
+                backgroundColor: "#f9f9f9",
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: "10px" }}>
+            <label style={{ color: "#162660", fontWeight: "bold", display: "block" }}>Account Number:</label>
+            <input
+              type="number"
+              name="accountNumber"
+              value={newBankAccount.accountNumber}
+              onChange={handleInputChange}
+              onKeyDown={(e) => {
+                if (e.key === "e" || e.key === "+" || e.key === "-") {
+                  e.preventDefault(); // Prevents entering "e", "+", and "-" in the field
                 }
-                style={{
-                  display: "block",
-                  width: "100%",
-                  padding: "8px",
-                  border: "1px solid #162660",
-                  borderRadius: "5px",
-                  backgroundColor: "#f9f9f9",
-                }}
-              />
-            </div>
-          ))}
-  
+              }}
+              style={{
+                display: "block",
+                width: "100%",
+                padding: "8px",
+                border: "1px solid #162660",
+                borderRadius: "5px",
+                backgroundColor: "#f9f9f9",
+              }}
+            />
+
+          </div>
+
+          <div style={{ marginBottom: "10px" }}>
+            <label style={{ color: "#162660", fontWeight: "bold", display: "block" }}>Account Name:</label>
+            <input
+              type="text"
+              name="accountName"
+              value={newBankAccount.accountName}
+              onChange={handleInputChange}
+              style={{
+                display: "block",
+                width: "100%",
+                padding: "8px",
+                border: "1px solid #162660",
+                borderRadius: "5px",
+                backgroundColor: "#f9f9f9",
+              }}
+            />
+          </div>
+
           <button
             onClick={handleAddBankAccount}
             style={{
@@ -469,10 +536,12 @@ const handleWithdraw = async () => {
           </button>
         </div>
       )}
-  
+
+
+
       {/* Alert Component */}
       {showAlert && <Alert message={alertMessage} type={alertType} onClose={handleCloseAlert} />}
-  
+
       {/* Add Balance for Testing */}
       <button
         onClick={handleAddBalance}
@@ -492,7 +561,7 @@ const handleWithdraw = async () => {
       </button>
     </div>
   );
-  
+
 };
 
 export default WalletPage;

@@ -173,8 +173,8 @@ const Profile = () => {
 // Inline Styles
 const styles = {
   profilePage: {
-    width: "100%",
-    maxWidth: "500px",
+    // width: "100%",
+    maxWidth: "700px",
     margin: "40px auto",
     padding: "25px",
     fontFamily: "Poppins, sans-serif",

@@ -30,6 +30,7 @@ const Login = ({ setUserRole }) => {
         setUserRole(decodedToken.role);
         localStorage.setItem('jwtToken', token);
         localStorage.setItem('username', decodedToken.username);
+        localStorage.removeItem('activeComponent');
 
         setTimeout(() => {
           navigate('/dashboard');

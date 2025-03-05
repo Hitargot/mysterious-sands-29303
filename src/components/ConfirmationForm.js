@@ -178,17 +178,23 @@ const ConfirmationForm = ({ selectedService }) => {
 const styles = {
   container: {
     textAlign: "center",
-    padding: "20px",
+    // padding: "20px",
   },
   openModalBtn: {
     backgroundColor: "#162660",
     color: "#fff",
-    padding: "12px 20px",
+    padding: "12px 10px 12px 10px",
     border: "none",
     borderRadius: "5px",
     cursor: "pointer",
     fontSize: "16px",
     transition: "0.3s",
+    touchAction: "manipulation",
+    position: "relative",
+    zIndex: 1000,
+    pointerEvents: "auto",
+    textAlign: "center",
+
   },
   modalOverlay: {
     position: "fixed",
