@@ -96,7 +96,6 @@ const Notifications = () => {
             position: 'absolute',
             right: 0,
             top: '40px',
-            width: '230px',
             background: COLORS.primary, // Soft beige background
             border: `1px solid ${COLORS.secondary}`, // Deep blue border
             borderRadius: '5px',
