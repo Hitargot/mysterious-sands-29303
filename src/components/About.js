@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import johnDoeImg from '../assets/images/path_to_team_member_image1.jpg'; 
-import janeSmithImg from '../assets/images/path_to_team_member_image.jpg'; 
+import janeSmithImg from '../assets/images/designer.PNG'; 
 import aliceJohnsonImg from '../assets/images/path_to_team_member_image1.jpg'; 
 
 const teamMembers = [
