@@ -115,49 +115,49 @@ const TransactionHistory = () => {
     const buttonsToHide = document.querySelectorAll(".hide-on-share");
 
     if (!receiptElement) {
-        console.error("Receipt element not found");
-        setAlertMessage("Receipt content not found. Please try again.");
-        return;
+      console.error("Receipt element not found");
+      setAlertMessage("Receipt content not found. Please try again.");
+      return;
     }
 
     buttonsToHide.forEach(button => button.style.display = "none");
 
     try {
-        // Allow DOM reflow before capture
-        receiptElement.style.maxHeight = "none";
-        receiptElement.style.overflow = "visible";
-        await new Promise(resolve => setTimeout(resolve, 200)); // wait for reflow
+      // Allow DOM reflow before capture
+      receiptElement.style.maxHeight = "none";
+      receiptElement.style.overflow = "visible";
+      await new Promise(resolve => setTimeout(resolve, 200)); // wait for reflow
 
-        // Capture image
-        const canvas = await html2canvas(receiptElement, {
-            scale: 2,
-            useCORS: true,
-            windowHeight: receiptElement.scrollHeight,
+      // Capture image
+      const canvas = await html2canvas(receiptElement, {
+        scale: 2,
+        useCORS: true,
+        windowHeight: receiptElement.scrollHeight,
+      });
+
+      buttonsToHide.forEach(button => button.style.display = "");
+      const image = canvas.toDataURL("image/png");
+
+      downloadImage(image);
+      setAlertMessage("Receipt downloaded successfully.");
+
+      if (navigator.canShare) {
+        const response = await fetch(image);
+        const blob = await response.blob();
+        const file = new File([blob], "receipt.png", { type: "image/png" });
+
+        await navigator.share({
+          files: [file],
+          title: "Transaction Receipt",
+          text: "Here is your transaction receipt."
         });
-
-        buttonsToHide.forEach(button => button.style.display = "");
-        const image = canvas.toDataURL("image/png");
-
-        downloadImage(image);
-        setAlertMessage("Receipt downloaded successfully.");
-
-        if (navigator.canShare) {
-            const response = await fetch(image);
-            const blob = await response.blob();
-            const file = new File([blob], "receipt.png", { type: "image/png" });
-
-            await navigator.share({
-                files: [file],
-                title: "Transaction Receipt",
-                text: "Here is your transaction receipt."
-            });
-            setAlertMessage("Receipt shared successfully.");
-        }
+        setAlertMessage("Receipt shared successfully.");
+      }
     } catch (error) {
-        console.error("Error capturing receipt:", error);
-        setAlertMessage("An error occurred while processing the receipt.");
+      console.error("Error capturing receipt:", error);
+      setAlertMessage("An error occurred while processing the receipt.");
     }
-};
+  };
 
   const downloadImage = (imageData) => {
     const link = document.createElement("a");
@@ -176,38 +176,38 @@ const TransactionHistory = () => {
   return (
     <div className="transaction-history">
       <h2>Transaction History</h2>
-{/* Filter Section */}
-<div className="filter-section">
-  <div className="filter-group">
-    <select onChange={(e) => setStatusFilter(e.target.value)} value={statusFilter}>
-      <option value="">Filter by Status</option>
-      <option value="Completed">Completed</option>
-      <option value="Pending">Pending</option>
-      <option value="Failed">Failed</option>
-    </select>
-    
-    <input
-      type="number"
-      placeholder="Enter Amount"
-      onChange={(e) => setAmountFilter(e.target.value)}
-      value={amountFilter}
-    />
-  </div>
+      {/* Filter Section */}
+      <div className="filter-section">
+        <div className="filter-group">
+          <select onChange={(e) => setStatusFilter(e.target.value)} value={statusFilter}>
+            <option value="">Filter by Status</option>
+            <option value="Completed">Completed</option>
+            <option value="Pending">Pending</option>
+            <option value="Failed">Failed</option>
+          </select>
 
-  <div className="filter-group">
-    <select onChange={(e) => setFilterType(e.target.value)} value={filterType}>
-      <option value="">All Types</option>
-      <option value="Withdrawal">Withdrawal</option>
-      <option value="Deposit">Deposit</option>
-    </select>
+          <input
+            type="number"
+            placeholder="Enter Amount"
+            onChange={(e) => setAmountFilter(e.target.value)}
+            value={amountFilter}
+          />
+        </div>
 
-    <input
-      type="date"
-      value={filterDate}
-      onChange={(e) => setFilterDate(e.target.value)}
-    />
-  </div>
-</div>
+        <div className="filter-group">
+          <select onChange={(e) => setFilterType(e.target.value)} value={filterType}>
+            <option value="">All Types</option>
+            <option value="Withdrawal">Withdrawal</option>
+            <option value="Deposit">Deposit</option>
+          </select>
+
+          <input
+            type="date"
+            value={filterDate}
+            onChange={(e) => setFilterDate(e.target.value)}
+          />
+        </div>
+      </div>
 
 
       {loading ? (
@@ -236,11 +236,16 @@ const TransactionHistory = () => {
                 </p>
                 <p>
                   <strong>Amount:</strong>{" "}
-                  {transaction.type.toLowerCase() === "withdrawal"
-                    ? transaction.amount
-                    : transaction.ngnAmount.toLocaleString()}{" "}
+                  {transaction?.type?.toLowerCase() === "withdrawal"
+                    ? (typeof transaction.amount === "number"
+                      ? transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                      : "N/A")
+                    : (typeof transaction.ngnAmount === "number"
+                      ? transaction.ngnAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                      : "N/A")}{" "}
                   NGN
                 </p>
+
               </div>
               <div className="card-actions">
                 <button onClick={() => fetchReceipt(transaction._id)}>
@@ -299,9 +304,13 @@ const TransactionHistory = () => {
               <div className="receipt-row">
                 <p className="label">Amount:</p>
                 <p className="value">
-                  {receipt.amount.toLocaleString()} {receipt.currency || "NGN"}
+                  {typeof receipt.amount === "number"
+                    ? receipt.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    : "N/A"}{" "}
+                  {receipt.currency || "NGN"}
                 </p>
               </div>
+
               <div className="receipt-row">
                 <p className="label">Status:</p>
                 <p className="value">{receipt.status}</p>
@@ -319,14 +328,14 @@ const TransactionHistory = () => {
             </div>
 
             <div className="receipt-footer">
-            <p>Thank you for choosing <strong>Exdollarium</strong>. We appreciate your trust.</p>
-            <div className="footer-buttons">
-            <button className="share-btn hide-on-share" onClick={handleShareAsImage}>
-                Share as Image
-              </button>
-              <button className="close-bt hide-on-share" onClick={onClose}>Close</button>
+              <p>Thank you for choosing <strong>Exdollarium</strong>. We appreciate your trust.</p>
+              <div className="footer-buttons">
+                <button className="share-btn hide-on-share" onClick={handleShareAsImage}>
+                  Share as Image
+                </button>
+                <button className="close-bt hide-on-share" onClick={onClose}>Close</button>
+              </div>
             </div>
-          </div>
           </div>
         </div>
       )}

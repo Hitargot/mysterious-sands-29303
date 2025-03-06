@@ -97,7 +97,7 @@ const Calculator = () => {
   return (
     <section style={styles.calculatorContainer}>
       <h3 style={styles.heading}>Exchange Rate Calculator</h3>
-      
+
       {showAlert && <div style={styles.alert}>{alertMessage}</div>}
 
       <div style={styles.formGroup}>
@@ -145,23 +145,27 @@ const Calculator = () => {
       ) : (
         <div style={styles.formGroup}>
           <label style={styles.label}>Amount:</label>
-          <input 
-            type="number" 
-            value={selectedAmount} 
-            onChange={handleAmountChange} 
-            placeholder="Enter amount" 
-            style={styles.input} 
+          <input
+            type="number"
+            value={selectedAmount}
+            onChange={handleAmountChange}
+            placeholder="Enter amount"
+            style={styles.input}
           />
         </div>
       )}
 
       <button onClick={handleCalculate} style={styles.button}>Calculate</button>
 
-      {ngnEquivalent && (
+      {typeof ngnEquivalent === "number" && !isNaN(ngnEquivalent) && (
         <div style={styles.result}>
-          <h4>NGN Equivalent: {ngnEquivalent.toLocaleString()} NGN</h4>
+          <h4>
+            NGN Equivalent: ₦
+            {ngnEquivalent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </h4>
         </div>
       )}
+
     </section>
   );
 };
