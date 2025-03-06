@@ -238,7 +238,7 @@ const TransactionHistory = () => {
                   <strong>Amount:</strong>{" "}
                   {transaction.type.toLowerCase() === "withdrawal"
                     ? transaction.amount
-                    : transaction.ngnAmount}{" "}
+                    : transaction.ngnAmount.toLocaleString()}{" "}
                   NGN
                 </p>
               </div>
@@ -299,7 +299,7 @@ const TransactionHistory = () => {
               <div className="receipt-row">
                 <p className="label">Amount:</p>
                 <p className="value">
-                  {receipt.amount} {receipt.currency || "NGN"}
+                  {receipt.amount.toLocaleString()} {receipt.currency || "NGN"}
                 </p>
               </div>
               <div className="receipt-row">

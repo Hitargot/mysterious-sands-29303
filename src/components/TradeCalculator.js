@@ -223,7 +223,7 @@ const TradeCalculator = () => {
             </button>
             <p><strong>Service:</strong> {selectedService}</p>
             <p><strong>Amount ({selectedCurrency.toUpperCase()}):</strong> {selectedAmount}</p>
-            <p><strong>NGN Equivalent:</strong> ₦{ngnEquivalent}</p>
+            <p><strong>NGN Equivalent:</strong> ₦{ngnEquivalent.toLocaleString()}</p>
             <button onClick={handleViewTradeDetails}>Start Trade</button>
             <button onClick={handleShareReceipt}>Share on WhatsApp</button>
           </div>

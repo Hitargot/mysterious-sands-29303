@@ -159,7 +159,7 @@ const Calculator = () => {
 
       {ngnEquivalent && (
         <div style={styles.result}>
-          <h4>NGN Equivalent: {ngnEquivalent} NGN</h4>
+          <h4>NGN Equivalent: {ngnEquivalent.toLocaleString()} NGN</h4>
         </div>
       )}
     </section>
