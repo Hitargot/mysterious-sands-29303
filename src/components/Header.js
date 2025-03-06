@@ -132,7 +132,7 @@ export default function Header() {
       <MenuIcon onClick={toggleMenu}>☰</MenuIcon>
       <Nav>
         <ul className={isOpen ? 'open' : ''}>
-          <li><Link to="/" onClick={toggleMenu}>Home</Link></li>
+          <li><Link to="#home" onClick={toggleMenu}>Home</Link></li>
           <li><a href="#about" onClick={toggleMenu}>About</a></li>
           <li><a href="#services" onClick={toggleMenu}>Services</a></li>
           <li><Link to="/testimonials" onClick={toggleMenu}>Testimonials</Link></li>

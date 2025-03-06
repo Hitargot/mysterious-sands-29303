@@ -65,7 +65,7 @@ const Contact = () => {
   };
 
   return (
-    <section
+    <section id="#contact"
       style={{
         ...styles.contactSection,
         opacity: isVisible ? 1 : 0,
