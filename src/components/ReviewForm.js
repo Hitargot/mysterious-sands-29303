@@ -20,7 +20,7 @@ const ReviewForm = () => {
     const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
     if (!token) {
       // Store the intended redirect path before redirecting to login
-      sessionStorage.setItem("redirectAfterLogin", location.pathname + location.search);
+      sessionStorage.setItem('redirectAfterLogin', window.location.pathname + window.location.search);
       navigate("/login"); // Redirect to login
     }
   }, [location, navigate]);

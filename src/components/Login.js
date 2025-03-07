@@ -21,10 +21,8 @@ const Login = ({ setUserRole }) => {
   useEffect(() => {
     const redirectPath = sessionStorage.getItem("redirectAfterLogin");
     if (redirectPath) {
-      sessionStorage.removeItem("redirectAfterLogin"); // Clear it after redirecting
       navigate(redirectPath);
-    } else {
-      navigate("/dashboard"); // Default redirect
+      sessionStorage.removeItem("redirectAfterLogin"); // ✅ Remove it only after navigating
     }
   }, [navigate]);
   
@@ -44,9 +42,9 @@ const Login = ({ setUserRole }) => {
   
         setTimeout(() => {
           const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/dashboard";
-          sessionStorage.removeItem("redirectAfterLogin");
           navigate(redirectPath);
-        }, 3000);
+          sessionStorage.removeItem("redirectAfterLogin"); // ✅ Remove after use
+        }, 3000);        
       }
     } catch (err) {
       setAlertMessage(err.response?.data?.message || 'Login failed');
