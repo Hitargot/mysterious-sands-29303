@@ -65,90 +65,97 @@ const Contact = () => {
   };
 
   return (
-    <section id="#contact"
-      style={{
-        ...styles.contactSection,
-        opacity: isVisible ? 1 : 0,
-        transform: isVisible ? "translateY(0)" : "translateY(20px)",
-      }}
+<section
+  id="contact"
+  style={{
+    ...styles.contactSection,
+    opacity: isVisible ? 1 : 0,
+    transform: isVisible ? "translateY(0)" : "translateY(20px)",
+    transition: "opacity 0.6s ease, transform 0.6s ease",
+  }}
+>
+  <h2 style={styles.heading}>Contact Us</h2>
+
+  {/* Alert Notification */}
+  {alert.show && (
+    <Alert
+      message={alert.message}
+      duration={alert.duration}
+      onClose={handleCloseAlert}
+    />
+  )}
+
+  {/* Contact Details */}
+  <div style={styles.contactDetails}>
+    <p>
+      Email:{" "}
+      <a href="mailto:exdollarium@gmail.com" style={styles.link}>
+        exdollarium@gmail.com
+      </a>
+    </p>
+    <p>
+      Phone:{" "}
+      <a href="tel:+2349123258507" style={styles.link}>
+        + (234) 9123258507
+      </a>
+    </p>
+    <p>
+      Physical address:{" "}
+      <span style={styles.address}>Minna, Niger State</span>
+    </p>
+  </div>
+
+  {/* Contact Form */}
+  <form onSubmit={handleSubmit} style={styles.form}>
+    <label htmlFor="name" style={styles.label}>
+      Name:
+    </label>
+    <input
+      type="text"
+      name="name"
+      id="name"
+      value={formData.name}
+      onChange={handleChange}
+      required
+      style={styles.input}
+    />
+
+    <label htmlFor="email" style={styles.label}>
+      Email:
+    </label>
+    <input
+      type="email"
+      name="email"
+      id="email"
+      value={formData.email}
+      onChange={handleChange}
+      required
+      style={styles.input}
+    />
+
+    <label htmlFor="message" style={styles.label}>
+      Message:
+    </label>
+    <textarea
+      name="message"
+      id="message"
+      value={formData.message}
+      onChange={handleChange}
+      required
+      style={styles.textarea}
+    ></textarea>
+
+    <button
+      type="submit"
+      style={styles.button}
+      onMouseEnter={(e) => (e.target.style.backgroundColor = styles.buttonHover.backgroundColor)}
+      onMouseLeave={(e) => (e.target.style.backgroundColor = styles.button.backgroundColor)}
     >
-      <h2 style={styles.heading}>Contact Us</h2>
-      {alert.show && (
-        <Alert
-          message={alert.message}
-          duration={alert.duration}
-          onClose={handleCloseAlert}
-        />
-      )}
+      Send Message
+    </button>
+  </form>
+</section>
 
-      <div style={styles.contactDetails}>
-        <p>
-          Email:{" "}
-          <a href="mailto:exdollarium@gmail.com" style={styles.link}>
-            exdollarium@gmail.com
-          </a>
-        </p>
-        <p>
-          Phone:{" "}
-          <a href="tel:+2349123258507" style={styles.link}>
-            + (234) 9123258507
-          </a>
-        </p>
-        <p>
-          Physical address:{" "}
-          <span style={styles.address}>Minna, Niger State</span>
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <label htmlFor="name" style={styles.label}>
-          Name:
-        </label>
-        <input
-          type="text"
-          name="name"
-          id="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-          style={styles.input}
-        />
-
-        <label htmlFor="email" style={styles.label}>
-          Email:
-        </label>
-        <input
-          type="email"
-          name="email"
-          id="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          style={styles.input}
-        />
-
-        <label htmlFor="message" style={styles.label}>
-          Message:
-        </label>
-        <textarea
-          name="message"
-          id="message"
-          value={formData.message}
-          onChange={handleChange}
-          required
-          style={styles.textarea}
-        ></textarea>
-
-        <button
-          type="submit"
-          style={styles.button}
-          onMouseEnter={(e) => (e.target.style.backgroundColor = styles.buttonHover.backgroundColor)}
-          onMouseLeave={(e) => (e.target.style.backgroundColor = styles.button.backgroundColor)}
-        >
-          Send Message
-        </button>
-      </form>
-    </section>
   );
 };
 

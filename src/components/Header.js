@@ -137,7 +137,7 @@ export default function Header() {
           <li><a href="#services" onClick={toggleMenu}>Services</a></li>
           <li><Link to="/testimonials" onClick={toggleMenu}>Testimonials</Link></li>
           <li><a href="#faq" onClick={toggleMenu}>FAQ</a></li>
-          <li><a href="#contact" onClick={toggleMenu}>Contact</a></li>
+          <li><a href="#contact" onClick={toggleMenu}>Contact Us</a></li>
           <li className="close-icon" onClick={toggleMenu}>✖</li> {/* Close icon */}
         </ul>
       </Nav>
