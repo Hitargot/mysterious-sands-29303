@@ -75,10 +75,17 @@ const Testimonials = () => {
                 padding: "20px",
                 boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
                 transition: "transform 0.3s ease-in-out",
-              }}>
+                maxWidth: "400px",
+                margin: "10px auto",
+                cursor: "pointer",
+              }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+                onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+              >
                 <p style={{ fontSize: "16px", fontStyle: "italic", lineHeight: "1.5" }}>
                   "{review.reviewText}"
                 </p>
+
                 <p style={{
                   fontWeight: "bold",
                   marginTop: "10px",
@@ -87,7 +94,12 @@ const Testimonials = () => {
                 }}>
                   - {review.userId?.username || "Anonymous"}
                 </p>
-                {/* Star Rating */}
+
+                <p style={{ fontStyle: "italic", fontSize: "14px", color: "#f8c471" }}>
+                  Service: {review.confirmationId?.serviceId?.serviceName || "Unknown"}
+                </p>
+
+                {/* ⭐ Star Rating */}
                 <div style={{
                   fontSize: "20px",
                   color: "#FFD700",
@@ -97,6 +109,7 @@ const Testimonials = () => {
                 </div>
               </div>
             ))}
+
           </div>
         )}
       </div>
