@@ -18,6 +18,16 @@ const Login = ({ setUserRole }) => {
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   //const apiUrl = "http://localhost:22222";
 
+  useEffect(() => {
+    const redirectPath = sessionStorage.getItem("redirectAfterLogin");
+    if (redirectPath) {
+      sessionStorage.removeItem("redirectAfterLogin"); // Clear it after redirecting
+      navigate(redirectPath);
+    } else {
+      navigate("/dashboard"); // Default redirect
+    }
+  }, [navigate]);
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

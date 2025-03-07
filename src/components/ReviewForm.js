@@ -10,14 +10,20 @@ const ReviewForm = () => {
   const queryParams = new URLSearchParams(location.search);
   const confirmationId = queryParams.get("confirmationId");
 
-  const [rating, setRating] = useState(0); // Naked (gray) by default
+  const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(null);
   const [reviewText, setReviewText] = useState("");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    console.log("Extracted Confirmation ID:", confirmationId);
-  }, [confirmationId]);
+    const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
+    
+    if (!token) {
+      // Store the intended review path to redirect after login
+      sessionStorage.setItem("redirectAfterLogin", location.pathname + location.search);
+      navigate("/login");
+    }
+  }, [navigate, location.pathname, location.search]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,24 +34,22 @@ const ReviewForm = () => {
     }
 
     const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-    //const apiUrl = "http://localhost:22222";
+    const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
 
     try {
-      const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
       const response = await axios.post(
         `${apiUrl}/api/review/submit`,
-        { confirmationId, rating, reviewText }, // Sending rating as a number (1-5)
+        { confirmationId, rating, reviewText },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setMessage(response.data.message);
-      setRating(0); // Reset after submission
+      setRating(0);
       setReviewText("");
 
       // Redirect to Dashboard after successful submission
       setTimeout(() => navigate("/dashboard"), 2000);
     } catch (error) {
-      console.error("Error:", error.response);
       setMessage(error.response?.data?.message || "Error submitting review");
     }
   };
@@ -85,7 +89,7 @@ const ReviewForm = () => {
                 style={{
                   fontSize: "30px",
                   cursor: "pointer",
-                  color: index < (hover || rating) ? "gold" : "#ccc", // Naked (gray) until clicked
+                  color: index < (hover || rating) ? "gold" : "#ccc",
                   transition: "color 0.2s"
                 }}
                 onClick={() => setRating(star)}
