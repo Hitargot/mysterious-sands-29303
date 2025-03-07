@@ -16,27 +16,26 @@ const ReviewForm = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    // Check if user is logged in
     const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
-    
     if (!token) {
-      // Store the intended review path to redirect after login
+      // Store the intended redirect path before redirecting to login
       sessionStorage.setItem("redirectAfterLogin", location.pathname + location.search);
-      navigate("/login");
+      navigate("/login"); // Redirect to login
     }
-  }, [navigate, location.pathname, location.search]);
+  }, [location, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!confirmationId) {
       setMessage("Confirmation ID is missing!");
       return;
     }
 
     const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-    const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
 
     try {
+      const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
       const response = await axios.post(
         `${apiUrl}/api/review/submit`,
         { confirmationId, rating, reviewText },
@@ -47,40 +46,36 @@ const ReviewForm = () => {
       setRating(0);
       setReviewText("");
 
-      // Redirect to Dashboard after successful submission
       setTimeout(() => navigate("/dashboard"), 2000);
     } catch (error) {
+      console.error("Error:", error.response);
       setMessage(error.response?.data?.message || "Error submitting review");
     }
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#d0e6fd' }}>
+    <div style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#d0e6fd" }}>
       <div style={{
-        maxWidth: '400px',
-        padding: '25px',
-        backgroundColor: '#162660',
-        borderRadius: '10px',
-        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
-        textAlign: 'center'
+        maxWidth: "400px",
+        padding: "25px",
+        backgroundColor: "#162660",
+        borderRadius: "10px",
+        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+        textAlign: "center"
       }}>
-        
-        {/* Header */}
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', color: '#f1e4d1', fontWeight: 'bold' }}>
-            <img src={logo} alt="Logo" style={{ height: '30px', marginRight: '10px' }} />
+        <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+          <div style={{ display: "flex", alignItems: "center", color: "#f1e4d1", fontWeight: "bold" }}>
+            <img src={logo} alt="Logo" style={{ height: "30px", marginRight: "10px" }} />
             <span>Exdollarium</span>
           </div>
         </header>
 
-        <h2 style={{ color: '#f1e4d1', marginBottom: '15px' }}>Submit a Review</h2>
-        <p style={{ color: '#d0e6fd', marginBottom: '15px' }}>Share your experience with us!</p>
+        <h2 style={{ color: "#f1e4d1", marginBottom: "15px" }}>Submit a Review</h2>
+        <p style={{ color: "#d0e6fd", marginBottom: "15px" }}>Share your experience with us!</p>
 
-        {/* Alert Message */}
         {message && <Alert message={message} type="success" />}
 
         <form onSubmit={handleSubmit}>
-          {/* Star Rating */}
           <label style={{ color: "#f1e4d1", display: "block", marginBottom: "10px" }}>Rating:</label>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "15px" }}>
             {[1, 2, 3, 4, 5].map((star, index) => (
@@ -101,7 +96,6 @@ const ReviewForm = () => {
             ))}
           </div>
 
-          {/* Review Input */}
           <label style={{ color: "#f1e4d1", display: "block", marginBottom: "5px" }}>Review:</label>
           <textarea
             value={reviewText}

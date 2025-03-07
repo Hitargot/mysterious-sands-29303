@@ -33,24 +33,26 @@ const Login = ({ setUserRole }) => {
     try {
       const response = await axios.post(`${apiUrl}/api/auth/login`, credentials);
       if (response.status === 200) {
-        setAlertMessage('Login successful! Redirecting to dashboard...');
+        setAlertMessage('Login successful! Redirecting...');
         const token = response.data.token;
         const decodedToken = jwtDecode(token);
-
+  
         setUserRole(decodedToken.role);
         localStorage.setItem('jwtToken', token);
         localStorage.setItem('username', decodedToken.username);
         localStorage.removeItem('activeComponent');
-
+  
         setTimeout(() => {
-          navigate('/dashboard');
+          const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/dashboard";
+          sessionStorage.removeItem("redirectAfterLogin");
+          navigate(redirectPath);
         }, 3000);
       }
     } catch (err) {
       setAlertMessage(err.response?.data?.message || 'Login failed');
     }
   };
-
+  
   return (
     <div style={styles.login}>
       <div style={styles.loginContainer}>
