@@ -1,87 +1,103 @@
-// src/pages/Testimonials.js
-import React, { useState } from 'react';
-import '../styles/Testimonials.css'; // Optional: Include a CSS file for styling
-import TestimonialsHeader from '../components/TestimonialsHeader'; // Import the new header
-
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import TestimonialHeader from "../components/TestimonialsHeader"; // Importing header component
 
 const Testimonials = () => {
-  const [feedback, setFeedback] = useState({
-    name: '',
-    service: '',
-    review: '',
-  });
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true); // Loading state
 
-  const [testimonials, setTestimonials] = useState([]);
+  useEffect(() => {
+    fetchApprovedReviews();
+  }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFeedback({
-      ...feedback,
-      [name]: value,
-    });
-  };
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "http://localhost:22222"; 
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Add new testimonial to the testimonials array
-    setTestimonials([...testimonials, feedback]);
-    // Clear the form
-    setFeedback({ name: '', service: '', review: '' });
+  const fetchApprovedReviews = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/approved`);
+      setReviews(response.data);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    }
+    setLoading(false); // Stop loading after fetching data
   };
 
   return (
-    <div>
-      <TestimonialsHeader />
-      <h1>Testimonials</h1>
+    <div style={{ backgroundColor: "#d0e6fd", minHeight: "100vh", paddingBottom: "30px" }}>
+      {/* Header */}
+      <TestimonialHeader />
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">Name:</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={feedback.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="service">Service:</label>
-          <input
-            type="text"
-            id="service"
-            name="service"
-            value={feedback.service}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="review">Review:</label>
-          <textarea
-            id="review"
-            name="review"
-            value={feedback.review}
-            onChange={handleChange}
-            required
-          ></textarea>
-        </div>
-        <button type="submit">Submit Feedback</button>
-      </form>
+      {/* Testimonials Section */}
+      <div style={{
+        maxWidth: "800px",
+        width: "90%",
+        margin: "auto",
+        padding: "25px",
+        textAlign: "center",
+      }}>
+        <h2 style={{
+          color: "#162660",
+          fontSize: "26px",
+          fontWeight: "bold",
+          marginBottom: "20px",
+        }}>
+          What Our Customers Say
+        </h2>
 
-      <div>
-        <h2>User Feedback</h2>
-        {testimonials.length > 0 ? (
-          testimonials.map((testimonial, index) => (
-            <div key={index} className="testimonial">
-              <h3>{testimonial.name}</h3>
-              <p><strong>Service:</strong> {testimonial.service}</p>
-              <p>{testimonial.review}</p>
-            </div>
-          ))
+        {/* Loading Effect */}
+        {loading ? (
+          <p style={{
+            textAlign: "center",
+            fontSize: "18px",
+            color: "#162660",
+            fontWeight: "bold",
+            animation: "fadeIn 1s infinite alternate",
+          }}>
+            Loading reviews...
+          </p>
+        ) : reviews.length === 0 ? (
+          <p style={{ textAlign: "center", color: "#333", fontSize: "16px" }}>
+            No reviews yet. Be the first to leave one!
+          </p>
         ) : (
-          <p>No testimonials yet. Be the first to leave one!</p>
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: "15px",
+            width: "100%",
+          }}>
+            {reviews.map((review) => (
+              <div key={review._id} style={{
+                backgroundColor: "#162660",
+                color: "#f1e4d1",
+                borderRadius: "10px",
+                padding: "20px",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                transition: "transform 0.3s ease-in-out",
+              }}>
+                <p style={{ fontSize: "16px", fontStyle: "italic", lineHeight: "1.5" }}>
+                  "{review.reviewText}"
+                </p>
+                <p style={{
+                  fontWeight: "bold",
+                  marginTop: "10px",
+                  color: "#d0e6fd",
+                  fontSize: "14px",
+                }}>
+                  - {review.userId?.username || "Anonymous"}
+                </p>
+                {/* Star Rating */}
+                <div style={{
+                  fontSize: "20px",
+                  color: "#FFD700",
+                  marginTop: "5px",
+                }}>
+                  {"⭐".repeat(review.rating)}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

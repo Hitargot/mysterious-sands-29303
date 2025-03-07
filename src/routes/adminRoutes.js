@@ -11,6 +11,7 @@ import AuditLogs from '../pages/AuditLogs';
 import ManageContacts from '../pages/ManageContacts';
 import  BankAccountList from '../pages/BankAccountList';
 import AdminFAQ from '../pages/AdminFAQ';
+import AdminReviewPage from '../pages/AdminReviewPage';
 
 
 const adminRoutes = [
@@ -26,6 +27,8 @@ const adminRoutes = [
   { path: '/admin/manage-contacts', component: ManageContacts, permissions: ['manage_contacts'] },
   { path: '/admin/Banks-list', component: BankAccountList, permissions: ['manage_contacts'] },
   { path: '/admin/Admin-faq', component:AdminFAQ, permissions: ['manage_contacts'] },
+  { path: '/admin/Admin-reviews', component:AdminReviewPage, permissions: ['manage_contacts'] },
+
 ];
 
 export default adminRoutes;

@@ -190,7 +190,6 @@ const styles = {
     fontSize: "16px",
     transition: "0.3s",
     touchAction: "manipulation",
-    position: "relative",
     zIndex: 1000,
     pointerEvents: "auto",
     textAlign: "center",

@@ -209,7 +209,7 @@ const TradeCalculator = () => {
           />
         </div>
       )}
-
+      
       <button onClick={handleCalculate}>Calculate</button>
 
       {showAlert && <Alert message={alertMessage} onClose={() => setShowAlert(false)} />}
@@ -223,12 +223,7 @@ const TradeCalculator = () => {
             </button>
             <p><strong>Service:</strong> {selectedService}</p>
             <p><strong>Amount ({selectedCurrency.toUpperCase()}):</strong> {selectedAmount}</p>
-            <p>
-              <strong>NGN Equivalent:</strong> ₦
-              {typeof ngnEquivalent === "number"
-                ? ngnEquivalent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                : "N/A"}
-            </p>
+            <p><strong>NGN Equivalent:</strong> ₦{ngnEquivalent.toLocaleString()}</p>
             <button onClick={handleViewTradeDetails}>Start Trade</button>
             <button onClick={handleShareReceipt}>Share on WhatsApp</button>
           </div>

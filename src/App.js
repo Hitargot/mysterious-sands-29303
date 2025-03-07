@@ -29,6 +29,7 @@ import TradeHistory from './components/TradeHistory';
 import VerifyEmail from './components/VerifyEmail';
 import ResendVerification from './components/ResendVerification';
 import Chatbot from './components/Chatbot';
+import ReviewForm from './components/ReviewForm';
 
 
 const App = () => {
@@ -62,6 +63,8 @@ const App = () => {
           <Route path="/verify-email" element={<VerifyEmail/>} />
           <Route path="/resend-verification" element={<ResendVerification/>} />
           <Route path="/chat-bot" element={<Chatbot/>} />
+          <Route path="/reviews/submit" element={<ReviewForm/>} />
+
 
           <Route
             path="/admin"
