@@ -74,7 +74,7 @@ const AdminWallet = () => {
     }
   
     try {
-      const token = localStorage.getItem("authToken"); // Get token from storage
+      const token = localStorage.getItem("adminToken"); // Get token from storage
       const { data } = await axios.post(
         `${apiUrl}/api/wallet/fund`,
         { amount: parseFloat(fundAmount), note: fundNote },  
@@ -100,9 +100,9 @@ const AdminWallet = () => {
     }
   
     try {
-      const token = localStorage.getItem("authToken"); // Get token from storage
+      const token = localStorage.getItem("adminToken"); // Get token from storage
       const { data } = await axios.post(
-        `${apiUrl}/api/admin/wallet/withdraw`,
+        `${apiUrl}/api/wallet/withdraw`,
         { amount: parseFloat(withdrawAmount), note: withdrawNote },  
         {
           headers: { Authorization: `Bearer ${token}` }, // ✅ Include Authorization header
