@@ -62,44 +62,52 @@ const AdminWallet = () => {
       setAlert({ type: 'error', message: 'Please enter a valid amount.' });
       return;
     }
-
+  
     try {
+      const token = localStorage.getItem("authToken"); // Get token from storage
       const { data } = await axios.post(
         `${apiUrl}/api/wallet/fund`,
-        { amount: parseFloat(fundAmount), note: fundNote },  // Include note
-        { withCredentials: true }
+        { amount: parseFloat(fundAmount), note: fundNote },  
+        {
+          headers: { Authorization: `Bearer ${token}` }, // ✅ Include Authorization header
+          withCredentials: true,
+        }
       );
       setAlert({ type: 'success', message: data.message });
       setFundAmount('');
-      setFundNote(''); // Clear the note input after success
+      setFundNote('');
       fetchWalletData();
     } catch (error) {
       setAlert({ type: 'error', message: error.response?.data?.message || 'Error funding wallet' });
     }
   };
-
-
+  
   // Withdraw from Admin Wallet
   const handleWithdrawFunds = async (withdrawAmount) => {
     if (!withdrawAmount || withdrawAmount <= 0) {
       setAlert({ type: 'error', message: 'Please enter a valid amount to withdraw.' });
       return;
     }
-
+  
     try {
+      const token = localStorage.getItem("authToken"); // Get token from storage
       const { data } = await axios.post(
         `${apiUrl}/api/admin/wallet/withdraw`,
-        { amount: parseFloat(withdrawAmount), note: withdrawNote },  // Include note
-        { withCredentials: true }
+        { amount: parseFloat(withdrawAmount), note: withdrawNote },  
+        {
+          headers: { Authorization: `Bearer ${token}` }, // ✅ Include Authorization header
+          withCredentials: true,
+        }
       );
       setAlert({ type: 'success', message: data.message });
       setWithdrawAmount('');
-      setWithdrawNote(''); // Clear the note input after success
+      setWithdrawNote('');
       fetchWalletData();
     } catch (error) {
       setAlert({ type: 'error', message: error.response?.data?.message || 'Error withdrawing funds' });
     }
   };
+  
 
 
   // Filter transactions based on search term
