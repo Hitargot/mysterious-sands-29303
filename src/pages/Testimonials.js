@@ -6,31 +6,37 @@ const Testimonials = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true); // Loading state
 
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "http://localhost:22222";
+
   useEffect(() => {
     fetchApprovedReviews();
   }, []);
 
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222"; 
-
   const fetchApprovedReviews = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/approved`);
+      console.log("Fetched Reviews:", response.data); // Debugging log
       setReviews(response.data);
     } catch (error) {
       console.error("Error fetching reviews:", error);
     }
-    setLoading(false); // Stop loading after fetching data
+    setLoading(false);
   };
 
+
   return (
-    <div style={{ backgroundColor: "#d0e6fd", minHeight: "100vh", paddingBottom: "30px" }}>
+    <div style={{
+      backgroundColor: "#d0e6fd",
+      minHeight: "100vh",
+      paddingBottom: "30px",
+    }}>
       {/* Header */}
       <TestimonialHeader />
-
+    
       {/* Testimonials Section */}
       <div style={{
-        maxWidth: "800px",
+        maxWidth: "900px",
         width: "90%",
         margin: "auto",
         padding: "25px",
@@ -44,7 +50,7 @@ const Testimonials = () => {
         }}>
           What Our Customers Say
         </h2>
-
+    
         {/* Loading Effect */}
         {loading ? (
           <p style={{
@@ -62,10 +68,10 @@ const Testimonials = () => {
           </p>
         ) : (
           <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
             gap: "15px",
-            width: "100%",
           }}>
             {reviews.map((review) => (
               <div key={review._id} style={{
@@ -75,17 +81,30 @@ const Testimonials = () => {
                 padding: "20px",
                 boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
                 transition: "transform 0.3s ease-in-out",
-                maxWidth: "400px",
-                margin: "10px auto",
+                maxWidth: "300px",
+                width: "100%",
+                minHeight: "180px", // Set a uniform height
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
                 cursor: "pointer",
               }}
                 onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
                 onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
               >
-                <p style={{ fontSize: "16px", fontStyle: "italic", lineHeight: "1.5" }}>
+                <p style={{
+                  fontSize: "16px",
+                  fontStyle: "italic",
+                  lineHeight: "1.5",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 3, // Limit text to 3 lines
+                  WebkitBoxOrient: "vertical",
+                }}>
                   "{review.reviewText}"
                 </p>
-
+    
                 <p style={{
                   fontWeight: "bold",
                   marginTop: "10px",
@@ -94,11 +113,11 @@ const Testimonials = () => {
                 }}>
                   - {review.userId?.username || "Anonymous"}
                 </p>
-
+    
                 <p style={{ fontStyle: "italic", fontSize: "14px", color: "#f8c471" }}>
-                  Service: {review.confirmationId?.serviceId?.serviceName || "Unknown"}
+                  Service: {review.confirmationId?.serviceId?.name || "Unknown"}
                 </p>
-
+    
                 {/* ⭐ Star Rating */}
                 <div style={{
                   fontSize: "20px",
@@ -109,11 +128,11 @@ const Testimonials = () => {
                 </div>
               </div>
             ))}
-
           </div>
         )}
       </div>
     </div>
+    
   );
 };
 

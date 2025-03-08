@@ -16,14 +16,13 @@ const ReviewForm = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
+    const token = localStorage.getItem('jwtToken');
     if (!token) {
-      // Store the intended redirect path before redirecting to login
+      // ✅ Store the original path before redirecting to login
       sessionStorage.setItem('redirectAfterLogin', window.location.pathname + window.location.search);
-      navigate("/login"); // Redirect to login
+      navigate('/login');
     }
-  }, [location, navigate]);
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,6 +32,7 @@ const ReviewForm = () => {
     }
 
     const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+      //const apiUrl = "http://localhost:22222";
 
     try {
       const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");

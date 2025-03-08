@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Alert from '../components/Alert';
 import axios from 'axios';
@@ -18,13 +18,6 @@ const Login = ({ setUserRole }) => {
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   //const apiUrl = "http://localhost:22222";
 
-  useEffect(() => {
-    const redirectPath = sessionStorage.getItem("redirectAfterLogin");
-    if (redirectPath) {
-      navigate(redirectPath);
-      sessionStorage.removeItem("redirectAfterLogin"); // ✅ Remove it only after navigating
-    }
-  }, [navigate]);
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,16 +33,19 @@ const Login = ({ setUserRole }) => {
         localStorage.setItem('username', decodedToken.username);
         localStorage.removeItem('activeComponent');
   
+        // ✅ Get redirect path or fallback to dashboard
+        const redirectPath = sessionStorage.getItem("redirectAfterLogin");
+        sessionStorage.removeItem("redirectAfterLogin"); // ✅ Remove after using
+  
         setTimeout(() => {
-          const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/dashboard";
-          navigate(redirectPath);
-          sessionStorage.removeItem("redirectAfterLogin"); // ✅ Remove after use
-        }, 3000);        
+          navigate(redirectPath || "/dashboard");
+        }, 3000);
       }
     } catch (err) {
       setAlertMessage(err.response?.data?.message || 'Login failed');
     }
   };
+  
   
   return (
     <div style={styles.login}>
