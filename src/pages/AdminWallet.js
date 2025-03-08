@@ -28,16 +28,26 @@ const AdminWallet = () => {
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   //const apiUrl = "http://localhost:22222";
 
-  // Fetch Admin Wallet Data
   const fetchWalletData = async () => {
     try {
-      const { data } = await axios.get(`${apiUrl}/api/wallet`, { withCredentials: true });
+      const token = localStorage.getItem("adminToken"); // Retrieve the admin token
+      if (!token) {
+        setAlert({ type: "error", message: "Admin not authenticated" });
+        return;
+      }
+  
+      const { data } = await axios.get(`${apiUrl}/api/wallet`, {
+        headers: { Authorization: `Bearer ${token}` }, // Attach the token
+        withCredentials: true,
+      });
+  
       setAdminBalance(data.balance);
       setTransactions(data.transactions);
     } catch (error) {
-      setAlert({ type: 'error', message: error.response?.data?.message || error.message });
+      setAlert({ type: "error", message: error.response?.data?.message || error.message });
     }
   };
+  
 
   // Update displayed transactions whenever transactions or showAllTransactions or filterType change
   useEffect(() => {
