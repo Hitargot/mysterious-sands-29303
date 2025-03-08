@@ -100,23 +100,26 @@ const AdminWallet = () => {
     }
   
     try {
-      const token = localStorage.getItem("adminToken"); // Get token from storage
+      const token = localStorage.getItem("adminToken");
       const { data } = await axios.post(
         `${apiUrl}/api/wallet/withdraw`,
-        { amount: parseFloat(withdrawAmount), note: withdrawNote },  
+        { amount: parseFloat(withdrawAmount), note: withdrawNote || "No note provided" }, // ✅ Default note
         {
-          headers: { Authorization: `Bearer ${token}` }, // ✅ Include Authorization header
+          headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         }
       );
+  
       setAlert({ type: 'success', message: data.message });
       setWithdrawAmount('');
       setWithdrawNote('');
       fetchWalletData();
     } catch (error) {
+      console.error("❌ Withdraw Error:", error.response?.data);
       setAlert({ type: 'error', message: error.response?.data?.message || 'Error withdrawing funds' });
     }
   };
+  
   
 
 
