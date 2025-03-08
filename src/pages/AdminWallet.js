@@ -102,7 +102,7 @@ const AdminWallet = () => {
     try {
       const token = localStorage.getItem("adminToken");
       const { data } = await axios.post(
-        `${apiUrl}/api/wallet/withdraw`,
+        `${apiUrl}/api/admin/wallet/withdraw`,
         { amount: parseFloat(withdrawAmount), note: withdrawNote || "No note provided" }, // ✅ Default note
         {
           headers: { Authorization: `Bearer ${token}` },
