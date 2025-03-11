@@ -213,6 +213,8 @@ const styles = {
     padding: "10px",
     background: "#fff",
     borderRadius: "6px",
+    fontSize: "12px",
+    fontWeight: "bold",
   },
   editButton: {
     width: "100%",
