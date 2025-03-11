@@ -58,7 +58,7 @@ const TermsAndConditions = () => {
           <li>Your personal data is protected and will not be shared without your consent.</li>
           <li>We reserve the right to update these terms at any time.</li>
         </ul>
-        <p>If you agree to these terms, click "Done" to proceed.</p>
+        <p>If you agree to these terms, click "Accepted" to proceed.</p>
       </div>
       <button style={styles.button} onClick={handleAcceptTerms}>
         Accepted
