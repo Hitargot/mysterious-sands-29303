@@ -1,76 +1,123 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Alert from "../components/Alert";
 import axios from "axios";
 
 const Signup = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    phone: "",
-    password: "",
-    confirmPassword: "",
+  const [formData, setFormData] = useState(() => {
+    const savedFormData = localStorage.getItem("signupForm");
+    return savedFormData ? JSON.parse(savedFormData) : {
+      username: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+    };
   });
-
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertDuration] = useState(3000);
-  const [loading, setLoading] = useState(false); // Loading state
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+  
+    if (name === "phone") {
+      // Allow only numbers
+      if (!/^\d*$/.test(value)) return;
+    }
+  
     setFormData({ ...formData, [name]: value });
   };
+  
 
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com" || "http://localhost:22222";
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertDuration] = useState(3000);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const [termsAccepted, setTermsAccepted] = useState(
+    localStorage.getItem("termsAccepted") === "true"
+  );
+  useEffect(() => {
+    localStorage.setItem("signupForm", JSON.stringify(formData));
+  }, [formData]);
+
+  useEffect(() => {
+    const accepted = localStorage.getItem("termsAccepted") === "true";
+    setTermsAccepted(accepted);
+  }, []);
+
+  const handleCheckboxChange = () => {
+    setTermsAccepted((prev) => {
+      const newValue = !prev;
+      localStorage.setItem("termsAccepted", newValue);
+      return newValue;
+    });
+  };
+
+  const showAlert = (message) => {
+    setAlertMessage(message);
+    setTimeout(() => setAlertMessage(""), alertDuration);
+  };
+
+  //const apiUrl = "http://localhost:22222";
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
 
-    if (loading) return; // Prevent multiple submissions
+    if (!termsAccepted) {
+      showAlert("You must agree to the Terms & Conditions to continue.");
+      return;
+    }
 
-    // Validate password
-    const passwordRegex =
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(formData.password)) {
-      setAlertMessage(
-        "Password must be at least 8 characters long and include letters, numbers, and symbols."
-      );
+      showAlert("Password must be at least 8 characters long and include letters, numbers, and symbols.");
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setAlertMessage("Passwords do not match.");
+      showAlert("Passwords do not match.");
       return;
     }
 
-    setLoading(true); // Start loading
-
+    setLoading(true);
     try {
       const response = await axios.post(`${apiUrl}/api/auth/signup`, {
         username: formData.username,
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
+        agreedToTerms: true,
       });
 
       if (response.status !== 201) {
-        setAlertMessage(response.data.message || "Signup failed");
+        showAlert(response.data.message || "Signup failed");
         return;
       }
 
-      setAlertMessage("Signup successful! Redirecting to login...");
+      showAlert("Signup successful! Check your email to verify your account.");
+
+      // Clear form and remove stored data
+      setFormData({
+        username: "",
+        email: "",
+        phone: "",
+        password: "",
+        confirmPassword: "",
+      });
+      localStorage.removeItem("signupForm");
+
       setTimeout(() => {
         navigate("/login");
       }, 3000);
     } catch (err) {
-      setAlertMessage(
-        err.response?.data?.message || "An unexpected error occurred."
-      );
+      showAlert(err.response?.data?.message || "An unexpected error occurred.");
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
+
 
   // Styles
   const styles = {
@@ -96,6 +143,7 @@ const Signup = () => {
       justifyContent: "space-between",
       alignItems: "center",
       marginBottom: "20px",
+      marginTop: "20px",
     },
     logo: {
       display: "flex",
@@ -222,17 +270,31 @@ const Signup = () => {
             />
           </div>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Phone:</label>
-            <input
-              type="text"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-              style={styles.input}
-              disabled={loading}
-            />
-          </div>
+  <label style={styles.label}>Phone:</label>
+  <div style={{ display: "flex", alignItems: "center" }}>
+    <input
+      type="tel"
+      name="phone"
+      value={formData.phone}
+      onChange={handleChange}
+      required
+      style={styles.input}
+      disabled={loading}
+    />
+    <span
+      style={{
+        marginLeft: "8px",
+        cursor: "pointer",
+        fontSize: "18px",
+        color: "#888",
+      }}
+      title="WhatsApp number is advisable"
+    >
+      ℹ️
+    </span>
+  </div>
+</div>
+
           <div style={styles.formGroup}>
             <label style={styles.label}>Password:</label>
             <input
@@ -257,9 +319,29 @@ const Signup = () => {
               disabled={loading}
             />
           </div>
-          <button type="submit" style={styles.button} disabled={loading}>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: "15px" }}>
+            <input
+              type="checkbox"
+              checked={termsAccepted}
+              onChange={handleCheckboxChange}
+              id="terms"
+              disabled={!termsAccepted} // Disable until accepted
+              style={{ marginRight: "10px" }}
+            />
+
+            <label htmlFor="terms" style={{ color: "#f1e4d1" }}>
+              I agree to the{" "}
+              <Link to="/terms" style={{ color: "#d0e6fd", textDecoration: "underline" }}>
+                Terms and Conditions
+              </Link>
+            </label>
+          </div>
+
+
+          <button type="submit" style={styles.button} disabled={!termsAccepted || loading}>
             {loading ? "Signing up..." : "Signup"}
           </button>
+
         </form>
 
         {/* Footer Links */}

@@ -30,6 +30,9 @@ import VerifyEmail from './components/VerifyEmail';
 import ResendVerification from './components/ResendVerification';
 import Chatbot from './components/Chatbot';
 import ReviewForm from './components/ReviewForm';
+import TermsAndConditions from './components/TermsAndConditions';
+
+
 
 
 const App = () => {
@@ -64,7 +67,7 @@ const App = () => {
           <Route path="/resend-verification" element={<ResendVerification/>} />
           <Route path="/chat-bot" element={<Chatbot/>} />
           <Route path="/reviews/submit" element={<ReviewForm/>} />
-
+          <Route path="/terms" element={<TermsAndConditions />} />
 
           <Route
             path="/admin"
