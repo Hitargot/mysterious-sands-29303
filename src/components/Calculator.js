@@ -78,21 +78,22 @@ const Calculator = () => {
       return;
     }
 
-    let ngnEquivalent;
+    let calculatedNgnEquivalent;
     if (selectedService === 'Website Recharge') {
       const multipliers = { 5: 1, 10: 2, 20: 3, 30: 4, 50: 5 };
-      ngnEquivalent = rate * (multipliers[selectedAmount] || 1);
+      calculatedNgnEquivalent = rate * (multipliers[selectedAmount] || 1);
     } else {
-      ngnEquivalent = selectedAmount * rate;
+      calculatedNgnEquivalent = selectedAmount * rate;
     }
 
-    if (ngnEquivalent !== undefined && !isNaN(ngnEquivalent)) {
-      setNGNEquivalent(ngnEquivalent.toFixed(2));
+    if (calculatedNgnEquivalent !== undefined && !isNaN(calculatedNgnEquivalent)) {
+      setNGNEquivalent(parseFloat(calculatedNgnEquivalent.toFixed(2)));
     } else {
       setAlertMessage('Invalid calculation!');
       setShowAlert(true);
     }
   };
+
 
   return (
     <section style={styles.calculatorContainer}>
@@ -157,14 +158,15 @@ const Calculator = () => {
 
       <button onClick={handleCalculate} style={styles.button}>Calculate</button>
 
-      {typeof ngnEquivalent === "number" && !isNaN(ngnEquivalent) && (
+      {ngnEquivalent && (
         <div style={styles.result}>
           <h4>
             NGN Equivalent: ₦
-            {ngnEquivalent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {parseFloat(ngnEquivalent).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </h4>
         </div>
       )}
+
 
     </section>
   );
