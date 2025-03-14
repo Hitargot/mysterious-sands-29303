@@ -7,7 +7,11 @@ const TermsAndConditions = () => {
     localStorage.setItem("termsAccepted", "true");
     navigate("/signup", { state: { agreed: true } });
   };
-  
+
+  const handleDeclineTerms = () => {
+    navigate("/");
+  };
+
   const styles = {
     container: {
       maxWidth: "600px",
@@ -29,7 +33,13 @@ const TermsAndConditions = () => {
       fontSize: "1rem",
       marginBottom: "20px",
     },
+    buttonContainer: {
+      display: "flex",
+      justifyContent: "space-between",
+      gap: "10px",
+    },
     button: {
+      flex: 1,
       backgroundColor: "#d0e6fd",
       color: "#162660",
       padding: "10px",
@@ -37,12 +47,12 @@ const TermsAndConditions = () => {
       borderRadius: "5px",
       fontWeight: "bold",
       cursor: "pointer",
-      width: "100%",
       fontSize: "1rem",
       transition: "background-color 0.3s ease-in-out",
     },
-    buttonHover: {
-      backgroundColor: "#a3c0e5",
+    declineButton: {
+      backgroundColor: "#e74c3c",
+      color: "#fff",
     },
   };
 
@@ -58,11 +68,16 @@ const TermsAndConditions = () => {
           <li>Your personal data is protected and will not be shared without your consent.</li>
           <li>We reserve the right to update these terms at any time.</li>
         </ul>
-        <p>If you agree to these terms, click "Accepted" to proceed.</p>
+        <p>If you agree to these terms, click "Accepted" to proceed. Otherwise, click "Decline" to return to the homepage.</p>
       </div>
-      <button style={styles.button} onClick={handleAcceptTerms}>
-        Accepted
-      </button>
+      <div style={styles.buttonContainer}>
+        <button style={styles.button} onClick={handleAcceptTerms}>
+          Accepted
+        </button>
+        <button style={{ ...styles.button, ...styles.declineButton }} onClick={handleDeclineTerms}>
+          Decline
+        </button>
+      </div>
     </div>
   );
 };
