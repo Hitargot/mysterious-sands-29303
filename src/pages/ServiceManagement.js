@@ -7,15 +7,13 @@ const ServiceManagement = () => {
   const [services, setServices] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
-    exchangeRates: {
-      usd: "",
-      eur: "",
-      gbp: "",
-    },
+    exchangeRates: { usd: "", eur: "", gbp: "" },
     description: "",
     note: "",
     status: "valid",
+    tag: "", // Add tag here
   });
+
   const [editingService, setEditingService] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -75,18 +73,15 @@ const ServiceManagement = () => {
       return;
     }
 
-    const serviceData = { ...formData };
+    const serviceData = { ...formData }; // This already includes tag
 
     try {
       if (editingService) {
-        await axios.put(
-          `${apiUrl}/api/services/${editingService._id}`,
-          serviceData
-        );
+        await axios.put(`${apiUrl}/api/services/${editingService._id}`, serviceData);
       } else {
         await axios.post(`${apiUrl}/api/services/create`, serviceData);
       }
-
+    
       fetchServices();
       setFormData({
         name: "",
@@ -94,12 +89,13 @@ const ServiceManagement = () => {
         description: "",
         note: "",
         status: "valid",
+        tag: "", // Reset tag
       });
       setEditingService(null);
       setShowForm(false);
     } catch (error) {
       console.error("Error saving service:", error);
-    }
+    }    
   };
 
   const handleEdit = (service) => {
@@ -186,6 +182,14 @@ const ServiceManagement = () => {
               onChange={handleInputChange}
               required
             />
+            <input
+              type="text"
+              name="tag"
+              placeholder="Tag (e.g., Crypto, PayPal, Gift Card)"
+              value={formData.tag}
+              onChange={handleInputChange}
+            />
+
             <textarea
               name="description"
               placeholder="Description"
