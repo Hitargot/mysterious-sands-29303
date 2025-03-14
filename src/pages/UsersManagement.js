@@ -147,15 +147,17 @@ const UserManagement = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`${apiUrl}/api/users/users/${userToDelete}`);
-      triggerAlert("User deleted successfully", "success");
-      fetchUsers();
+        const response = await axios.delete(`${apiUrl}/api/users/users/${userToDelete}`);
+        triggerAlert(response.data.message, "success");
+        fetchUsers();
     } catch (error) {
-      triggerAlert("Error deleting user", "error");
+        const errorMessage = error.response?.data?.message || "Error deleting user";
+        triggerAlert(errorMessage, "error");
     } finally {
-      setIsDeleteConfirmOpen(false);
+        setIsDeleteConfirmOpen(false);
     }
-  };
+};
+
 
   const toggleBlockUser = async (userId, isBlocked) => {
     try {

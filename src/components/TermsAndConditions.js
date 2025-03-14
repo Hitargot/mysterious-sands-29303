@@ -9,7 +9,7 @@ const TermsAndConditions = () => {
   };
 
   const handleDeclineTerms = () => {
-    navigate("/signup");
+    navigate("/");
   };
 
   const styles = {
