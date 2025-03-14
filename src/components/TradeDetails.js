@@ -96,6 +96,9 @@ const TradeDetails = ({ selectedService }) => {
           <p style={{ fontSize: "16px", color: "#333" }}>
             <strong>Note:</strong> {serviceDetails.note}
           </p>
+          <p style={{ fontSize: "16px", color: "#333" }}>
+            <strong>Note:</strong> {serviceDetails.tag}
+          </p>
 
           <button 
             onClick={checkValidity} 
