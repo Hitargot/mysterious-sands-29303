@@ -69,6 +69,7 @@ const TradeHistory = () => {
       title: "Transaction Receipt",
       fields: [
         { label: "Service", value: confirmation.serviceId?.name || "N/A" },
+        { label: "Service Tag", value: confirmation.serviceId?.tag || "N/A" },
         { label: "Transaction ID", value: confirmation.transactionId || "N/A", copyable: true },
         { label: "Date", value: new Date(confirmation.createdAt).toLocaleString() || "N/A" },
         { label: "Status", value: confirmation.status || "N/A" },
@@ -143,6 +144,7 @@ const TradeHistory = () => {
               <CardHeader className="card-header">
                 <div className="service-status-container">
                   <h3 className="card-title">{confirmation.serviceId?.name || "Unknown Service"}</h3>
+                  <h3 className="card-title">{confirmation.serviceId?.tag || "Unknown Service"}</h3>
                   <span className={`status-badge ${confirmation.status === "Success" ? "success" : "error"}`}>{confirmation.status || "N/A"}</span>
                 </div>
                 <p className="date"><strong>Date:</strong> {new Date(confirmation.createdAt).toLocaleString() || "N/A"}</p>
