@@ -97,7 +97,7 @@ const TradeDetails = ({ selectedService }) => {
             <strong>Note:</strong> {serviceDetails.note}
           </p>
           <p style={{ fontSize: "16px", color: "#333" }}>
-            <strong>Note:</strong> {serviceDetails.tag}
+            <strong>Tag:</strong> {serviceDetails.tag}
           </p>
 
           <button 

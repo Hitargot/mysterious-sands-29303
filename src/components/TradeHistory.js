@@ -144,7 +144,6 @@ const TradeHistory = () => {
               <CardHeader className="card-header">
                 <div className="service-status-container">
                   <h3 className="card-title">{confirmation.serviceId?.name || "Unknown Service"}</h3>
-                  <h3 className="card-title">{confirmation.serviceId?.tag || "Unknown Service"}</h3>
                   <span className={`status-badge ${confirmation.status === "Success" ? "success" : "error"}`}>{confirmation.status || "N/A"}</span>
                 </div>
                 <p className="date"><strong>Date:</strong> {new Date(confirmation.createdAt).toLocaleString() || "N/A"}</p>
