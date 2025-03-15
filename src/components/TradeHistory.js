@@ -27,11 +27,11 @@ const TradeHistory = () => {
         const response = await axios.get(`${apiUrl}/api/confirmations`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-  
+
         const sortedConfirmations = response.data.confirmations.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
-  
+
         if (sortedConfirmations.length === 0) {
           setError("No trade history found.");
         } else {
@@ -44,10 +44,10 @@ const TradeHistory = () => {
         setLoading(false);
       }
     };
-  
+
     fetchConfirmations();
   }, [apiUrl]);
-  
+
   // Filtered Confirmations (should be placed before using it in useEffect)
   const filteredConfirmations = confirmations.filter(
     (confirmation) =>
@@ -69,7 +69,8 @@ const TradeHistory = () => {
 
       return newTimers;
     });
-  }, [confirmations]); // ✅ Use confirmations instead of filteredConfirmations
+  }, [confirmations]); // ✅ Removed `filteredConfirmations`
+
 
   // ✅ Effect to decrement timers every second
   useEffect(() => {
@@ -86,23 +87,23 @@ const TradeHistory = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
-  
+  }, []); // ✅ Removed `timers` to prevent unwanted resets
+
   // ✅ Initialize countdown timers only when `confirmations` change
   useEffect(() => {
     setTimers((prevTimers) => {
       const newTimers = { ...prevTimers };
-  
+
       filteredConfirmations.forEach((confirmation) => {
         if (confirmation.status === "Pending" && !newTimers[confirmation._id]) {
           newTimers[confirmation._id] = 1800; // 30 minutes countdown
         }
       });
-  
+
       return newTimers;
     });
   }, [filteredConfirmations]); // ✅ `timers` removed to prevent unnecessary re-renders
-  
+
 
 
 
@@ -164,12 +165,12 @@ const TradeHistory = () => {
   };
 
 
-  
+
 
   if (loading) return <div className="loading-container"><div className="spinner"></div></div>;
   if (error) return <div className="error-container"><p>{error}</p></div>;
 
-  
+
   return (
     <div className="transaction-history">
       <div className="search-bar-container">
@@ -222,10 +223,10 @@ const TradeHistory = () => {
                       />
                     )}
                   </p>
-                  {confirmation.status === "Pending" && timeLeft > 0 && (
+                  {confirmation.status === "Pending" && timers[confirmation._id] > 0 && (
                     <p className="countdown">
-                      <strong>Time Remaining:</strong> {Math.floor(timeLeft / 60)} min{" "}
-                      {timeLeft % 60} sec
+                      <strong>Time Remaining:</strong> {Math.floor(timers[confirmation._id] / 60)} min{" "}
+                      {timers[confirmation._id] % 60} sec
                     </p>
                   )}
                 </CardContent>
