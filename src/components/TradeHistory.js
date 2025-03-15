@@ -240,7 +240,7 @@ const TradeHistory = () => {
                       onClick={() => {
                         const phoneNumber = "+2348139935240"; // Replace with your actual WhatsApp number
                         const message = encodeURIComponent(
-                          `Hello, I have a dispute regarding my transaction.\n\nTransaction ID: ${confirmation.transactionId}\nNote: ${confirmation.note || "No additional notes."}`
+                          `Hello, I have a dispute regarding my transaction.\n\nTransaction ID: ${confirmation.transactionId}`
                         );
 
                         window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
