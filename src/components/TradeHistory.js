@@ -63,13 +63,19 @@ const TradeHistory = () => {
 
       confirmations.forEach((confirmation) => {
         if (confirmation.status === "Pending" && !newTimers[confirmation._id]) {
-          newTimers[confirmation._id] = 1800; // 30 minutes countdown
+          const createdTime = new Date(confirmation.createdAt).getTime();
+          const currentTime = new Date().getTime();
+          const elapsedTime = Math.floor((currentTime - createdTime) / 1000); // Elapsed time in seconds
+          const remainingTime = 1800 - elapsedTime; // 30 min countdown
+
+          newTimers[confirmation._id] = remainingTime > 0 ? remainingTime : 0; // Ensure it doesn't go negative
         }
       });
 
       return newTimers;
     });
-  }, [confirmations]); // ✅ Removed `filteredConfirmations`
+  }, [confirmations]);
+
 
 
   // ✅ Effect to decrement timers every second
@@ -88,24 +94,6 @@ const TradeHistory = () => {
 
     return () => clearInterval(interval);
   }, []); // ✅ Removed `timers` to prevent unwanted resets
-
-  // ✅ Initialize countdown timers only when `confirmations` change
-  useEffect(() => {
-    setTimers((prevTimers) => {
-      const newTimers = { ...prevTimers };
-
-      filteredConfirmations.forEach((confirmation) => {
-        if (confirmation.status === "Pending" && !newTimers[confirmation._id]) {
-          newTimers[confirmation._id] = 1800; // 30 minutes countdown
-        }
-      });
-
-      return newTimers;
-    });
-  }, [filteredConfirmations]); // ✅ `timers` removed to prevent unnecessary re-renders
-
-
-
 
   const copyToClipboard = (txid) => {
     if (!txid) return;
@@ -230,6 +218,7 @@ const TradeHistory = () => {
                     </p>
                   )}
                 </CardContent>
+
 
                 <CardFooter className="card-footer">
                   <Button

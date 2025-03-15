@@ -232,7 +232,7 @@ const TradeTransactions = () => {
                         </h3>
                         <p><strong>User:</strong> {tx.userId?.username || "N/A"}</p>
                         <p><strong>Service:</strong> {tx.serviceId?.name || "N/A"}</p>
-                        <p><strong>Service:</strong> {tx.serviceId?.tag || "N/A"}</p>
+                        <p><strong>Tag:</strong> {tx.serviceId?.tag || "N/A"}</p>
 
                         <p>
                             <strong>Status:</strong>{" "}
