@@ -237,11 +237,19 @@ const TradeHistory = () => {
                       className="dispute-button"
                       variant="destructive"
                       size="sm"
-                      onClick={() => window.open("https://wa.me/yourwhatsappnumber", "_blank")}
+                      onClick={() => {
+                        const phoneNumber = "+2348139935240"; // Replace with your actual WhatsApp number
+                        const message = encodeURIComponent(
+                          `Hello, I have a dispute regarding my transaction.\n\nTransaction ID: ${confirmation.transactionId}\nNote: ${confirmation.note || "No additional notes."}`
+                        );
+
+                        window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
+                      }}
                     >
                       Dispute on WhatsApp
                     </Button>
                   )}
+
                 </CardFooter>
               </Card>
             );
