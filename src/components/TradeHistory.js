@@ -48,22 +48,29 @@ const TradeHistory = () => {
     fetchConfirmations();
   }, [apiUrl]);
   
-// ✅ Initialize countdown timers only when `confirmations` change
-useEffect(() => {
-  setTimers((prevTimers) => {
-    const newTimers = { ...prevTimers };
+  // Filtered Confirmations (should be placed before using it in useEffect)
+  const filteredConfirmations = confirmations.filter(
+    (confirmation) =>
+      (confirmation.serviceId?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        confirmation.transactionId.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (statusFilter ? confirmation.status.toLowerCase().includes(statusFilter.toLowerCase()) : true)
+  );
 
-    filteredConfirmations.forEach((confirmation) => {
-      if (confirmation.status === "Pending" && !newTimers[confirmation._id]) {
-        newTimers[confirmation._id] = 1800; // 30 minutes countdown
-      }
+  // ✅ Initialize countdown timers only when confirmations change
+  useEffect(() => {
+    setTimers((prevTimers) => {
+      const newTimers = { ...prevTimers };
+
+      confirmations.forEach((confirmation) => {
+        if (confirmation.status === "Pending" && !newTimers[confirmation._id]) {
+          newTimers[confirmation._id] = 1800; // 30 minutes countdown
+        }
+      });
+
+      return newTimers;
     });
+  }, [confirmations]); // ✅ Use confirmations instead of filteredConfirmations
 
-    return newTimers;
-  });
-}, [filteredConfirmations]); // ✅ `timers` removed to prevent unnecessary re-renders
-
-  
   // ✅ Effect to decrement timers every second
   useEffect(() => {
     const interval = setInterval(() => {
@@ -77,9 +84,9 @@ useEffect(() => {
         return updatedTimers;
       });
     }, 1000);
-  
+
     return () => clearInterval(interval);
-  }, []); // ✅ Removed `timers` from dependencies to prevent resets
+  }, []);
   
   // ✅ Initialize countdown timers only when `confirmations` change
   useEffect(() => {
@@ -156,12 +163,8 @@ useEffect(() => {
     setSelectedReceipt(null);
   };
 
-  const filteredConfirmations = confirmations.filter(
-    (confirmation) =>
-      (confirmation.serviceId?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        confirmation.transactionId.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (statusFilter ? confirmation.status === statusFilter : true)
-  );
+
+  
 
   if (loading) return <div className="loading-container"><div className="spinner"></div></div>;
   if (error) return <div className="error-container"><p>{error}</p></div>;
