@@ -236,6 +236,7 @@ const ServiceManagement = () => {
                 <p>GBP: {service.exchangeRates.gbp}</p>
               </div>
               <div className="description">{service.description}</div>
+              <div className="description">{service.tag}</div>
               {service.note && <div className="note">{service.note}</div>}
               <div className="service-actions">
                 <button onClick={() => handleEdit(service)}>Edit</button>

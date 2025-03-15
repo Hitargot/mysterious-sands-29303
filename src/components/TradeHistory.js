@@ -69,7 +69,7 @@ const TradeHistory = () => {
       title: "Transaction Receipt",
       fields: [
         { label: "Service", value: confirmation.serviceId?.name || "N/A" },
-        { label: "Service Tag", value: confirmation.serviceId?.tag || "N/A" },
+        { label: "Service Tag", value: confirmation.serviceTag || "N/A" }, // ✅ Uses stored tag
         { label: "Transaction ID", value: confirmation.transactionId || "N/A", copyable: true },
         { label: "Date", value: new Date(confirmation.createdAt).toLocaleString() || "N/A" },
         { label: "Status", value: confirmation.status || "N/A" },
