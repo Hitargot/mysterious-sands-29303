@@ -7,33 +7,36 @@ import Alert from "./Alert";
 import ReceiptModal from "./ReceiptModal";
 import "../styles/TradeHistory.css";
 
-const TradeHistory = ({ filteredConfirmations }) => {
-  const [timers, setTimers] = useState({}); // Track countdown timers
+const TransactionHistory = () => {
+  const [timers, setTimers] = useState({});
 
   useEffect(() => {
     const interval = setInterval(() => {
       setTimers((prevTimers) => {
-        const updatedTimers = { ...prevTimers };
-
-        filteredConfirmations.forEach((confirmation) => {
-          if (confirmation.status === "Pending") {
-            const timeElapsed = (Date.now() - new Date(confirmation.createdAt).getTime()) / 1000;
-            const timeRemaining = 1800 - timeElapsed; // 30 minutes (1800 seconds)
-
-            if (timeRemaining <= 0) {
-              updatedTimers[confirmation._id] = 0; // Time expired
-            } else {
-              updatedTimers[confirmation._id] = Math.max(0, timeRemaining);
-            }
+        const updatedTimers = {};
+        Object.keys(prevTimers).forEach((id) => {
+          if (prevTimers[id] > 0) {
+            updatedTimers[id] = prevTimers[id] - 1;
           }
         });
-
         return updatedTimers;
       });
-    }, 1000);
+    }, 1000); // Update every second
 
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    filteredConfirmations.forEach((confirmation) => {
+      if (confirmation.status === "Pending" && !timers[confirmation._id]) {
+        setTimers((prev) => ({
+          ...prev,
+          [confirmation._id]: 1800, // 30 minutes countdown (in seconds)
+        }));
+      }
+    });
   }, [filteredConfirmations]);
+  
   const [confirmations, setConfirmations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
