@@ -7,7 +7,33 @@ import Alert from "./Alert";
 import ReceiptModal from "./ReceiptModal";
 import "../styles/TradeHistory.css";
 
-const TradeHistory = () => {
+const TradeHistory = ({ filteredConfirmations }) => {
+  const [timers, setTimers] = useState({}); // Track countdown timers
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimers((prevTimers) => {
+        const updatedTimers = { ...prevTimers };
+
+        filteredConfirmations.forEach((confirmation) => {
+          if (confirmation.status === "Pending") {
+            const timeElapsed = (Date.now() - new Date(confirmation.createdAt).getTime()) / 1000;
+            const timeRemaining = 1800 - timeElapsed; // 30 minutes (1800 seconds)
+
+            if (timeRemaining <= 0) {
+              updatedTimers[confirmation._id] = 0; // Time expired
+            } else {
+              updatedTimers[confirmation._id] = Math.max(0, timeRemaining);
+            }
+          }
+        });
+
+        return updatedTimers;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [filteredConfirmations]);
   const [confirmations, setConfirmations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -135,41 +161,75 @@ const TradeHistory = () => {
         </select>
       </div>
       {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage("")} />}
-
       <h2 className="section-title">Transaction History</h2>
       <div className="transaction-cards">
         {filteredConfirmations.length > 0 ? (
-          filteredConfirmations.map((confirmation) => (
-            <Card key={confirmation._id} className="card">
-              <CardHeader className="card-header">
-                <div className="service-status-container">
-                  <h3 className="card-title">{confirmation.serviceId?.name || "Unknown Service"}</h3>
-                  <span className={`status-badge ${confirmation.status === "Success" ? "success" : "error"}`}>{confirmation.status || "N/A"}</span>
-                </div>
-                <p className="date"><strong>Date:</strong> {new Date(confirmation.createdAt).toLocaleString() || "N/A"}</p>
-              </CardHeader>
+          filteredConfirmations.map((confirmation) => {
+            const timeLeft = timers[confirmation._id] || 0;
+            const showDispute = confirmation.status === "Pending" && timeLeft === 0;
 
-              <CardContent className="card-content">
-                <p className="transaction-id">
-                  <strong>Transaction ID:</strong> {confirmation.transactionId || "N/A"} {" "}
-                  {confirmation.transactionId && <ClipboardCopy className="clipboard-icon" onClick={() => copyToClipboard(confirmation.transactionId)} />}
-                </p>
-              </CardContent>
+            return (
+              <Card key={confirmation._id} className="card">
+                <CardHeader className="card-header">
+                  <div className="service-status-container">
+                    <h3 className="card-title">{confirmation.serviceId?.name || "Unknown Service"}</h3>
+                    <span
+                      className={`status-badge ${
+                        confirmation.status === "Success" ? "success" : "error"
+                      }`}
+                    >
+                      {confirmation.status || "N/A"}
+                    </span>
+                  </div>
+                  <p className="date">
+                    <strong>Date:</strong> {new Date(confirmation.createdAt).toLocaleString() || "N/A"}
+                  </p>
+                </CardHeader>
 
-              <CardFooter className="card-footer">
-                <Button
-                className="card-button"
-                  variant="outline"
-                  size="sm"
-                  disabled={!confirmation.fileUrl}
-                  onClick={() => handleViewReceipt(confirmation)}
-                >
-                  <FileText className="mr-2" />
-                  {confirmation.fileUrl ? "View Receipt" : "No Receipt Available"}
-                </Button>
-              </CardFooter>
-            </Card>
-          ))
+                <CardContent className="card-content">
+                  <p className="transaction-id">
+                    <strong>Transaction ID:</strong> {confirmation.transactionId || "N/A"}{" "}
+                    {confirmation.transactionId && (
+                      <ClipboardCopy
+                        className="clipboard-icon"
+                        onClick={() => copyToClipboard(confirmation.transactionId)}
+                      />
+                    )}
+                  </p>
+                  {confirmation.status === "Pending" && timeLeft > 0 && (
+                    <p className="countdown">
+                      <strong>Time Remaining:</strong> {Math.floor(timeLeft / 60)} min{" "}
+                      {timeLeft % 60} sec
+                    </p>
+                  )}
+                </CardContent>
+
+                <CardFooter className="card-footer">
+                  <Button
+                    className="card-button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!confirmation.fileUrl}
+                    onClick={() => handleViewReceipt(confirmation)}
+                  >
+                    <FileText className="mr-2" />
+                    {confirmation.fileUrl ? "View Receipt" : "No Receipt Available"}
+                  </Button>
+
+                  {showDispute && (
+                    <Button
+                      className="dispute-button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => window.open("https://wa.me/yourwhatsappnumber", "_blank")}
+                    >
+                      Dispute on WhatsApp
+                    </Button>
+                  )}
+                </CardFooter>
+              </Card>
+            );
+          })
         ) : (
           <p className="no-history">No trade history found.</p>
         )}
