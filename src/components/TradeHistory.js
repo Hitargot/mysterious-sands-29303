@@ -7,7 +7,7 @@ import Alert from "./Alert";
 import ReceiptModal from "./ReceiptModal";
 import "../styles/TradeHistory.css";
 
-const TransactionHistory = () => {
+const TradeHistory = () => {
   const [timers, setTimers] = useState({});
 
   useEffect(() => {
@@ -36,7 +36,7 @@ const TransactionHistory = () => {
       }
     });
   }, [filteredConfirmations]);
-  
+
   const [confirmations, setConfirmations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
