@@ -10,6 +10,7 @@ import "../styles/TradeHistory.css";
 const TradeHistory = () => {
   const [timers, setTimers] = useState({});
 
+  // Effect to decrement timers every second
   useEffect(() => {
     const interval = setInterval(() => {
       setTimers((prevTimers) => {
@@ -21,21 +22,24 @@ const TradeHistory = () => {
         });
         return updatedTimers;
       });
-    }, 1000); // Update every second
-
+    }, 1000);
+  
     return () => clearInterval(interval);
-  }, []);
-
+  }, [timers]); // Added `timers` to the dependency array
+  
+  // Ensure filteredConfirmations is defined before use
   useEffect(() => {
+    if (!filteredConfirmations) return; // Prevent errors if undefined
     filteredConfirmations.forEach((confirmation) => {
       if (confirmation.status === "Pending" && !timers[confirmation._id]) {
         setTimers((prev) => ({
           ...prev,
-          [confirmation._id]: 1800, // 30 minutes countdown (in seconds)
+          [confirmation._id]: 1800, // 30 minutes countdown
         }));
       }
     });
-  }, [filteredConfirmations]);
+  }, [filteredConfirmations, timers]); // Added `timers` to dependencies
+  
 
   const [confirmations, setConfirmations] = useState([]);
   const [loading, setLoading] = useState(true);
