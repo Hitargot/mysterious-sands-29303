@@ -9,38 +9,6 @@ import "../styles/TradeHistory.css";
 
 const TradeHistory = () => {
   const [timers, setTimers] = useState({});
-
-  // Effect to decrement timers every second
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimers((prevTimers) => {
-        const updatedTimers = {};
-        Object.keys(prevTimers).forEach((id) => {
-          if (prevTimers[id] > 0) {
-            updatedTimers[id] = prevTimers[id] - 1;
-          }
-        });
-        return updatedTimers;
-      });
-    }, 1000);
-  
-    return () => clearInterval(interval);
-  }, [timers]); // Added `timers` to the dependency array
-  
-  // Ensure filteredConfirmations is defined before use
-  useEffect(() => {
-    if (!filteredConfirmations) return; // Prevent errors if undefined
-    filteredConfirmations.forEach((confirmation) => {
-      if (confirmation.status === "Pending" && !timers[confirmation._id]) {
-        setTimers((prev) => ({
-          ...prev,
-          [confirmation._id]: 1800, // 30 minutes countdown
-        }));
-      }
-    });
-  }, [filteredConfirmations, timers]); // Added `timers` to dependencies
-  
-
   const [confirmations, setConfirmations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -50,8 +18,7 @@ const TradeHistory = () => {
   const [statusFilter, setStatusFilter] = useState("");
 
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222";
-
+  // const apiUrl = "http://localhost:22222";
 
   useEffect(() => {
     const fetchConfirmations = async () => {
@@ -65,7 +32,6 @@ const TradeHistory = () => {
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
   
-        // ✅ If the response is empty, set a custom message instead of an error
         if (sortedConfirmations.length === 0) {
           setError("No trade history found.");
         } else {
@@ -82,6 +48,56 @@ const TradeHistory = () => {
     fetchConfirmations();
   }, [apiUrl]);
   
+// ✅ Initialize countdown timers only when `confirmations` change
+useEffect(() => {
+  setTimers((prevTimers) => {
+    const newTimers = { ...prevTimers };
+
+    filteredConfirmations.forEach((confirmation) => {
+      if (confirmation.status === "Pending" && !newTimers[confirmation._id]) {
+        newTimers[confirmation._id] = 1800; // 30 minutes countdown
+      }
+    });
+
+    return newTimers;
+  });
+}, [filteredConfirmations]); // ✅ `timers` removed to prevent unnecessary re-renders
+
+  
+  // ✅ Effect to decrement timers every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimers((prevTimers) => {
+        const updatedTimers = {};
+        Object.keys(prevTimers).forEach((id) => {
+          if (prevTimers[id] > 0) {
+            updatedTimers[id] = prevTimers[id] - 1;
+          }
+        });
+        return updatedTimers;
+      });
+    }, 1000);
+  
+    return () => clearInterval(interval);
+  }, []); // ✅ Removed `timers` from dependencies to prevent resets
+  
+  // ✅ Initialize countdown timers only when `confirmations` change
+  useEffect(() => {
+    setTimers((prevTimers) => {
+      const newTimers = { ...prevTimers };
+  
+      filteredConfirmations.forEach((confirmation) => {
+        if (confirmation.status === "Pending" && !newTimers[confirmation._id]) {
+          newTimers[confirmation._id] = 1800; // 30 minutes countdown
+        }
+      });
+  
+      return newTimers;
+    });
+  }, [filteredConfirmations]); // ✅ `timers` removed to prevent unnecessary re-renders
+  
+
+
 
   const copyToClipboard = (txid) => {
     if (!txid) return;
@@ -150,6 +166,7 @@ const TradeHistory = () => {
   if (loading) return <div className="loading-container"><div className="spinner"></div></div>;
   if (error) return <div className="error-container"><p>{error}</p></div>;
 
+  
   return (
     <div className="transaction-history">
       <div className="search-bar-container">
@@ -181,9 +198,8 @@ const TradeHistory = () => {
                   <div className="service-status-container">
                     <h3 className="card-title">{confirmation.serviceId?.name || "Unknown Service"}</h3>
                     <span
-                      className={`status-badge ${
-                        confirmation.status === "Success" ? "success" : "error"
-                      }`}
+                      className={`status-badge ${confirmation.status === "Success" ? "success" : "error"
+                        }`}
                     >
                       {confirmation.status || "N/A"}
                     </span>
