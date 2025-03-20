@@ -1,14 +1,25 @@
-import React, { useEffect } from "react";
-import styled from "styled-components";
+import { useState, useEffect, useMemo } from "react";
+import styled, { keyframes } from "styled-components";
 import image1 from "../assets/images/949shots_so.png"; 
 import image2 from "../assets/images/969shots_so.png";
-import image3 from "../assets/images/633shots_so.png";
+import image3 from "../assets/images/856shots_so.png";
 import johnDoeImg from "../assets/images/path_to_team_member_image1.jpg"; 
 import janeSmithImg from "../assets/images/designer.PNG"; 
 import aliceJohnsonImg from "../assets/images/path_to_team_member_image1.jpg";
 
 const AboutWrapper = styled.div`
   overflow: hidden;
+`;
+
+const slideIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 `;
 
 const AboutSection = styled.section`
@@ -28,19 +39,7 @@ const AboutImage = styled.img`
   border-radius: 15px;
   box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.1);
   opacity: 0;
-  transform: translateX(-100px);
-  animation: slideIn 1.2s ease-in-out forwards;
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateX(-100px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
+  animation: ${slideIn} 1.2s ease-in-out forwards;
 
   @media (max-width: 768px) {
     width: 100%;
@@ -141,11 +140,18 @@ const teamMembers = [
   },
 ];
 
+
 const About = () => {
-  const images = [image1, image2, image3];
-  const selectedImage = images[Math.floor(Math.random() * images.length)];
+  const images = useMemo(() => [image1, image2, image3], []);
+  const [selectedImage, setSelectedImage] = useState(images[Math.floor(Math.random() * images.length)]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSelectedImage(images[Math.floor(Math.random() * images.length)]);
+    }, 3000);
 
+    return () => clearInterval(interval);
+  }, [images]);
   useEffect(() => {
     const aboutText = document.getElementById("about-text");
     if (!aboutText) return;
@@ -158,12 +164,13 @@ const About = () => {
         aboutText.textContent += textToType[i];
       }, 50 * i);
     }
-  }, []);
+  }, []); // No dependencies needed here
 
   return (
     <AboutWrapper id="about">
       <AboutSection>
-        <AboutImage src={selectedImage} alt="About Us" />
+        {/* Force re-animation by changing the key */}
+        <AboutImage key={selectedImage} src={selectedImage} alt="About Us" />
         <AboutContent>
           <h3>Exdollarium: Redefining Currency Exchange</h3>
           <p id="about-text">
