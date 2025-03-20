@@ -98,15 +98,16 @@ const DashboardHeader = ({
   // Styles
   const styles = {
     header: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      backgroundColor: '#162660',
-      color: '#f1e4d1',
-      padding: '15px 25px',
-      fontSize: '18px',
-      fontWeight: '500',
-      boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      backgroundColor: "#162660",
+      color: "#f1e4d1",
+      padding: "15px 25px",
+      fontSize: "18px",
+      fontWeight: "500",
+      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+      paddingTop: "calc(15px + env(safe-area-inset-top))", // Adjust for iPhone notch
     },
     greeting: {
       fontSize: '20px',

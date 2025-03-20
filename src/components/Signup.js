@@ -14,6 +14,7 @@ const Signup = () => {
       confirmPassword: "",
     };
   });
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -57,8 +58,8 @@ const Signup = () => {
     setTimeout(() => setAlertMessage(""), alertDuration);
   };
 
-  //const apiUrl = "http://localhost:22222";
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = "http://localhost:22222";
+  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
 
 
   const handleSubmit = async (e) => {
@@ -92,11 +93,11 @@ const Signup = () => {
       });
 
       if (response.status !== 201) {
-        showAlert(response.data.message || "Signup failed");
+        showAlert(response.data.message || "Sig nup failed");
         return;
       }
 
-      showAlert("Signup successful! Check your email to verify your account.");
+      showAlert("Sign up successful! Check your email or spam folder to verify your account.");
 
       // Clear form and remove stored data
       setFormData({
@@ -241,7 +242,7 @@ const Signup = () => {
           />
         )}
 
-        <h2 style={styles.heading}>Signup</h2>
+        <h2 style={styles.heading}>Sign Up</h2>
 
         {/* Signup Form */}
         <form onSubmit={handleSubmit} style={styles.signupForm}>
@@ -271,28 +272,56 @@ const Signup = () => {
           </div>
           <div style={styles.formGroup}>
   <label style={styles.label}>Phone:</label>
-  <div style={{ display: "flex", alignItems: "center" }}>
-    <input
-      type="tel"
-      name="phone"
-      value={formData.phone}
-      onChange={handleChange}
-      required
-      style={styles.input}
-      disabled={loading}
-    />
-    <span
-      style={{
-        marginLeft: "8px",
-        cursor: "pointer",
-        fontSize: "18px",
-        color: "#888",
-      }}
-      title="WhatsApp number is advisable"
-    >
-      ℹ️
-    </span>
-  </div>
+  <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
+            <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                style={{
+                    padding: "10px",
+                    fontSize: "16px",
+                    border: "1px solid #ccc",
+                    borderRadius: "5px",
+                    flex: 1,
+                    background: "transparent",
+
+                }}
+                disabled={loading}
+            />
+            <span
+                style={{
+                    marginLeft: "8px",
+                    cursor: "pointer",
+                    fontSize: "18px",
+                    color: "#888",
+                }}
+                onClick={() => setShowTooltip(!showTooltip)}
+            >
+                ℹ️
+            </span>
+
+            {showTooltip && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "120%",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        background: "#000",
+                        color: "#fff",
+                        padding: "5px 10px",
+                        borderRadius: "5px",
+                        fontSize: "12px",
+                        whiteSpace: "nowrap",
+                        zIndex: 1000,
+                    }}
+                >
+                    WhatsApp number is advisable
+                </div>
+            )}
+        </div>
 </div>
 
           <div style={styles.formGroup}>
@@ -339,7 +368,7 @@ const Signup = () => {
 
 
           <button type="submit" style={styles.button} disabled={!termsAccepted || loading}>
-            {loading ? "Signing up..." : "Signup"}
+            {loading ? "Signing up..." : "Sign up"}
           </button>
 
         </form>

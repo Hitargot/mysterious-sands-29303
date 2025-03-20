@@ -8,10 +8,12 @@ import fiverrIcon from "../assets/images/path_to_fiverr.png";
 import usBankIcon from "../assets/images/path_to_us_bank_icon.png";
 import upworkIcon from "../assets/images/path_to_upwork_icon.png";
 import websiteRechargeIcon from "../assets/images/path_to_website_recharge_icon.png";
+import cardIcon from "../assets/images/2019-01-30-gift-cards.jpeg";
 
 const services = [
   { name: "PayPal Exchange", icon: paypalIcon },
   { name: "Crypto Exchange (BTC, USDT, ETH, etc.)", icon: cryptoIcon },
+  { name: "Gift Card (Steam, Apple, iTune, Ebay, etc)", icon: cardIcon },
   { name: "Payoneer Exchange", icon: payoneerIcon },
   { name: "Fiverr Withdrawal", icon: fiverrIcon },
   { name: "US Bank Transfer", icon: usBankIcon },

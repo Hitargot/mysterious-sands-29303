@@ -1,85 +1,79 @@
-import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import johnDoeImg from '../assets/images/path_to_team_member_image1.jpg'; 
-import janeSmithImg from '../assets/images/designer.PNG'; 
-import aliceJohnsonImg from '../assets/images/path_to_team_member_image1.jpg'; 
+import React, { useEffect } from "react";
+import styled from "styled-components";
+import image1 from "../assets/images/949shots_so.png"; 
+import image2 from "../assets/images/969shots_so.png";
+import image3 from "../assets/images/633shots_so.png";
+import johnDoeImg from "../assets/images/path_to_team_member_image1.jpg"; 
+import janeSmithImg from "../assets/images/designer.PNG"; 
+import aliceJohnsonImg from "../assets/images/path_to_team_member_image1.jpg";
 
-const teamMembers = [
-  {
-    name: 'John Doe',
-    position: 'CEO',
-    image: johnDoeImg,
-    description: 'John is the visionary behind Exdollarium, dedicated to improving exchange services.',
-  },
-  {
-    name: 'Jane Smith',
-    position: 'CTO',
-    image: janeSmithImg,
-    description: 'Jane leads our technology efforts, ensuring our platform is secure and user-friendly.',
-  },
-  {
-    name: 'Alice Johnson',
-    position: 'Marketing Director',
-    image: aliceJohnsonImg,
-    description: 'Alice is passionate about connecting users with our services through effective marketing.',
-  },
-];
-
-// Styled components
 const AboutWrapper = styled.div`
-  overflow: hidden; /* Ensures smooth transition between sections */
+  overflow: hidden;
 `;
 
 const AboutSection = styled.section`
-  background-color: #f1e4d1; /* Warm Beige */
-  color: #162660; /* Navy Blue */
+  background-color: #f1e4d1;
+  color: #162660;
   padding: 60px 20px;
-  text-align: center;
-  position: relative;
-  animation: fadeIn 1.5s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 40px;
+`;
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+const AboutImage = styled.img`
+  width: 400px;
+  height: auto;
+  border-radius: 15px;
+  box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transform: translateX(-100px);
+  animation: slideIn 1.2s ease-in-out forwards;
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 350px;
+  }
+`;
+
+const AboutContent = styled.div`
+  max-width: 600px;
+  text-align: left;
+
+  h3 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+  }
+
+  p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: #162660;
+  }
+`;
+
+const TeamSection = styled.div`
+  background-color: #d0e6fd;
+  padding: 50px 20px;
 `;
 
 const Heading = styled.h2`
   font-size: 2.5rem;
   color: #162660;
+  text-align: center;
   margin-bottom: 20px;
-  position: relative;
-  overflow: hidden;
-  white-space: nowrap;
-  opacity: 0;
-  animation: slideIn 1s ease-in-out forwards;
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateX(-50px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-`;
-
-const AboutText = styled.p`
-  font-size: 1.2rem;
-  max-width: 800px;
-  margin: 0 auto 20px;
-  color: #162660;
-  line-height: 1.6;
-  opacity: 0;
-  animation: fadeInText 2s ease-in forwards;
-  
-  @keyframes fadeInText {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-`;
-
-const TeamSection = styled.div`
-  background-color: #d0e6fd; /* Soft Blue */
-  padding: 50px 20px;
-  margin-top: 0; /* No gap between sections */
-  transition: transform 0.5s ease-in-out;
 `;
 
 const TeamGrid = styled.div`
@@ -87,13 +81,6 @@ const TeamGrid = styled.div`
   justify-content: center;
   gap: 20px;
   flex-wrap: wrap;
-  opacity: 0;
-  animation: fadeUp 1.5s ease-in-out forwards;
-  
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(50px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
 `;
 
 const TeamMember = styled.div`
@@ -103,7 +90,7 @@ const TeamMember = styled.div`
   width: 280px;
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  backdrop-filter: blur(10px); /* Glassmorphism effect */
+  backdrop-filter: blur(10px);
 
   &:hover {
     transform: translateY(-10px);
@@ -130,11 +117,41 @@ const TeamMember = styled.div`
   }
 `;
 
+const teamMembers = [
+  {
+    name: "John Doe",
+    position: "CEO",
+    image: johnDoeImg,
+    description:
+      "John is the visionary behind Exdollarium, dedicated to improving exchange services.",
+  },
+  {
+    name: "Jane Smith",
+    position: "CTO",
+    image: janeSmithImg,
+    description:
+      "Jane leads our technology efforts, ensuring our platform is secure and user-friendly.",
+  },
+  {
+    name: "Alice Johnson",
+    position: "Marketing Director",
+    image: aliceJohnsonImg,
+    description:
+      "Alice is passionate about connecting users with our services through effective marketing.",
+  },
+];
+
 const About = () => {
+  const images = [image1, image2, image3];
+  const selectedImage = images[Math.floor(Math.random() * images.length)];
+
+
   useEffect(() => {
-    const aboutText = document.getElementById('about-text');
+    const aboutText = document.getElementById("about-text");
+    if (!aboutText) return;
+
     const textToType = aboutText.textContent.trim();
-    aboutText.textContent = '';
+    aboutText.textContent = "";
 
     for (let i = 0; i < textToType.length; i++) {
       setTimeout(() => {
@@ -144,32 +161,36 @@ const About = () => {
   }, []);
 
   return (
-      <AboutWrapper id="about">
-        <AboutSection>
-          <Heading>About Us</Heading>
-          <AboutText id="about-text">
-            At Exdollarium, we're passionate about making exchange services accessible and easy. 
-            Founded in 2024, our mission is to provide secure and reliable transactions. 
-            With a dedicated team and innovative technology, we aim to enhance the user experience 
-            and build trust in every exchange. Join us on our journey to transform the industry.
-          </AboutText>
-        </AboutSection>
-    
-        <TeamSection>
-          <Heading>Meet Our Team</Heading>
-          <TeamGrid>
-            {teamMembers.map((member, index) => (
-              <TeamMember key={index}>
-                <img src={member.image} alt={member.name} />
-                <h4>{member.name}</h4>
-                <p>{member.position}</p>
-                <p>{member.description}</p>
-              </TeamMember>
-            ))}
-          </TeamGrid>
-        </TeamSection>
-      </AboutWrapper>
-    );    
+    <AboutWrapper id="about">
+      <AboutSection>
+        <AboutImage src={selectedImage} alt="About Us" />
+        <AboutContent>
+          <h3>Exdollarium: Redefining Currency Exchange</h3>
+          <p id="about-text">
+            Founded in 2024, Exdollarium is where <b>effortless transactions meet cutting-edge innovation.</b> 
+            We combine advanced technology with a passion for enhancing user experience, ensuring every exchange 
+            is secure, seamless, and stress-free. With trust as our cornerstone, we are transforming financial 
+            transactions into a future-focused journey. Ready to join the revolution? Step into the world of 
+            endless possibilities with Exdollarium.
+          </p>
+        </AboutContent>
+      </AboutSection>
+
+      <TeamSection>
+        <Heading>Meet Our Team</Heading>
+        <TeamGrid>
+          {teamMembers.map((member, index) => (
+            <TeamMember key={index}>
+              <img src={member.image} alt={member.name} />
+              <h4>{member.name}</h4>
+              <p>{member.position}</p>
+              <p>{member.description}</p>
+            </TeamMember>
+          ))}
+        </TeamGrid>
+      </TeamSection>
+    </AboutWrapper>
+  );
 };
 
 export default About;

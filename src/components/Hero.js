@@ -61,10 +61,10 @@ const Hero = () => {
   return (
     <section id="home" className="hero-section">
       <div className="hero-content fade-in">
-        <h1>Welcome to Exdollarium!</h1>
-        <p>Your reliable solution for converting PayPal, Payoneer, and crypto to Naira.</p>
-        <p>Say goodbye to exchange hassles with our secure process.</p>
-        <button className="btn" onClick={() => navigate("/login")}>Get Started</button>
+        <h1>Exchange instantly with Exdollarium!</h1>
+        <p>Need to convert PayPal, Payoneer, and crypto to Naira? we've got you covered.</p>
+        <p className="reasons">Enjoy <b>fast, secure, and reliable transactions</b> with no delays or hidden fees-trusted by thousands and offering the best rate for maximum value!.</p>
+        <button className="btn" onClick={() => navigate("/login")}>Get Started Now!</button>
       </div>
 
       <div className="canvas-container">

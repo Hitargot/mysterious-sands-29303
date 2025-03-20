@@ -8,8 +8,8 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState({ type: "", message: "" });
 
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222";
+  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = "http://localhost:22222";
 
 
   const handleSubmit = async (e) => {
@@ -78,7 +78,7 @@ const ForgotPassword = () => {
 
         <footer style={styles.footerLinks}>
           <p>Already have an account? <Link to="/login" style={styles.footerLink}>Login</Link></p>
-          <p>Don't have an account? <Link to="/signup" style={styles.footerLink}>Signup here</Link></p>
+          <p>Don't have an account? <Link to="/signup" style={styles.footerLink}>Sign Up here</Link></p>
         </footer>
       </div>
     </div>

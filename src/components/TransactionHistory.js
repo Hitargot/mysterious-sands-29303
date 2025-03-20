@@ -183,7 +183,8 @@ const TransactionHistory = () => {
             <option value="">Filter by Status</option>
             <option value="Completed">Completed</option>
             <option value="Pending">Pending</option>
-            <option value="Failed">Failed</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
           </select>
 
           <input
@@ -198,7 +199,6 @@ const TransactionHistory = () => {
           <select onChange={(e) => setFilterType(e.target.value)} value={filterType}>
             <option value="">All Types</option>
             <option value="Withdrawal">Withdrawal</option>
-            <option value="Deposit">Deposit</option>
           </select>
 
           <input

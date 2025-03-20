@@ -278,25 +278,25 @@ const WalletPage = () => {
   };
   
   // Handle adding balance (for testing)
-  const handleAddBalance = async () => {
-    const token = getJwtToken();
-    if (!token) return;
+  // const handleAddBalance = async () => {
+  //   const token = getJwtToken();
+  //   if (!token) return;
 
-    const amount = 1000; // Static amount of 1000 NGN for testing
+  //   const amount = 1000; // Static amount of 1000 NGN for testing
 
-    try {
-      const response = await axios.post(
-        `${apiUrl}/api/wallet/add-balance`,
-        { amount },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+  //   try {
+  //     const response = await axios.post(
+  //       `${apiUrl}/api/wallet/add-balance`,
+  //       { amount },
+  //       { headers: { Authorization: `Bearer ${token}` } }
+  //     );
 
-      handleAlert('Balance added successfully!');
-      setWalletBalance(response.data.newBalance);  // Use the new balance from the response
-    } catch (error) {
-      alert(error.response?.data?.message || 'Error adding balance.');
-    }
-  };
+  //     handleAlert('Balance added successfully!');
+  //     setWalletBalance(response.data.newBalance);  // Use the new balance from the response
+  //   } catch (error) {
+  //     alert(error.response?.data?.message || 'Error adding balance.');
+  //   }
+  // };
 
 
   // Handle alert
@@ -543,7 +543,7 @@ const WalletPage = () => {
       {showAlert && <Alert message={alertMessage} type={alertType} onClose={handleCloseAlert} />}
 
       {/* Add Balance for Testing */}
-      <button
+      {/* <button
         onClick={handleAddBalance}
         style={{
           backgroundColor: "#162660",
@@ -558,7 +558,7 @@ const WalletPage = () => {
         }}
       >
         Add 1000 NGN for testing
-      </button>
+      </button> */}
     </div>
   );
 

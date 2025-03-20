@@ -84,7 +84,7 @@ const Login = ({ setUserRole }) => {
         </form>
 
         <div style={styles.footerLinks}>
-          <p>Don't have an account? <Link to="/signup" style={styles.footerLink}>Signup here.</Link></p>
+          <p>Don't have an account? <Link to="/signup" style={styles.footerLink}>Sign Up here.</Link></p>
           <p><Link to="/forgot-password" style={styles.footerLink}>Forgot Password?</Link></p>
           <p>
             Didn't receive the email? <a href="/resend-verification" style={styles.footerLink}>Resend Verification</a>

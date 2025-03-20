@@ -18,9 +18,10 @@
   padding: 0 20px; /* Side padding for smaller screens */
 }
 
+
 /* Title */
 .hero-content h1 {
-  font-size: 3rem; /* Default size for larger screens */
+  font-size: 2rem; /* Default size for larger screens */
   margin-bottom: 20px;
   font-weight: bold; /* Emphasize the title */
   line-height: 1.2; /* Better spacing between lines */
@@ -69,6 +70,7 @@
   .hero-content p {
     font-size: 1rem; /* Adjust text size */
     margin-bottom: 15px;
+    line-height: 1.5rem;
   }
 
   .btn {

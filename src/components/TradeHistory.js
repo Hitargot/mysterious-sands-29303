@@ -6,6 +6,8 @@ import { Card, CardHeader, CardContent, CardFooter } from "../components/ui/Card
 import Alert from "./Alert";
 import ReceiptModal from "./ReceiptModal";
 import "../styles/TradeHistory.css";
+import AccountStatementExport from "./DownloadStatement ";
+
 
 const TradeHistory = () => {
   const [timers, setTimers] = useState({});
@@ -18,7 +20,7 @@ const TradeHistory = () => {
   const [statusFilter, setStatusFilter] = useState("");
 
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  // const apiUrl = "http://localhost:22222";
+  //const apiUrl = "http://localhost:22222";
 
   useEffect(() => {
     const fetchConfirmations = async () => {
@@ -171,85 +173,60 @@ const TradeHistory = () => {
         />
         <select value={statusFilter} onChange={handleStatusFilter} className="filter-dropdown">
           <option value="">All Statuses</option>
-          <option value="Success">Success</option>
+          <option value="Funded">Funded</option>
           <option value="Pending">Pending</option>
+          <option value="Approved">Approved</option>
           <option value="Rejected">Rejected</option>
         </select>
       </div>
       {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage("")} />}
       <h2 className="section-title">Transaction History</h2>
+      
+      {/* Mount AccountStatementExport Here */}
+      <AccountStatementExport transactions={filteredConfirmations} />
+      
       <div className="transaction-cards">
         {filteredConfirmations.length > 0 ? (
           filteredConfirmations.map((confirmation) => {
             const timeLeft = timers[confirmation._id] || 0;
             const showDispute = confirmation.status === "Pending" && timeLeft === 0;
-
+  
             return (
               <Card key={confirmation._id} className="card">
                 <CardHeader className="card-header">
                   <div className="service-status-container">
                     <h3 className="card-title">{confirmation.serviceId?.name || "Unknown Service"}</h3>
-                    <span
-                      className={`status-badge ${confirmation.status === "Success" ? "success" : "error"
-                        }`}
-                    >
-                      {confirmation.status || "N/A"}
-                    </span>
+                    <span className={`status-badge ${confirmation.status === "Success" ? "success" : "error"}`}>{confirmation.status || "N/A"}</span>
                   </div>
-                  <p className="date">
-                    <strong>Date:</strong> {new Date(confirmation.createdAt).toLocaleString() || "N/A"}
-                  </p>
+                  <p className="date"><strong>Date:</strong> {new Date(confirmation.createdAt).toLocaleString() || "N/A"}</p>
                 </CardHeader>
-
+  
                 <CardContent className="card-content">
                   <p className="transaction-id">
                     <strong>Transaction ID:</strong> {confirmation.transactionId || "N/A"}{" "}
                     {confirmation.transactionId && (
-                      <ClipboardCopy
-                        className="clipboard-icon"
-                        onClick={() => copyToClipboard(confirmation.transactionId)}
-                      />
+                      <ClipboardCopy className="clipboard-icon" onClick={() => copyToClipboard(confirmation.transactionId)} />
                     )}
                   </p>
                   {confirmation.status === "Pending" && timers[confirmation._id] > 0 && (
-                    <p className="countdown">
-                      <strong>Time Remaining:</strong> {Math.floor(timers[confirmation._id] / 60)} min{" "}
-                      {timers[confirmation._id] % 60} sec
-                    </p>
+                    <p className="countdown"><strong>Time Remaining:</strong> {Math.floor(timers[confirmation._id] / 60)} min {timers[confirmation._id] % 60} sec</p>
                   )}
                 </CardContent>
-
-
+  
                 <CardFooter className="card-footer">
-                  <Button
-                    className="card-button"
-                    variant="outline"
-                    size="sm"
-                    disabled={!confirmation.fileUrl}
-                    onClick={() => handleViewReceipt(confirmation)}
-                  >
+                  <Button className="card-button" variant="outline" size="sm" disabled={!confirmation.fileUrl} onClick={() => handleViewReceipt(confirmation)}>
                     <FileText className="mr-2" />
                     {confirmation.fileUrl ? "View Receipt" : "No Receipt Available"}
                   </Button>
-
                   {showDispute && (
-                    <Button
-                      className="dispute-button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => {
-                        const phoneNumber = "+2348139935240"; // Replace with your actual WhatsApp number
-                        const message = encodeURIComponent(
-                          `Hello, I have a dispute regarding my transaction.\n\nTransaction ID: ${confirmation.transactionId}`
-                        );
-
-                        window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
-                      }}
-                    >
+                    <Button className="dispute-button" variant="destructive" size="sm" onClick={() => {
+                      const phoneNumber = "+2348139935240";
+                      const message = encodeURIComponent(`Hello, I have a dispute regarding my transaction.\n\nTransaction ID: ${confirmation.transactionId}`);
+                      window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
+                    }}>
                       Dispute on WhatsApp
                     </Button>
                   )}
-
                 </CardFooter>
               </Card>
             );
@@ -258,7 +235,6 @@ const TradeHistory = () => {
           <p className="no-history">No trade history found.</p>
         )}
       </div>
-
       {selectedReceipt && <ReceiptModal receiptData={selectedReceipt} onClose={handleCloseReceipt} />}
     </div>
   );
