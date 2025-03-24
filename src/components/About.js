@@ -118,7 +118,7 @@ const TeamMember = styled.div`
 
 const teamMembers = [
   {
-    name: "John Doe",
+    name: "Abubakar k.",
     position: "CEO",
     image: johnDoeImg,
     description:

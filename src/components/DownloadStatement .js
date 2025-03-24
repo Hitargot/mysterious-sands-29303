@@ -54,6 +54,7 @@ const AccountStatementExport = () => {
                 backgroundColor: "#fff",
                 boxShadow: "0px 0px 10px rgba(0,0,0,0.1)",
                 position: "relative",
+                marginBottom: "20px",
             }}
         >
             <h2>Export Account Statement</h2>
