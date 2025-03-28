@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import logo from '../assets/images/Exodollarium-01.png';
 
-// Styled components for Header
+// Styled components
 const HeaderContainer = styled.header`
   display: flex;
   justify-content: space-between;
@@ -39,7 +39,7 @@ const MenuIcon = styled.div`
   padding: 0 10px;
 
   @media (max-width: 768px) {
-    display: block; /* Show on mobile */
+    display: block;
   }
 `;
 
@@ -63,7 +63,6 @@ const Nav = styled.nav`
     }
   }
 
-  /* Mobile Styles */
   @media (max-width: 768px) {
     ul {
       flex-direction: column;
@@ -91,7 +90,6 @@ const Nav = styled.nav`
       font-size: 24px;
     }
 
-    /* Hide close icon on desktop */
     .close-icon {
       position: absolute;
       top: 15px;
@@ -99,11 +97,11 @@ const Nav = styled.nav`
       font-size: 30px;
       cursor: pointer;
       color: #fff;
-      display: none; /* Hide by default */
+      display: none;
     }
 
     ul.open .close-icon {
-      display: block; /* Show only when menu is open on mobile */
+      display: block;
     }
 
     body.no-scroll {
@@ -112,11 +110,15 @@ const Nav = styled.nav`
   }
 `;
 
-
-export { HeaderContainer, Logo, MenuIcon, Nav };
-
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const toggleMenu = () => {
     setIsOpen((prevState) => !prevState);
@@ -129,16 +131,16 @@ export default function Header() {
         <img src={logo} alt="Exdollarium logo" />
         <span>EXDOLLARIUM</span>
       </Logo>
-      <MenuIcon onClick={toggleMenu}>☰</MenuIcon>
+      {isMobile && <MenuIcon onClick={toggleMenu}>☰</MenuIcon>}
       <Nav>
         <ul className={isOpen ? 'open' : ''}>
           <li><a href="#home" onClick={toggleMenu}>Home</a></li>
-          <li><a href="#about" onClick={toggleMenu}>About</a></li>
+          <li><a href="#about" onClick={toggleMenu}>About Us</a></li>
           <li><a href="#services" onClick={toggleMenu}>Services</a></li>
           <li><Link to="/testimonials" onClick={toggleMenu}>Testimonials</Link></li>
           <li><a href="#faq" onClick={toggleMenu}>FAQ</a></li>
           <li><a href="#contact" onClick={toggleMenu}>Contact Us</a></li>
-          <li className="close-icon" onClick={toggleMenu}>✖</li> {/* Close icon */}
+          {isMobile && <li className="close-icon" onClick={toggleMenu}>✖</li>}
         </ul>
       </Nav>
     </HeaderContainer>

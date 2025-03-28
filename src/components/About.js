@@ -3,9 +3,9 @@ import styled, { keyframes } from "styled-components";
 import image1 from "../assets/images/949shots_so.png"; 
 import image2 from "../assets/images/969shots_so.png";
 import image3 from "../assets/images/856shots_so.png";
-import johnDoeImg from "../assets/images/path_to_team_member_image1.jpg"; 
-import janeSmithImg from "../assets/images/designer.PNG"; 
-import aliceJohnsonImg from "../assets/images/path_to_team_member_image1.jpg";
+// import johnDoeImg from "../assets/images/path_to_team_member_image1.jpg"; 
+// import janeSmithImg from "../assets/images/designer.PNG"; 
+// import aliceJohnsonImg from "../assets/images/path_to_team_member_image1.jpg";
 
 const AboutWrapper = styled.div`
   overflow: hidden;
@@ -63,82 +63,82 @@ const AboutContent = styled.div`
   }
 `;
 
-const TeamSection = styled.div`
-  background-color: #d0e6fd;
-  padding: 50px 20px;
-`;
+// const TeamSection = styled.div`
+//   background-color: #d0e6fd;
+//   padding: 50px 20px;
+// `;
 
-const Heading = styled.h2`
-  font-size: 2.5rem;
-  color: #162660;
-  text-align: center;
-  margin-bottom: 20px;
-`;
+// const Heading = styled.h2`
+//   font-size: 2.5rem;
+//   color: #162660;
+//   text-align: center;
+//   margin-bottom: 20px;
+// `;
 
-const TeamGrid = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
-`;
+// const TeamGrid = styled.div`
+//   display: flex;
+//   justify-content: center;
+//   gap: 20px;
+//   flex-wrap: wrap;
+// `;
 
-const TeamMember = styled.div`
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 15px;
-  padding: 20px;
-  width: 280px;
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  backdrop-filter: blur(10px);
+// const TeamMember = styled.div`
+//   background: rgba(255, 255, 255, 0.3);
+//   border-radius: 15px;
+//   padding: 20px;
+//   width: 280px;
+//   text-align: center;
+//   transition: transform 0.3s ease, box-shadow 0.3s ease;
+//   backdrop-filter: blur(10px);
 
-  &:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  }
+//   &:hover {
+//     transform: translateY(-10px);
+//     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+//   }
 
-  img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    border: 3px solid #162660;
-    margin-bottom: 10px;
-  }
+//   img {
+//     width: 100px;
+//     height: 100px;
+//     border-radius: 50%;
+//     border: 3px solid #162660;
+//     margin-bottom: 10px;
+//   }
 
-  h4 {
-    font-size: 1.5rem;
-    color: #162660;
-    margin: 10px 0 5px;
-  }
+//   h4 {
+//     font-size: 1.5rem;
+//     color: #162660;
+//     margin: 10px 0 5px;
+//   }
 
-  p {
-    font-size: 1rem;
-    color: #162660;
-  }
-`;
+//   p {
+//     font-size: 1rem;
+//     color: #162660;
+//   }
+// `;
 
-const teamMembers = [
-  {
-    name: "Abubakar k.",
-    position: "CEO",
-    image: johnDoeImg,
-    description:
-      "John is the visionary behind Exdollarium, dedicated to improving exchange services.",
-  },
-  {
-    name: "Jane Smith",
-    position: "CTO",
-    image: janeSmithImg,
-    description:
-      "Jane leads our technology efforts, ensuring our platform is secure and user-friendly.",
-  },
-  {
-    name: "Alice Johnson",
-    position: "Marketing Director",
-    image: aliceJohnsonImg,
-    description:
-      "Alice is passionate about connecting users with our services through effective marketing.",
-  },
-];
+// const teamMembers = [
+//   {
+//     name: "Abubakar k.",
+//     position: "CEO",
+//     image: johnDoeImg,
+//     description:
+//       "Abubakar is the visionary behind Exdollarium, dedicated to improving exchange services.",
+//   },
+//   {
+//     name: "Jane Smith",
+//     position: "CTO",
+//     image: janeSmithImg,
+//     description:
+//       "Jane leads our technology efforts, ensuring our platform is secure and user-friendly.",
+//   },
+//   {
+//     name: "Alice Johnson",
+//     position: "Marketing Director",
+//     image: aliceJohnsonImg,
+//     description:
+//       "Alice is passionate about connecting users with our services through effective marketing.",
+//   },
+// ];
 
 
 const About = () => {
@@ -183,7 +183,7 @@ const About = () => {
         </AboutContent>
       </AboutSection>
 
-      <TeamSection>
+      {/* <TeamSection>
         <Heading>Meet Our Team</Heading>
         <TeamGrid>
           {teamMembers.map((member, index) => (
@@ -195,7 +195,7 @@ const About = () => {
             </TeamMember>
           ))}
         </TeamGrid>
-      </TeamSection>
+      </TeamSection> */}
     </AboutWrapper>
   );
 };

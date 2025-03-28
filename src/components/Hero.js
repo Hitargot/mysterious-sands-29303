@@ -46,7 +46,7 @@ const Hero = () => {
 
   useEffect(() => {
     setIsVisible(true); // Make sure model is visible when changed
-  
+
     const interval = setInterval(() => {
       setIsVisible(false); // Fade out current model
       setTimeout(() => {
@@ -54,26 +54,32 @@ const Hero = () => {
         setIsVisible(true); // Fade in next model
       }, 500); // Short delay before switching models
     }, 4000); // Change model every 4 secs
-  
+
     return () => clearInterval(interval);
   }, [activeModel]);
-  
+
   return (
     <section id="home" className="hero-section">
       <div className="hero-content fade-in">
         <h1>Exchange instantly with Exdollarium!</h1>
-        <p>Need to convert PayPal, Payoneer, and crypto to Naira? we've got you covered.</p>
-        <p className="reasons">Enjoy <b>fast, secure, and reliable transactions</b> with no delays or hidden fees-trusted by thousands and offering the best rate for maximum value!.</p>
-        <button className="btn" onClick={() => navigate("/login")}>Get Started Now!</button>
+        <p>Easily exchange your digital funds (gift card, PayPal, Payoneer, and crypto) for Naira!</p>
+        <p className="reasons">
+          Enjoy <b>fast, secure, and reliable transactions</b> with no delays or hidden fees—trusted by thousands and offering the best rate for maximum value!
+        </p>
+        <div className="cta-buttons">
+          <button className="btn signup-btn" onClick={() => navigate("/signup")}>Sign Up</button>
+          <button className="btn login-btn" onClick={() => navigate("/login")}>Log In</button>
+        </div>
+
       </div>
 
       <div className="canvas-container">
         <Canvas camera={{ position: [0, 3, 10], fov: 30 }} className="hero-3d-model">
           <ambientLight intensity={2} />
           <directionalLight position={[2, 5, 5]} />
-          
+
           {models[activeModel] && <AnimatedModel model={models[activeModel]} visible={isVisible} />}
-          
+
           <OrbitControls enableZoom={false} target={[0, 2, 0]} />
         </Canvas>
       </div>

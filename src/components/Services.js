@@ -13,7 +13,7 @@ import cardIcon from "../assets/images/2019-01-30-gift-cards.jpeg";
 const services = [
   { name: "PayPal Exchange", icon: paypalIcon },
   { name: "Crypto Exchange (BTC, USDT, ETH, etc.)", icon: cryptoIcon },
-  { name: "Gift Card (Steam, Apple, iTune, Ebay, etc)", icon: cardIcon },
+  { name: "Gift Card Redeem (Steam, Apple, iTune, Ebay, etc)", icon: cardIcon },
   { name: "Payoneer Exchange", icon: payoneerIcon },
   { name: "Fiverr Withdrawal", icon: fiverrIcon },
   { name: "US Bank Transfer", icon: usBankIcon },

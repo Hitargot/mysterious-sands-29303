@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Hero from "../components/Hero";
 import About from "../components/About";
 import Services from "../components/Services";
+import WhyChooseUsTree from "../components/WhyChooseUsTree";
 import Calculator from "../components/Calculator";
 import FAQ from "../components/FAQ";
 import Contact from "../components/Contact";
@@ -58,23 +59,34 @@ const Home = () => {
         </div>
       )}
 
-      <Hero />
-      <AnimatedSection>
-        <About />
-      </AnimatedSection>
-      <AnimatedSection>
-        <Services />
-      </AnimatedSection>
-      <AnimatedSection>
-        <Calculator />
-      </AnimatedSection>
-      <AnimatedSection>
-        <FAQ />
-      </AnimatedSection>
-      <AnimatedSection>
-        <Contact />
-      </AnimatedSection>
-      <Footer />
+<Hero />
+
+<AnimatedSection bg="white">
+  <About />
+</AnimatedSection>
+
+<AnimatedSection bg="#e6f0ff">
+  <Services />
+</AnimatedSection>
+
+<AnimatedSection bg="linear-gradient(to bottom, #0e1a45, #162660)">
+  <WhyChooseUsTree /> {/* Animated Tree */}
+</AnimatedSection>
+
+<AnimatedSection bg="white">
+  <Calculator />
+</AnimatedSection>
+
+<AnimatedSection bg="#d0e6fd">
+  <FAQ />
+</AnimatedSection>
+
+<AnimatedSection bg="linear-gradient(to bottom, #0e1a45, #162660)">
+  <Contact />
+</AnimatedSection>
+
+<Footer />
+
     </div>
   );
 };

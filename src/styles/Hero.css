@@ -51,8 +51,9 @@
 
 /* Button Hover */
 .btn:hover {
-  background-color: #b0d4fa; /* Slightly darker sky blue */
+  background-color: #162660; /* Slightly darker sky blue */
   transform: scale(1.05); /* Subtle hover effect */
+  color: d0e6fd;
 }
 
 /* Mobile Styles */
