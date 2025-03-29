@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { useInView } from "react-intersection-observer";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import Header from "../components/Header";
 import Hero from "../components/Hero";
 import About from "../components/About";
@@ -9,8 +10,8 @@ import Calculator from "../components/Calculator";
 import FAQ from "../components/FAQ";
 import Contact from "../components/Contact";
 import Footer from "../components/Footer";
+import { useInView } from "react-intersection-observer";
 
-// Higher Order Component for scroll animations
 const AnimatedSection = ({ children }) => {
   const { ref, inView } = useInView({ triggerOnce: false, threshold: 0.2 });
 
@@ -28,123 +29,161 @@ const AnimatedSection = ({ children }) => {
   );
 };
 
-const Home = () => {
-  const [showNotice, setShowNotice] = useState(true);
-  const [fadeOut, setFadeOut] = useState(false);
 
-  const handleClose = () => {
-    setFadeOut(true);
-    setTimeout(() => setShowNotice(false), 500);
+
+const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+//const apiUrl = "http://localhost:22222"; 
+
+const Home = () => {
+  const [latestReviews, setLatestReviews] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchLatestReviews();
+  }, []);
+
+  const fetchLatestReviews = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/approved`);
+      setLatestReviews(response.data.slice(0, 5)); // Get only the latest 5 reviews
+    } catch (error) {
+      console.error("Error fetching latest reviews:", error);
+    }
   };
 
   return (
     <div>
       <Header />
+      <Hero />
 
-      {/* Notice Popup */}
-      {showNotice && (
-        <div
-          style={{
-            ...styles.popupNotice,
-            opacity: fadeOut ? 0 : 1,
-            transform: fadeOut ? "translateY(-20px)" : "translateY(0)",
-          }}
-        >
-          <div style={styles.popupContent}>
-            <p>🚀 Welcome to Exdollarium! Get the best exchange rates now.</p>
-            <button style={styles.closeBtn} onClick={handleClose}>
-              ✖
-            </button>
-          </div>
+      <AnimatedSection>
+        <About />
+      </AnimatedSection>
+
+      <AnimatedSection>
+        <Services />
+      </AnimatedSection>
+
+      <AnimatedSection>
+        <WhyChooseUsTree />
+      </AnimatedSection>
+
+            {/* Testimonials Preview Section */}
+      <AnimatedSection>
+        <div style={styles.testimonialsSection}>
+          <h2 style={styles.heading}>What Our Customers Say</h2>
+
+          {latestReviews.length === 0 ? (
+            <p style={styles.noReviews}>No reviews yet. Be the first to leave one!</p>
+          ) : (
+            <div style={styles.reviewsContainer}>
+              {latestReviews.map((review) => (
+                <div key={review._id} style={styles.reviewCard}>
+                  <p style={styles.reviewText}>"{review.reviewText}"</p>
+                  <p style={styles.reviewAuthor}>- {review.userId?.username || "Anonymous"}</p>
+                  <p style={styles.reviewText}>Service: {review.confirmationId?.serviceId?.name || "Unknown"}</p>
+                  <div style={styles.starRating}>{"⭐".repeat(review.rating)}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* "See More" Button */}
+          <button style={styles.seeMoreButton} onClick={() => navigate("/testimonials")}>
+            See More Reviews
+          </button>
         </div>
-      )}
+      </AnimatedSection>
 
-<Hero />
+      <AnimatedSection>
+        <Calculator />
+      </AnimatedSection>
 
-<AnimatedSection bg="white">
-  <About />
-</AnimatedSection>
 
-<AnimatedSection bg="#e6f0ff">
-  <Services />
-</AnimatedSection>
 
-<AnimatedSection bg="linear-gradient(to bottom, #0e1a45, #162660)">
-  <WhyChooseUsTree /> {/* Animated Tree */}
-</AnimatedSection>
+      <AnimatedSection>
+        <FAQ />
+      </AnimatedSection>
 
-<AnimatedSection bg="white">
-  <Calculator />
-</AnimatedSection>
+      <AnimatedSection>
+        <Contact />
+      </AnimatedSection>
 
-<AnimatedSection bg="#d0e6fd">
-  <FAQ />
-</AnimatedSection>
-
-<AnimatedSection bg="linear-gradient(to bottom, #0e1a45, #162660)">
-  <Contact />
-</AnimatedSection>
-
-<Footer />
-
+      <Footer />
     </div>
   );
 };
 
-// Updated styles with animations
+// Styles
 const styles = {
-  popupNotice: {
-    position: "fixed",
-    top: "20px",
-    left: "50%",
-    transform: "translate(-50%, 0)",
-    background: "#d0e6fd", // Light Sky Blue
-    color: "#162660", // Deep Navy Blue
-    padding: "15px 25px",
-    borderRadius: "8px",
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    zIndex: 1000,
-    fontWeight: "600",
-    border: "2px solid #162660",
-    transition: "opacity 0.5s ease, transform 0.5s ease",
-    animation: "fadeInSlide 0.6s ease-out",
+  testimonialsSection: {
+    backgroundColor: "#d0e6fd",
+    padding: "40px 20px",
+    textAlign: "center",
   },
-  popupContent: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-    gap: "20px",
-  },
-  closeBtn: {
-    background: "#f1e4d1", // Soft Beige
-    border: "none",
+  heading: {
     color: "#162660",
-    fontSize: "18px",
-    cursor: "pointer",
-    padding: "5px 10px",
-    borderRadius: "50%",
+    fontSize: "26px",
     fontWeight: "bold",
-    transition: "background 0.3s ease, transform 0.2s ease",
+    marginBottom: "20px",
+  },
+  noReviews: {
+    fontSize: "16px",
+    color: "#333",
+  },
+  reviewsContainer: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: "15px",
+    marginBottom: "20px",
+  },
+  reviewCard: {
+    backgroundColor: "#162660",
+    color: "#f1e4d1",
+    borderRadius: "10px",
+    padding: "20px",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+    maxWidth: "300px",
+    width: "100%",
+    minHeight: "180px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+  },
+  reviewText: {
+    fontSize: "16px",
+    fontStyle: "italic",
+    lineHeight: "1.5",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    display: "-webkit-box",
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: "vertical",
+    color: "#f8c471",
+  },
+  reviewAuthor: {
+    fontWeight: "bold",
+    marginTop: "10px",
+    color: "#d0e6fd",
+    fontSize: "14px",
+  },
+  starRating: {
+    fontSize: "18px",
+    color: "#FFD700",
+    marginTop: "5px",
+  },
+  seeMoreButton: {
+    backgroundColor: "#162660",
+    color: "#fff",
+    padding: "10px 20px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    fontSize: "16px",
+    fontWeight: "bold",
+    transition: "background 0.3s",
   },
 };
-
-// Adding Keyframe Animation in CSS
-const styleSheet = document.styleSheets[0];
-styleSheet.insertRule(`
-  @keyframes fadeInSlide {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`, styleSheet.cssRules.length);
 
 export default Home;

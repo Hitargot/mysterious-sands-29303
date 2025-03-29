@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import TestimonialHeader from "../components/TestimonialsHeader"; // Importing header component
+import TestimonialHeader from "../components/TestimonialsHeader"; 
+import oldReviews from "../data/oldReviews"; // Import old reviews
 
 const Testimonials = () => {
   const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true); 
 
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   //const apiUrl = "http://localhost:22222";
@@ -16,14 +17,14 @@ const Testimonials = () => {
   const fetchApprovedReviews = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/approved`);
-      console.log("Fetched Reviews:", response.data); // Debugging log
-      setReviews(response.data);
+      console.log("Fetched Reviews:", response.data); 
+      setReviews([...response.data, ...oldReviews]); // Merge API + old reviews
     } catch (error) {
       console.error("Error fetching reviews:", error);
+      setReviews([...oldReviews]); // Show old reviews if API fails
     }
     setLoading(false);
   };
-
 
   return (
     <div style={{
@@ -31,10 +32,8 @@ const Testimonials = () => {
       minHeight: "100vh",
       paddingBottom: "30px",
     }}>
-      {/* Header */}
       <TestimonialHeader />
     
-      {/* Testimonials Section */}
       <div style={{
         maxWidth: "900px",
         width: "90%",
@@ -51,7 +50,6 @@ const Testimonials = () => {
           What Our Customers Say
         </h2>
     
-        {/* Loading Effect */}
         {loading ? (
           <p style={{
             textAlign: "center",
@@ -83,7 +81,7 @@ const Testimonials = () => {
                 transition: "transform 0.3s ease-in-out",
                 maxWidth: "300px",
                 width: "100%",
-                minHeight: "180px", // Set a uniform height
+                minHeight: "180px", 
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -99,7 +97,7 @@ const Testimonials = () => {
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   display: "-webkit-box",
-                  WebkitLineClamp: 3, // Limit text to 3 lines
+                  WebkitLineClamp: 3, 
                   WebkitBoxOrient: "vertical",
                 }}>
                   "{review.reviewText}"
@@ -118,7 +116,6 @@ const Testimonials = () => {
                   Service: {review.confirmationId?.serviceId?.name || "Unknown"}
                 </p>
     
-                {/* ⭐ Star Rating */}
                 <div style={{
                   fontSize: "20px",
                   color: "#FFD700",
@@ -132,7 +129,6 @@ const Testimonials = () => {
         )}
       </div>
     </div>
-    
   );
 };
 

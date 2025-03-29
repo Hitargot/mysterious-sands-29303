@@ -11,7 +11,6 @@ const AdminReviewPage = () => {
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   //const apiUrl = "http://localhost:22222"; 
 
-
   const fetchReviews = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -33,10 +32,24 @@ const AdminReviewPage = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Refresh the list after approval/rejection
-      fetchReviews();
+      fetchReviews(); // Refresh the list after approval/rejection
     } catch (error) {
       console.error("Error updating review status:", error);
+    }
+  };
+
+  const handleDelete = async (reviewId) => {
+    if (!window.confirm("Are you sure you want to delete this review?")) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`${apiUrl}/api/admin/review/${reviewId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      fetchReviews(); // Refresh after deletion
+    } catch (error) {
+      console.error("Error deleting review:", error);
     }
   };
 
@@ -54,13 +67,13 @@ const AdminReviewPage = () => {
               <th>Review</th>
               <th>Rating</th>
               <th>Status</th>
-              <th>Action</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {reviews.map((review) => (
               <tr key={review._id}>
-                <td>{review.userId?.username || "Unknown"}</td>
+                <td>{review.userId?.username || review.username || "Unknown"}</td>
                 <td>{review.reviewText}</td>
                 <td>⭐ {review.rating} / 5</td>
                 <td>{review.status}</td>
@@ -71,8 +84,9 @@ const AdminReviewPage = () => {
                       <button onClick={() => handleAction(review._id, "rejected")}>Reject</button>
                     </>
                   )}
-                  {review.status === "approved" && <span>✅ Approved</span>}
-                  {review.status === "rejected" && <span>❌ Rejected</span>}
+                  {review.status !== "pending" && (
+                    <button onClick={() => handleDelete(review._id)}>🗑 Delete</button>
+                  )}
                 </td>
               </tr>
             ))}
