@@ -3,8 +3,16 @@ import Alert from "./Alert";
 import axios from "axios";
 
 const Profile = () => {
-  const [userInfo, setUserInfo] = useState({ fullName: "", email: "", phone: "", isVerified: false, referralCode: "" });
-  const [newFullName, setNewFullName] = useState("");
+  const [userInfo, setUserInfo] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    isVerified: false,
+    referralCode: "",
+    referrer: null,  // Added to hold referrer information
+    referredCount: 0, // Added to hold the number of referred users
+  });
+    const [newFullName, setNewFullName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -33,7 +41,7 @@ const Profile = () => {
         setAlert({ message: "Error fetching profile data", type: "error", show: true });
       }
     };
-
+    
     fetchProfileData();
   }, [token, apiUrl]);
 
@@ -119,27 +127,32 @@ const Profile = () => {
       </div>
 
       {/* Referral Info */}
-      <div style={styles.section}>
-        <h3 style={styles.subHeading}>Referral Program</h3>
-        <label style={styles.label}>
-          Your Referral Code:
-          <p style={styles.text}>{userInfo.referralCode}</p>
-        </label>
-        <label style={styles.label}>
-          Referral Link:
-          <p style={styles.text}>{`${FRONTEND_URL}/signup?referralCode=${userInfo.referralCode}`}</p>
-        </label>
-      </div>
+<div style={styles.section}>
+  <h3 style={styles.subHeading}>Referral Program</h3>
+  <label style={styles.label}>
+    Your Referral Code:
+    <p style={styles.text}>{userInfo.referralCode}</p>
+  </label>
+  <label style={styles.label}>
+    Referral Link:
+    <p style={styles.text}>{`${FRONTEND_URL}/signup?referralCode=${userInfo.referralCode}`}</p>
+  </label>
 
-      {isEditing ? (
-        <button style={styles.saveButton} onClick={handleSaveProfile}>
-          Save Changes
-        </button>
-      ) : (
-        <button style={styles.editButton} onClick={handleEditProfile}>
-          Edit Profile
-        </button>
-      )}
+  {/* Show Referrer Info if available */}
+  {userInfo.referrer && (
+    <div>
+      <label style={styles.label}>
+        Referred By:
+        <p style={styles.text}>{userInfo.referrer.username}</p> {/* Assuming the backend returns the username */}
+      </label>
+      <label style={styles.label}>
+        Number of Users Referred:
+        <p style={styles.text}>{userInfo.referredCount}</p>
+      </label>
+    </div>
+  )}
+</div>
+
 
       {/* Change Password */}
       <div style={styles.section}>
