@@ -1,41 +1,50 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Alert from "../components/Alert";
 import axios from "axios";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css"; // Import styles
 
 const Signup = () => {
-  const [formData, setFormData] = useState(() => {
-    const savedFormData = localStorage.getItem("signupForm");
-    return savedFormData ? JSON.parse(savedFormData) : {
-      username: "",
-      email: "",
-      phone: "",
-      password: "",
-      confirmPassword: "",
-    };
-  });
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const referral = params.get("referralCode");
+
+    if (referral) {
+      setFormData((prev) => ({
+        ...prev,
+        referralCode: referral,
+      }));
+    }
+  }, [location.search]);
+
   const [showTooltip, setShowTooltip] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-  
-    if (name === "phone") {
-      // Allow only numbers
-      if (!/^\d*$/.test(value)) return;
-    }
-  
-    setFormData({ ...formData, [name]: value });
-  };
-  
+  const [formData, setFormData] = useState(() => {
+    const savedFormData = localStorage.getItem("signupForm");
+    return savedFormData
+      ? JSON.parse(savedFormData)
+      : {
+        username: "",
+        email: "",
+        phone: "",
+        password: "",
+        confirmPassword: "",
+        referralCode: "", // Add referral field
+      };
+  });
 
   const [alertMessage, setAlertMessage] = useState("");
   const [alertDuration] = useState(3000);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-
+  const [userCountry, setUserCountry] = useState("ng"); // Default to Nigeria
   const [termsAccepted, setTermsAccepted] = useState(
     localStorage.getItem("termsAccepted") === "true"
   );
+
   useEffect(() => {
     localStorage.setItem("signupForm", JSON.stringify(formData));
   }, [formData]);
@@ -44,6 +53,36 @@ const Signup = () => {
     const accepted = localStorage.getItem("termsAccepted") === "true";
     setTermsAccepted(accepted);
   }, []);
+
+  useEffect(() => {
+    // Try to detect user's country
+    fetch("https://ipapi.co/json/")
+      .then((res) => res.json())
+      .then((data) => setUserCountry(data.country_code.toLowerCase()))
+      .catch(() => setUserCountry("ng")); // Fallback to Nigeria if detection fails
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "phone") {
+      // Ensure +234 is always the prefix
+      if (!value.startsWith("+234")) {
+        setFormData({ ...formData, phone: "+234" });
+      } else {
+        // Allow only numbers after +234
+        const phoneNumber = value.replace(/\D/g, ""); // Remove non-numeric characters
+        if (phoneNumber.startsWith("234")) {
+          setFormData({ ...formData, phone: "+" + phoneNumber });
+        }
+      }
+      return;
+    }
+
+    setFormData({ ...formData, [name]: value });
+  };
+
+
 
   const handleCheckboxChange = () => {
     setTermsAccepted((prev) => {
@@ -58,8 +97,8 @@ const Signup = () => {
     setTimeout(() => setAlertMessage(""), alertDuration);
   };
 
-  //const apiUrl = "http://localhost:22222";
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  //const apiUrl = "http://localhost:22222";
 
 
   const handleSubmit = async (e) => {
@@ -71,9 +110,12 @@ const Signup = () => {
       return;
     }
 
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(formData.password)) {
-      showAlert("Password must be at least 8 characters long and include letters, numbers, and symbols.");
+      showAlert(
+        "Password must be at least 8 characters long and include letters, numbers, and symbols."
+      );
       return;
     }
 
@@ -89,23 +131,26 @@ const Signup = () => {
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
+        referralCode: formData.referralCode, // Send referral code
         agreedToTerms: true,
       });
 
       if (response.status !== 201) {
-        showAlert(response.data.message || "Sig nup failed");
+        showAlert(response.data.message || "Signup failed");
         return;
       }
 
-      showAlert("Sign up successful! Check your email or spam folder to verify your account.");
+      showAlert(
+        "Sign up successful! Check your email or spam folder to verify your account."
+      );
 
-      // Clear form and remove stored data
       setFormData({
         username: "",
         email: "",
         phone: "",
         password: "",
         confirmPassword: "",
+        referralCode: "",
       });
       localStorage.removeItem("signupForm");
 
@@ -118,6 +163,8 @@ const Signup = () => {
       setLoading(false);
     }
   };
+
+
 
 
   // Styles
@@ -144,7 +191,7 @@ const Signup = () => {
       justifyContent: "space-between",
       alignItems: "center",
       marginBottom: "20px",
-      marginTop: "20px",
+      paddingTop: "50px",
     },
     logo: {
       display: "flex",
@@ -271,58 +318,73 @@ const Signup = () => {
             />
           </div>
           <div style={styles.formGroup}>
-  <label style={styles.label}>Phone:</label>
-  <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
-            <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-                style={{
-                    padding: "10px",
-                    fontSize: "16px",
-                    border: "1px solid #ccc",
-                    borderRadius: "5px",
-                    flex: 1,
-                    background: "transparent",
+            <label style={styles.label}>Phone:</label>
+            <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
 
+              <PhoneInput
+                country={userCountry} // Auto-detected or Nigeria as default
+                value={formData.phone}
+                onChange={(value) => setFormData({ ...formData, phone: value })}
+                inputStyle={{
+                  width: "100%",
+                  border: "1px solid #d0e6fd",
+                  borderRadius: "5px",
+                  background: "transparent",
+                  color: "#f1e4d1",
+                  fontSize: "1rem",
                 }}
-                disabled={loading}
-            />
-            <span
+                disableDropdown={false} // Allow country selection
+                enableSearch={true} // Enable country search
+              />
+
+              <span
                 style={{
-                    marginLeft: "8px",
-                    cursor: "pointer",
-                    fontSize: "18px",
-                    color: "#888",
+                  marginLeft: "8px",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                  color: "#888",
                 }}
                 onClick={() => setShowTooltip(!showTooltip)}
-            >
+              >
                 ℹ️
-            </span>
+              </span>
 
-            {showTooltip && (
+              {showTooltip && (
                 <div
-                    style={{
-                        position: "absolute",
-                        top: "120%",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        background: "#000",
-                        color: "#fff",
-                        padding: "5px 10px",
-                        borderRadius: "5px",
-                        fontSize: "12px",
-                        whiteSpace: "nowrap",
-                        zIndex: 1000,
-                    }}
+                  style={{
+                    position: "absolute",
+                    top: "120%",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "#000",
+                    color: "#fff",
+                    padding: "5px 10px",
+                    borderRadius: "5px",
+                    fontSize: "12px",
+                    whiteSpace: "nowrap",
+                    zIndex: 1000,
+                  }}
                 >
-                    WhatsApp number is advisable
+                  WhatsApp number is advisable
                 </div>
-            )}
-        </div>
-</div>
+              )}
+
+            </div>
+          </div>
+
+
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Referral Code (Optional):</label>
+            <input
+              type="text"
+              name="referralCode"
+              value={formData.referralCode || ""}
+              onChange={handleChange}
+              placeholder="Enter referral code (if any)"
+              style={styles.input}
+              disabled={loading}
+            />
+          </div>
 
           <div style={styles.formGroup}>
             <label style={styles.label}>Password:</label>
@@ -388,3 +450,4 @@ const Signup = () => {
 };
 
 export default Signup;
+

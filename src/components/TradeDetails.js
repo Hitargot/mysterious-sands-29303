@@ -12,8 +12,8 @@ const TradeDetails = ({ selectedService }) => {
   const [refreshing, setRefreshing] = useState(false);
   const validityCheckedRef = useRef(false);
   
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222";
+  //const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = "http://localhost:22222";
 
   useEffect(() => {
     const fetchServiceDetails = async () => {

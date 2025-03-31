@@ -3,7 +3,7 @@ import Alert from "./Alert";
 import axios from "axios";
 
 const Profile = () => {
-  const [userInfo, setUserInfo] = useState({ fullName: "", email: "", phone: "", isVerified: false });
+  const [userInfo, setUserInfo] = useState({ fullName: "", email: "", phone: "", isVerified: false, referralCode: "" });
   const [newFullName, setNewFullName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -14,29 +14,28 @@ const Profile = () => {
   const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   //const apiUrl = "http://localhost:22222";
-
+  const FRONTEND_URL = "https://exdollarium-preview.netlify.app";
+  //const FRONTEND_URL = "http://localhost:3000";
 
   useEffect(() => {
     if (!token) {
       window.location.href = "/login";
       return;
     }
-  
+
     const fetchProfileData = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log(response.data); // ✅ Debugging step
         setUserInfo(response.data);
       } catch (error) {
         setAlert({ message: "Error fetching profile data", type: "error", show: true });
       }
     };
-  
+
     fetchProfileData();
   }, [token, apiUrl]);
-  
 
   const handleEditProfile = () => {
     setIsEditing(true);
@@ -72,7 +71,6 @@ const Profile = () => {
       );
 
       setAlert({ message: response.data.message, type: "success", show: true });
-
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -117,6 +115,19 @@ const Profile = () => {
         <label style={styles.label}>
           Phone Number:
           <p style={styles.text}>{userInfo.phone}</p>
+        </label>
+      </div>
+
+      {/* Referral Info */}
+      <div style={styles.section}>
+        <h3 style={styles.subHeading}>Referral Program</h3>
+        <label style={styles.label}>
+          Your Referral Code:
+          <p style={styles.text}>{userInfo.referralCode}</p>
+        </label>
+        <label style={styles.label}>
+          Referral Link:
+          <p style={styles.text}>{`${FRONTEND_URL}/signup?referralCode=${userInfo.referralCode}`}</p>
         </label>
       </div>
 
@@ -173,7 +184,6 @@ const Profile = () => {
 // Inline Styles
 const styles = {
   profilePage: {
-    // width: "100%",
     maxWidth: "700px",
     margin: "40px auto",
     padding: "25px",

@@ -131,13 +131,24 @@ const TradeHistory = () => {
       ],
     };
 
-    // ✅ Show "Amount in Naira" if status is "Funded"
-    if (confirmation.status === "Funded") {
-      receiptData.fields.push({
-        label: "Amount in Naira",
-        value: confirmation.amountInNaira ? `₦${confirmation.amountInNaira.toLocaleString()}` : "N/A",
-      });
+    // ✅ Show "Amount in Naira" and "Amount in Selected Currency" if status is "Funded"
+if (confirmation.status === "Funded") {
+  receiptData.fields.push(
+    {
+      label: `Amount in ${confirmation.selectedCurrency.toUpperCase()}`,
+      value: confirmation.amountInForeignCurrency
+        ? `${confirmation.amountInForeignCurrency.toLocaleString()} ${confirmation.selectedCurrency.toUpperCase()}`
+        : "N/A",
+    },
+    {
+      label: "Amount in Naira",
+      value: confirmation.amountInNaira
+        ? `₦${confirmation.amountInNaira.toLocaleString()}`
+        : "N/A",
     }
+  );
+}
+
 
 
     if (confirmation.status === "Rejected") {
