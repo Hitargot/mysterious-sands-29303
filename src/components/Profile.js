@@ -137,21 +137,25 @@ const Profile = () => {
     Referral Link:
     <p style={styles.text}>{`${FRONTEND_URL}/signup?referralCode=${userInfo.referralCode}`}</p>
   </label>
-
-  {/* Show Referrer Info if available */}
-  {userInfo.referrer && (
-    <div>
-      <label style={styles.label}>
-        Referred By:
-        <p style={styles.text}>{userInfo.referrer.username}</p> {/* Assuming the backend returns the username */}
-      </label>
-      <label style={styles.label}>
-        Number of Users Referred:
-        <p style={styles.text}>{userInfo.referredCount}</p>
-      </label>
-    </div>
-  )}
+  <label style={styles.label}>
+    Referred By:
+    <p style={styles.text}>{userInfo.referrer ? userInfo.referrer.username : 'No referrer'}</p>
+  </label>
+  <label style={styles.label}>
+    Users You Have Referred:
+    <p style={styles.text}>{userInfo.referredCount}</p>
+  </label>
 </div>
+
+{isEditing ? (
+  <button style={styles.saveButton} onClick={handleSaveProfile}>
+    Save Changes
+  </button>
+) : (
+  <button style={styles.editButton} onClick={handleEditProfile}>
+    Edit Profile
+  </button>
+)}
 
 
       {/* Change Password */}
