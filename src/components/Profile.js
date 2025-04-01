@@ -9,10 +9,15 @@ const Profile = () => {
     phone: "",
     isVerified: false,
     referralCode: "",
-    referrer: null,  // Added to hold referrer information
-    referredCount: 0, // Added to hold the number of referred users
+    referrer: null,  // Holds referrer information
+    referredCount: 0, // Holds the number of referred users
+    totalFunded: 0,  // Holds the total amount funded
+    totalWithdrawn: 0, // Holds the total amount withdrawn
+    referralBonusEarned: 0,
   });
-    const [newFullName, setNewFullName] = useState("");
+
+  const [showWalletSummary, setShowWalletSummary] = useState(false);
+  const [newFullName, setNewFullName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -30,20 +35,28 @@ const Profile = () => {
       window.location.href = "/login";
       return;
     }
-
+  
     const fetchProfileData = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserInfo(response.data);
+        console.log("Fetched user info:", response.data);
+
       } catch (error) {
         setAlert({ message: "Error fetching profile data", type: "error", show: true });
       }
     };
-    
+  
     fetchProfileData();
   }, [token, apiUrl]);
+  
+  // Move toggle function here
+  const toggleWalletSummary = () => {
+    setShowWalletSummary(prev => !prev);
+  };
+  
 
   const handleEditProfile = () => {
     setIsEditing(true);
@@ -129,33 +142,66 @@ const Profile = () => {
       {/* Referral Info */}
 <div style={styles.section}>
   <h3 style={styles.subHeading}>Referral Program</h3>
+
   <label style={styles.label}>
     Your Referral Code:
     <p style={styles.text}>{userInfo.referralCode}</p>
   </label>
+
   <label style={styles.label}>
     Referral Link:
     <p style={styles.text}>{`${FRONTEND_URL}/signup?referralCode=${userInfo.referralCode}`}</p>
   </label>
+
   <label style={styles.label}>
     Referred By:
     <p style={styles.text}>{userInfo.referrer ? userInfo.referrer.username : 'No referrer'}</p>
   </label>
+
   <label style={styles.label}>
     Users You Have Referred:
     <p style={styles.text}>{userInfo.referredCount}</p>
   </label>
+
+  <label style={styles.label}>
+    **Total Referral Earnings:**  
+    <p style={{ ...styles.text, fontWeight: 'bold', color: 'green' }}>
+      ₦{userInfo.referralBonusEarned ? userInfo.referralBonusEarned.toLocaleString() : 0}
+    </p>
+  </label>
 </div>
 
-{isEditing ? (
-  <button style={styles.saveButton} onClick={handleSaveProfile}>
-    Save Changes
-  </button>
-) : (
-  <button style={styles.editButton} onClick={handleEditProfile}>
-    Edit Profile
-  </button>
-)}
+
+      {/* Toggle Wallet Summary Button */}
+      <button style={styles.toggleButton} onClick={toggleWalletSummary}>
+        {showWalletSummary ? "Hide Wallet Summary" : "Show Wallet Summary"}
+      </button>
+
+      {/* Wallet Summary - Visible Only When Toggled */}
+      {showWalletSummary && (
+        <div style={styles.section}>
+          <h3 style={styles.subHeading}>Wallet Summary</h3>
+          <label style={styles.label}>
+            <strong>Total Deposited:</strong>
+            <p style={styles.text}>₦{userInfo.totalFunded.toLocaleString()}</p>
+          </label>
+          <label style={styles.label}>
+            <strong>Total Withdrawn:</strong>
+            <p style={styles.text}>₦{userInfo.totalWithdrawn.toLocaleString()}</p>
+          </label>
+        </div>
+      )}
+
+      {isEditing ? (
+        <button style={styles.saveButton} onClick={handleSaveProfile}>
+          Save Changes
+        </button>
+      ) : (
+        <button style={styles.editButton} onClick={handleEditProfile}>
+          Edit Profile
+        </button>
+      )}
+
 
 
       {/* Change Password */}
@@ -266,6 +312,19 @@ const styles = {
     fontWeight: "600",
     cursor: "pointer",
     marginTop: "15px",
+  },
+  toggleButton: {
+    padding: "10px 15px",
+    margin: "10px 0",
+    backgroundColor: "#007bff",
+    color: "#fff",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    fontSize: "16px",
+  },
+  toggleButtonHover: {
+    backgroundColor: "#0056b3",
   },
 };
 
