@@ -169,7 +169,15 @@ const WalletPage = () => {
       return;
     }
 
-    if (amount > walletBalance) {
+    const numericAmount = Number(amount);
+    const numericWalletBalance = Number(walletBalance || 0);
+    
+    if (!numericAmount || numericAmount <= 0) {
+      handleAlert('Please enter a valid amount.', 'error');
+      return;
+    }
+    
+    if (numericAmount > numericWalletBalance) {
       handleAlert('Insufficient funds. Enter an amount within your wallet balance.', 'error');
       addNotification({
         message: 'Insufficient funds. Enter an amount within your wallet balance.',

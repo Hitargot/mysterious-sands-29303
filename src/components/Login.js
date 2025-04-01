@@ -8,6 +8,7 @@ const Login = ({ setUserRole }) => {
   const [credentials, setCredentials] = useState({ identifier: '', password: '' });
   const [alertMessage, setAlertMessage] = useState('');
   const [isHovered, setIsHovered] = useState(false); // ✅ Fix hover state
+  const [isLoading, setIsLoading] = useState(false); // ✅ Loading state
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -21,28 +22,31 @@ const Login = ({ setUserRole }) => {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true); // ✅ Show "Logging in..."
     try {
       const response = await axios.post(`${apiUrl}/api/auth/login`, credentials);
       if (response.status === 200) {
-        setAlertMessage('Login successful! Redirecting...');
+        setAlertMessage("Login successful! Redirecting...");
         const token = response.data.token;
         const decodedToken = jwtDecode(token);
   
         setUserRole(decodedToken.role);
-        localStorage.setItem('jwtToken', token);
-        localStorage.setItem('username', decodedToken.username);
-        localStorage.removeItem('activeComponent');
+        localStorage.setItem("jwtToken", token);
+        localStorage.setItem("username", decodedToken.username);
+        localStorage.removeItem("activeComponent");
   
         // ✅ Get redirect path or fallback to dashboard
         const redirectPath = sessionStorage.getItem("redirectAfterLogin");
-        sessionStorage.removeItem("redirectAfterLogin"); // ✅ Remove after using
+        sessionStorage.removeItem("redirectAfterLogin");
   
         setTimeout(() => {
           navigate(redirectPath || "/dashboard");
         }, 3000);
       }
     } catch (err) {
-      setAlertMessage(err.response?.data?.message || 'Login failed');
+      setAlertMessage(err.response?.data?.message || "Login failed");
+    } finally {
+      setIsLoading(false); // ✅ Reset button after login attempt
     }
   };
   
@@ -74,13 +78,14 @@ const Login = ({ setUserRole }) => {
             <input type="password" name="password" id="password" value={credentials.password} onChange={handleChange} required style={styles.input} />
           </div>
           <button
-            type="submit"
-            style={isHovered ? { ...styles.button, backgroundColor: '#d0e6fd' } : styles.button}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            Login
-          </button>
+    type="submit"
+    style={isHovered ? { ...styles.button, backgroundColor: "#d0e6fd" } : styles.button}
+    onMouseEnter={() => setIsHovered(true)}
+    onMouseLeave={() => setIsHovered(false)}
+    disabled={isLoading} // ✅ Disable button while loading
+  >
+    {isLoading ? "Logging in..." : "Login"}
+  </button>
         </form>
 
         <div style={styles.footerLinks}>
