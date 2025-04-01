@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Alert from "./Alert";
 import axios from "axios";
+import { FaClipboard } from 'react-icons/fa';  // Import the clipboard icon
+
 
 const Profile = () => {
   const [userInfo, setUserInfo] = useState({
@@ -144,14 +146,20 @@ const Profile = () => {
   <h3 style={styles.subHeading}>Referral Program</h3>
 
   <label style={styles.label}>
-    Your Referral Code:
-    <p style={styles.text}>{userInfo.referralCode}</p>
-  </label>
+        Your Referral Code:
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <FaClipboard style={{ marginRight: '10px', cursor: 'pointer' }} />
+          <p style={styles.text}>{userInfo.referralCode}</p>
+        </div>
+      </label>
 
-  <label style={styles.label}>
-    Referral Link:
-    <p style={styles.text}>{`${FRONTEND_URL}/signup?referralCode=${userInfo.referralCode}`}</p>
-  </label>
+      <label style={styles.label}>
+        Referral Link:
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <FaClipboard style={{ marginRight: '10px', cursor: 'pointer' }} />
+          <p style={styles.text}>{`${FRONTEND_URL}/signup?referralCode=${userInfo.referralCode}`}</p>
+        </div>
+      </label>
 
   <label style={styles.label}>
     Referred By:
