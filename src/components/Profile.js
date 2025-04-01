@@ -144,6 +144,16 @@ const Profile = () => {
         </label>
       </div>
 
+      {isEditing ? (
+        <button style={styles.saveButton} onClick={handleSaveProfile}>
+          Save Changes
+        </button>
+      ) : (
+        <button style={styles.editButton} onClick={handleEditProfile}>
+          Edit Profile
+        </button>
+      )}
+
       {/* Referral Info */}
       <div style={styles.section}>
         <h3 style={styles.subHeading}>Referral Program</h3>
@@ -213,16 +223,6 @@ const Profile = () => {
             <p style={styles.text}>₦{userInfo.totalWithdrawn.toLocaleString()}</p>
           </label>
         </div>
-      )}
-
-      {isEditing ? (
-        <button style={styles.saveButton} onClick={handleSaveProfile}>
-          Save Changes
-        </button>
-      ) : (
-        <button style={styles.editButton} onClick={handleEditProfile}>
-          Edit Profile
-        </button>
       )}
 
       {/* Change Password */}
