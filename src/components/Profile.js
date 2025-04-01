@@ -3,7 +3,6 @@ import Alert from "./Alert";
 import axios from "axios";
 import { FaClipboard } from 'react-icons/fa';  // Import the clipboard icon
 
-
 const Profile = () => {
   const [userInfo, setUserInfo] = useState({
     fullName: "",
@@ -11,10 +10,10 @@ const Profile = () => {
     phone: "",
     isVerified: false,
     referralCode: "",
-    referrer: null,  // Holds referrer information
-    referredCount: 0, // Holds the number of referred users
-    totalFunded: 0,  // Holds the total amount funded
-    totalWithdrawn: 0, // Holds the total amount withdrawn
+    referrer: null,
+    referredCount: 0,
+    totalFunded: 0,
+    totalWithdrawn: 0,
     referralBonusEarned: 0,
   });
 
@@ -25,40 +24,33 @@ const Profile = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [alert, setAlert] = useState({ message: "", type: "", show: false });
+  const [clipboardMessage, setClipboardMessage] = useState(""); // Clipboard message state
 
   const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222";
   const FRONTEND_URL = "https://exdollarium-preview.netlify.app";
-  //const FRONTEND_URL = "http://localhost:3000";
 
   useEffect(() => {
     if (!token) {
       window.location.href = "/login";
       return;
     }
-  
     const fetchProfileData = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserInfo(response.data);
-        console.log("Fetched user info:", response.data);
-
       } catch (error) {
         setAlert({ message: "Error fetching profile data", type: "error", show: true });
       }
     };
-  
     fetchProfileData();
   }, [token, apiUrl]);
-  
-  // Move toggle function here
+
   const toggleWalletSummary = () => {
     setShowWalletSummary(prev => !prev);
   };
-  
 
   const handleEditProfile = () => {
     setIsEditing(true);
@@ -102,6 +94,17 @@ const Profile = () => {
     }
   };
 
+  const handleClipboardCopy = (text) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        setClipboardMessage("Copied to clipboard!");
+        setTimeout(() => setClipboardMessage(""), 2000); // Clear the message after 2 seconds
+      })
+      .catch(() => {
+        setClipboardMessage("Failed to copy!");
+      });
+  };
+
   const closeAlert = () => setAlert({ ...alert, show: false });
 
   return (
@@ -142,43 +145,55 @@ const Profile = () => {
       </div>
 
       {/* Referral Info */}
-<div style={styles.section}>
-  <h3 style={styles.subHeading}>Referral Program</h3>
+      <div style={styles.section}>
+        <h3 style={styles.subHeading}>Referral Program</h3>
 
-  <label style={styles.label}>
-        Your Referral Code:
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <FaClipboard style={{ marginRight: '10px', cursor: 'pointer' }} />
-          <p style={styles.text}>{userInfo.referralCode}</p>
+        <label style={styles.label}>
+          Your Referral Code:
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <FaClipboard
+              style={{ marginRight: '10px', cursor: 'pointer' }}
+              onClick={() => handleClipboardCopy(userInfo.referralCode)}
+            />
+            <p style={styles.text}>{userInfo.referralCode}</p>
+          </div>
+        </label>
+
+        <label style={styles.label}>
+          Referral Link:
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <FaClipboard
+              style={{ marginRight: '10px', cursor: 'pointer' }}
+              onClick={() => handleClipboardCopy(`${FRONTEND_URL}/signup?referralCode=${userInfo.referralCode}`)}
+            />
+            <p style={styles.text}>{`${FRONTEND_URL}/signup?referralCode=${userInfo.referralCode}`}</p>
+          </div>
+        </label>
+
+        <label style={styles.label}>
+          Referred By:
+          <p style={styles.text}>{userInfo.referrer ? userInfo.referrer.username : 'No referrer'}</p>
+        </label>
+
+        <label style={styles.label}>
+          Users You Have Referred:
+          <p style={styles.text}>{userInfo.referredCount}</p>
+        </label>
+
+        <label style={styles.label}>
+          **Total Referral Earnings:
+          <p style={{ ...styles.text, fontWeight: 'bold', color: 'green' }}>
+            ₦{userInfo.referralBonusEarned ? userInfo.referralBonusEarned.toLocaleString() : 0}
+          </p>
+        </label>
+      </div>
+
+      {/* Clipboard Copy Confirmation */}
+      {clipboardMessage && (
+        <div style={styles.clipboardMessage}>
+          {clipboardMessage}
         </div>
-      </label>
-
-      <label style={styles.label}>
-        Referral Link:
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <FaClipboard style={{ marginRight: '10px', cursor: 'pointer' }} />
-          <p style={styles.text}>{`${FRONTEND_URL}/signup?referralCode=${userInfo.referralCode}`}</p>
-        </div>
-      </label>
-
-  <label style={styles.label}>
-    Referred By:
-    <p style={styles.text}>{userInfo.referrer ? userInfo.referrer.username : 'No referrer'}</p>
-  </label>
-
-  <label style={styles.label}>
-    Users You Have Referred:
-    <p style={styles.text}>{userInfo.referredCount}</p>
-  </label>
-
-  <label style={styles.label}>
-    **Total Referral Earnings:**  
-    <p style={{ ...styles.text, fontWeight: 'bold', color: 'green' }}>
-      ₦{userInfo.referralBonusEarned ? userInfo.referralBonusEarned.toLocaleString() : 0}
-    </p>
-  </label>
-</div>
-
+      )}
 
       {/* Toggle Wallet Summary Button */}
       <button style={styles.toggleButton} onClick={toggleWalletSummary}>
@@ -209,8 +224,6 @@ const Profile = () => {
           Edit Profile
         </button>
       )}
-
-
 
       {/* Change Password */}
       <div style={styles.section}>
@@ -278,61 +291,56 @@ const styles = {
     textAlign: "left",
   },
   subHeading: {
-    color: "#162660",
     fontSize: "18px",
+    fontWeight: "bold",
     marginBottom: "15px",
   },
   label: {
     display: "block",
-    fontSize: "14px",
-    fontWeight: "500",
-    color: "#162660",
-    marginTop: "10px",
+    marginBottom: "10px",
+    color: "#004d78",
   },
-
   text: {
+    color: "#333",
+    fontSize: "16px",
+  },
+  input: {
+    width: "100%",
     padding: "10px",
-    background: "#fff",
-    borderRadius: "6px",
-    fontSize: "12px",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+    marginBottom: "15px",
+  },
+  clipboardMessage: {
+    marginTop: "10px",
+    padding: "10px",
+    backgroundColor: "#d1f5e0",
+    color: "#388e3c",
     fontWeight: "bold",
-  },
-  editButton: {
-    width: "100%",
-    padding: "12px",
-    border: "none",
-    borderRadius: "6px",
-    fontSize: "16px",
-    fontWeight: "600",
-    cursor: "pointer",
-    marginTop: "15px",
-    backgroundColor: "#162660",
-    color: "white",
-  },
-  saveButton: {
-    width: "100%",
-    padding: "12px",
-    backgroundColor: "#162660",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    fontSize: "16px",
-    fontWeight: "600",
-    cursor: "pointer",
-    marginTop: "15px",
+    borderRadius: "5px",
   },
   toggleButton: {
-    padding: "10px 15px",
-    margin: "10px 0",
-    backgroundColor: "#007bff",
+    backgroundColor: "#f3a8e3",
     color: "#fff",
-    border: "none",
+    padding: "12px 20px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    marginBottom: "20px",
+  },
+  editButton: {
+    backgroundColor: "#0058a3",
+    color: "#fff",
+    padding: "10px 20px",
     borderRadius: "5px",
     cursor: "pointer",
-    fontSize: "16px",
   },
-  toggleButtonHover: {
-    backgroundColor: "#0056b3",
+  saveButton: {
+    backgroundColor: "#00a852",
+    color: "#fff",
+    padding: "12px 24px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    marginTop: "20px",
   },
 };
 
