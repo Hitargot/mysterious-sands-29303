@@ -191,7 +191,7 @@ const Profile = () => {
         </label>
 
         <label style={styles.label}>
-          **Total Referral Earnings:
+          Total Referral Earnings:
           <p style={{ ...styles.text, fontWeight: 'bold', color: 'green' }}>
             ₦{userInfo.referralBonusEarned ? userInfo.referralBonusEarned.toLocaleString() : 0}
           </p>

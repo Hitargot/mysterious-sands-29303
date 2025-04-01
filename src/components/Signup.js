@@ -97,41 +97,42 @@ const Signup = () => {
     setTimeout(() => setAlertMessage(""), alertDuration);
   };
 
- const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   //const apiUrl = "http://localhost:22222";
 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
-  
+
     // ✅ 1. Check empty fields
     if (!formData.username || !formData.email || !formData.phone || !formData.password || !formData.confirmPassword) {
       showAlert("All fields are required.");
       return;
     }
-  
+
     // ✅ 2. Validate username (starts with a capital letter, at least 4 chars)
-    const usernameRegex = /^[A-Z][A-Za-z0-9_]{3,}$/;
+    const usernameRegex = /^[A-Za-z][A-Za-z0-9_]{3,}$/;
     if (!usernameRegex.test(formData.username)) {
-      showAlert("Username must start with a capital letter and be at least 4 characters long.");
+      showAlert("Username must start with a letter and be at least 4 characters long.");
       return;
     }
-  
+
+
     // ✅ 3. Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       showAlert("Enter a valid email address.");
       return;
     }
-  
+
     // ✅ 4. Validate phone number
     const phoneRegex = /^[0-9]{10,15}$/;
     if (!phoneRegex.test(formData.phone)) {
       showAlert("Enter a valid phone number (10-15 digits).");
       return;
     }
-  
+
     // ✅ 5. Strong password checks with specific messages
     const password = formData.password;
     if (password.length < 8) {
@@ -150,19 +151,19 @@ const Signup = () => {
       showAlert("Password must include at least one special character (@$!%*?&).");
       return;
     }
-  
+
     // ✅ 6. Check if passwords match
     if (formData.password !== formData.confirmPassword) {
       showAlert("Passwords do not match.");
       return;
     }
-  
+
     // ✅ 7. Check Terms & Conditions agreement
     if (!termsAccepted) {
       showAlert("You must accept the Terms & Conditions before signing up.");
       return;
     }
-  
+
     // ✅ 8. Submit data
     setLoading(true);
     try {
@@ -174,14 +175,14 @@ const Signup = () => {
         referralCode: formData.referralCode,
         agreedToTerms: true,
       });
-  
+
       if (response.status !== 201) {
         showAlert(response.data.message || "Signup failed");
         return;
       }
-  
+
       showAlert("Sign up successful! Check your email or spam folder to verify your account.");
-      
+
       // ✅ Reset form
       setFormData({
         username: "",
@@ -191,9 +192,9 @@ const Signup = () => {
         confirmPassword: "",
         referralCode: "",
       });
-  
+
       localStorage.removeItem("signupForm");
-  
+
       // ✅ Redirect to login after 3 seconds
       setTimeout(() => {
         navigate("/login");
@@ -204,7 +205,7 @@ const Signup = () => {
       setLoading(false);
     }
   };
-  
+
 
 
 
@@ -463,12 +464,12 @@ const Signup = () => {
             />
 
             <label htmlFor="terms" style={{ color: "#f1e4d1" }}>
-            {termsAccepted
-              ? "I have read and agree with the "
-              : "Please read and accept our "}
-            <Link to="/terms" style={{ color: "#d0e6fd", textDecoration: "underline" }}>
-              Terms and Conditions
-            </Link>
+              {termsAccepted
+                ? "I have read and agree with the "
+                : "Please read and accept our "}
+              <Link to="/terms" style={{ color: "#d0e6fd", textDecoration: "underline" }}>
+                Terms and Conditions
+              </Link>
             </label>
           </div>
 
