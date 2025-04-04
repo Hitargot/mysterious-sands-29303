@@ -123,7 +123,7 @@ const WithdrawalPinInput = ({ onPinSubmit }) => {
                 border: '2px solid rgb(208, 230, 253)',
                 borderRadius: '8px',
                 outline: 'none',
-                padding: '10px',
+                padding: '5px',
                 transition: 'border 0.2s ease, box-shadow 0.3s ease',
                 backgroundColor: '#fff',
               }}
