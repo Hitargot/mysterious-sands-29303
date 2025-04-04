@@ -5,7 +5,9 @@ import { jwtDecode } from 'jwt-decode';
 import logo from '../assets/images/Exodollarium-01.png';
 import Alert from '../components/Alert';
 
-const apiUrl = 'http://localhost:22222';
+//const apiUrl = 'http://localhost:22222';
+const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+
 
 const RequestOtpPage = () => {
   const [loading, setLoading] = useState(false);
