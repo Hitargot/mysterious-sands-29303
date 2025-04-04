@@ -2,6 +2,8 @@ import React from 'react';
 import '@fortawesome/fontawesome-free/css/all.min.css'; // Import Font Awesome
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear(); // Get the current year
+
   return (
     <footer style={styles.footer}>
       <div style={styles.footerLinks}>
@@ -22,7 +24,7 @@ const Footer = () => {
           <span>Facebook</span>
         </a>
       </div>
-      <p style={styles.footerText}>&copy; 2024 Exdollarium. All rights reserved.</p>
+      <p style={styles.footerText}>&copy; {currentYear} Exdollarium. All rights reserved.</p>
     </footer>
   );
 };

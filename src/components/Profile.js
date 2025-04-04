@@ -105,6 +105,12 @@ const Profile = () => {
       });
   };
 
+  const formatEmail = (email) => {
+    const [localPart, domain] = email.split('@'); // Split the email into local part and domain
+    const formattedLocal = localPart[0] + '****'; // Show only the first letter and replace the rest with ****
+    return formattedLocal + '@' + domain;
+  };
+
   const closeAlert = () => setAlert({ ...alert, show: false });
 
   return (
@@ -130,7 +136,7 @@ const Profile = () => {
         <label style={styles.label}>
           Email:
           <p style={styles.text}>
-            {userInfo.email}{" "}
+            {formatEmail(userInfo.email)}{" "}
             {userInfo.isVerified ? (
               <span style={{ color: "green", fontWeight: "bold" }}>✅ Verified</span>
             ) : (
@@ -138,21 +144,22 @@ const Profile = () => {
             )}
           </p>
         </label>
+
         <label style={styles.label}>
           Phone Number:
           <p style={styles.text}>{userInfo.phone}</p>
         </label>
 
-        
-      {isEditing ? (
-        <button style={styles.saveButton} onClick={handleSaveProfile}>
-          Save Changes
-        </button>
-      ) : (
-        <button style={styles.editButton} onClick={handleEditProfile}>
-          Edit Profile
-        </button>
-      )}
+
+        {isEditing ? (
+          <button style={styles.saveButton} onClick={handleSaveProfile}>
+            Save Changes
+          </button>
+        ) : (
+          <button style={styles.editButton} onClick={handleEditProfile}>
+            Edit Profile
+          </button>
+        )}
       </div>
 
 
