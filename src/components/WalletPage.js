@@ -109,58 +109,58 @@ const WalletPage = () => {
     fetchWalletData();
     fetchBankAccounts();
   }, [fetchWalletData, fetchBankAccounts]); // Ensure the effect runs on these dependencies
-  
+
   // Handle withdrawal logic
   const handleWithdraw = async () => {
     const token = getJwtToken();
     if (!token) return;
-  
+
     // Step 1: Check if user has set a withdrawal PIN
     const pinCheckResponse = await axios.get(`${apiUrl}/api/wallet/check-pin`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-  
+
     if (pinCheckResponse.data.hasPin === false) {
       window.location.href = '/set-pin'; // Redirect if no PIN is set
       return;
     }
-  
+
     const amount = parseFloat(withdrawAmount);
-  
+
     if (!bankAccounts || bankAccounts.length === 0) {
       handleAlert('No bank accounts found. Please add or refresh bank accounts.', 'error');
       return;
     }
-  
+
     if (!selectedBankAccount) {
       handleAlert('Please select a bank account.', 'error');
       return;
     }
-  
+
     const [bankName, accountNumber] = selectedBankAccount.split(' - ');
     const selectedBank = bankAccounts.find(
       (bank) => bank.bankName === bankName && bank.accountNumber === accountNumber
     );
-  
+
     if (!selectedBank) {
       handleAlert('Invalid bank selection. Please select a valid bank account.', 'error');
       return;
     }
-  
+
     if (isNaN(amount) || amount <= 0) {
       handleAlert('Please enter a valid withdrawal amount greater than zero.', 'error');
       return;
     }
-  
+
     if (amount > Number(walletBalance || 0)) {
       handleAlert('Insufficient funds. Enter an amount within your wallet balance.', 'error');
       return;
     }
-  
+
     // Step 2: Show PIN input
     setShowPinInput(true); // Show PIN input form when user proceeds
   };
-  
+
   // Handle the PIN submit logic
   const handlePinSubmit = async (withdrawPin) => {
     const token = getJwtToken();
@@ -168,44 +168,44 @@ const WalletPage = () => {
       console.error('No token found.');
       return;
     }
-  
+
     // Validate bank account selection
     if (!selectedBankAccount) {
       handleAlert('Please select a bank account.', 'error');
       return;
     }
-  
+
     const [bankName, accountNumber] = selectedBankAccount.split(' - ');
     const selectedBank = bankAccounts.find(
       (bank) => bank.bankName === bankName && bank.accountNumber === accountNumber
     );
-  
+
     if (!selectedBank) {
       handleAlert('Invalid bank account selected', 'error');
       return;
     }
-  
+
     // Parse withdraw amount
     const amount = parseFloat(withdrawAmount);
     if (isNaN(amount) || amount <= 0) {
       handleAlert('Invalid withdrawal amount. Please enter a valid amount.', 'error');
       return;
     }
-  
+
     try {
       const response = await axios.post(
         `${apiUrl}/api/wallet/withdraw`,
-        { 
-          amount, 
-          bankId: selectedBank.id, 
-          accountNumber: selectedBank.accountNumber, 
-          withdrawPin 
+        {
+          amount,
+          bankId: selectedBank.id,
+          accountNumber: selectedBank.accountNumber,
+          withdrawPin
         },
-        { 
-          headers: { 
-            Authorization: `Bearer ${token}`, 
-            'Content-Type': 'application/json' 
-          } 
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
       );
       setWithdrawAmount('');
@@ -214,16 +214,16 @@ const WalletPage = () => {
 
       if (response.data.success) {
         console.log('Withdrawal Success:', response.data);
-  
+
         // Clear fields and hide the PIN input form immediately after success
-       
-  
+
+
         // Show success alert
         handleAlert('Withdrawal request submitted successfully!', 'success');
-  
+
         // Refresh wallet data
         fetchWalletData();
-  
+
         // Success notifications
         addNotification({
           id: uuidv4(),
@@ -231,12 +231,12 @@ const WalletPage = () => {
           type: 'success',
           read: false,
         });
-  
+
         // Reload the page to reflect updates
         setTimeout(() => {
           window.location.reload();
         }, 1500);
-  
+
       } else {
         handleAlert(response.data.message || 'Withdrawal failed. Please try again.', 'error');
       }
@@ -245,54 +245,54 @@ const WalletPage = () => {
       handleAlert(error.response?.data?.message || 'Error submitting withdrawal request.', 'error');
     }
   };
-  
+
   // Log important states for debugging purposes
   useEffect(() => {
     console.log('Withdraw Amount:', withdrawAmount);
     console.log('Selected Bank Account:', selectedBankAccount);
     console.log('Show PIN Input:', showPinInput);
   }, [withdrawAmount, selectedBankAccount, showPinInput]);
-  
+
 
   const fetchUserBanks = async () => {
     const token = getJwtToken();
     if (!token) return;
-  
+
     try {
       const response = await axios.get(`${apiUrl}/api/wallet/banks`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
+
       setBankAccounts(response.data.banks);
     } catch (error) {
       console.error("Error fetching banks:", error);
     }
   };
-  
+
   // Handle adding a new bank account
   const handleAddBankAccount = async () => {
     const token = getJwtToken();
     if (!token) return;
-  
+
     const { bankName, accountNumber, accountName } = newBankAccount;
     if (!bankName || !accountNumber || !accountName) {
       handleAlert('Please fill in all fields to add a bank account.', 'error');
       return;
     }
-  
+
     try {
       const response = await axios.post(
         `${apiUrl}/api/wallet/banks`,
         { bankName, accountNumber, accountName },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       // ✅ Update state correctly
       setBankAccounts((prevBanks) => [...prevBanks, response.data.bank]);
-  
+
       // ✅ Ensure the withdrawal form updates with the latest banks
       fetchUserBanks();
-  
+
       setNewBankAccount({ bankName: '', accountNumber: '', accountName: '' });
       setShowAddBankForm(false);
       handleAlert('Bank account added successfully!', 'success');
@@ -300,7 +300,7 @@ const WalletPage = () => {
       handleAlert(error.response?.data?.message || 'Error adding bank account.', 'error');
     }
   };
-  
+
   // Handle adding balance (for testing)
   // const handleAddBalance = async () => {
   //   const token = getJwtToken();
@@ -415,7 +415,7 @@ const WalletPage = () => {
         </label>
         <input
           type="number"
-          placeholder="Enter amount"
+          placeholder="500 - 1,000,000 NGN"
           value={withdrawAmount}
           onChange={(e) => setWithdrawAmount(e.target.value)}
           style={{
@@ -429,6 +429,7 @@ const WalletPage = () => {
             backgroundColor: "#f9f9f9",
           }}
         />
+
         {/* Withdraw Button */}
         <button
           onClick={handleWithdraw}
@@ -449,8 +450,8 @@ const WalletPage = () => {
         >
           Submit Withdrawal
         </button>
-              {/* Conditionally render the PIN input if showPinInput is true */}
-      {showPinInput && <WithdrawalPinInput onPinSubmit={handlePinSubmit} />}
+        {/* Conditionally render the PIN input if showPinInput is true */}
+        {showPinInput && <WithdrawalPinInput onPinSubmit={handlePinSubmit} />}
       </div>
 
       {/* Add Bank Account Button */}
