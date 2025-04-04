@@ -142,8 +142,8 @@ const Profile = () => {
           Phone Number:
           <p style={styles.text}>{userInfo.phone}</p>
         </label>
-      </div>
 
+        
       {isEditing ? (
         <button style={styles.saveButton} onClick={handleSaveProfile}>
           Save Changes
@@ -153,6 +153,8 @@ const Profile = () => {
           Edit Profile
         </button>
       )}
+      </div>
+
 
       {/* Referral Info */}
       <div style={styles.section}>

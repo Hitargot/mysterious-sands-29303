@@ -30,10 +30,11 @@ import VerifyEmail from './components/VerifyEmail';
 import ResendVerification from './components/ResendVerification';
 import Chatbot from './components/Chatbot';
 import ReviewForm from './components/ReviewForm';
+import VerifyOtpPage from "./components/VerifyOtpPage";
+import ResetPinPage from "./components/ResetPinPage";
 import TermsAndConditions from './components/TermsAndConditions';
-
-
-
+import RequestOtpPage from './components/RequestOtpPage';
+import SetWithdrawPin from './components/SetWithdrawPin';
 
 const App = () => {
   const [userRole, setUserRole] = useState(null);
@@ -61,13 +62,17 @@ const App = () => {
           <Route path="/Notifications" element={<Notifications />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/role/login" element={<RoleLogin />} />
-          <Route path="/role/no-access" element={<NoAccess/>} />
-          <Route path="/trade-history" element={<TradeHistory/>} />
-          <Route path="/verify-email" element={<VerifyEmail/>} />
-          <Route path="/resend-verification" element={<ResendVerification/>} />
-          <Route path="/chat-bot" element={<Chatbot/>} />
-          <Route path="/reviews/submit" element={<ReviewForm/>} />
+          <Route path="/role/no-access" element={<NoAccess />} />
+          <Route path="/trade-history" element={<TradeHistory />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/resend-verification" element={<ResendVerification />} />
+          <Route path="/chat-bot" element={<Chatbot />} />
+          <Route path="/reviews/submit" element={<ReviewForm />} />
           <Route path="/terms" element={<TermsAndConditions />} />
+          <Route path="/set-pin" element={<SetWithdrawPin />} />
+          <Route path="/request-otp" element={<RequestOtpPage />} />
+          <Route path="/verify-otp" element={<VerifyOtpPage />} />
+          <Route path="/reset-pin" element={<ResetPinPage />} />
 
           <Route
             path="/admin"
@@ -92,7 +97,7 @@ const App = () => {
               }
             />
           ))}
-         
+
           {/* Redirect for unknown routes */}
           <Route path="*" element={<Navigate to="/" replace />} />
 
