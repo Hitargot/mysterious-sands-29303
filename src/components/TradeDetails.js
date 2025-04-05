@@ -142,7 +142,7 @@ const TradeDetails = ({ selectedService }) => {
             borderRadius: "10px", 
             textAlign: "center"
           }}>
-            <h4 style={{ fontSize: "18px", color: "#162660" }}>Submit Your Confirmation</h4>
+            <h4 style={{ fontSize: "18px", color: "#162660" }}>Submit receipt for Confirmation</h4>
             <ConfirmationForm selectedService={selectedService} />
           </div>
         </>
