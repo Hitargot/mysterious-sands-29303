@@ -90,7 +90,7 @@ const Contact = () => {
     <p>
       Email:{" "}
       <a href="mailto:exdollarium@gmail.com" style={styles.link}>
-        exdollarium@gmail.com
+      support@exdollarium.com
       </a>
     </p>
     <p>
