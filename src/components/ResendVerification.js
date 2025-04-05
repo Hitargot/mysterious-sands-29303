@@ -8,22 +8,31 @@ const ResendVerification = () => {
   const [email, setEmail] = useState('');
   const [alert, setAlert] = useState({ message: '', type: '' });
   const [loading, setLoading] = useState(false);
+
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   //const apiUrl = "http://localhost:22222";
+  
   const handleResend = async (e) => {
     e.preventDefault();
     setLoading(true);
     setAlert({ message: '', type: '' });
-
+  
     try {
       const response = await axios.post(`${apiUrl}/api/auth/resend-verification`, { email });
+  
+      // Success response handling
       setAlert({ message: response.data.message, type: 'success' });
+  
+      // Clear the email input field
+      setEmail('');  // Assuming `email` is the state variable holding the input value
     } catch (error) {
+      // Error response handling
       setAlert({ message: error.response?.data?.message || 'Failed to resend verification email.', type: 'error' });
     }
-
+  
     setLoading(false);
   };
+ 
 
   return (
     <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#d0e6fd' }}>

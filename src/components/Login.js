@@ -19,7 +19,7 @@ const Login = ({ setUserRole }) => {
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   //const apiUrl = "http://localhost:22222";
 
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true); // ✅ Show "Logging in..."
@@ -29,16 +29,16 @@ const Login = ({ setUserRole }) => {
         setAlertMessage("Login successful! Redirecting...");
         const token = response.data.token;
         const decodedToken = jwtDecode(token);
-  
+
         setUserRole(decodedToken.role);
         localStorage.setItem("jwtToken", token);
         localStorage.setItem("username", decodedToken.username);
         localStorage.removeItem("activeComponent");
-  
+
         // ✅ Get redirect path or fallback to dashboard
         const redirectPath = sessionStorage.getItem("redirectAfterLogin");
         sessionStorage.removeItem("redirectAfterLogin");
-  
+
         setTimeout(() => {
           navigate(redirectPath || "/dashboard");
         }, 3000);
@@ -49,8 +49,8 @@ const Login = ({ setUserRole }) => {
       setIsLoading(false); // ✅ Reset button after login attempt
     }
   };
-  
-  
+
+
   return (
     <div style={styles.login}>
       <div style={styles.loginContainer}>
@@ -70,7 +70,7 @@ const Login = ({ setUserRole }) => {
         <h2 style={styles.heading}>Login</h2>
         <form onSubmit={handleSubmit} style={styles.loginForm}>
           <div style={styles.formGroup}>
-            <label htmlFor="identifier" style={styles.label}>Username/Email/Phone:</label>
+            <label htmlFor="identifier" style={styles.label}>Username/Email:</label>
             <input type="text" name="identifier" id="identifier" value={credentials.identifier} onChange={handleChange} required style={styles.input} />
           </div>
           <div style={styles.formGroup}>
@@ -78,14 +78,14 @@ const Login = ({ setUserRole }) => {
             <input type="password" name="password" id="password" value={credentials.password} onChange={handleChange} required style={styles.input} />
           </div>
           <button
-    type="submit"
-    style={isHovered ? { ...styles.button, backgroundColor: "#d0e6fd" } : styles.button}
-    onMouseEnter={() => setIsHovered(true)}
-    onMouseLeave={() => setIsHovered(false)}
-    disabled={isLoading} // ✅ Disable button while loading
-  >
-    {isLoading ? "Logging in..." : "Login"}
-  </button>
+            type="submit"
+            style={isHovered ? { ...styles.button, backgroundColor: "#d0e6fd" } : styles.button}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            disabled={isLoading} // ✅ Disable button while loading
+          >
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
         </form>
 
         <div style={styles.footerLinks}>
