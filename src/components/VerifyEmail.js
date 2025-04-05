@@ -8,15 +8,15 @@ const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const [alert, setAlert] = useState({ message: '', type: '' });
-  const [loading, setLoading] = useState(true); // ✅ Loading state added
+  const [loading, setLoading] = useState(true);
   const [isResendDisabled, setIsResendDisabled] = useState(false);
   const navigate = useNavigate();
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222";
+
   useEffect(() => {
     if (!token) {
       setAlert({ message: 'Invalid verification link.', type: 'error' });
-      setLoading(false); // ✅ Stop loading if the token is invalid
+      setLoading(false); // Stop loading if token is invalid
       return;
     }
 
@@ -29,18 +29,20 @@ const VerifyEmail = () => {
       } catch (error) {
         setAlert({ message: error.response?.data?.message || 'Email verification failed.', type: 'error' });
       }
-      setLoading(false); // ✅ Stop loading after request completes
+      setLoading(false);
     };
 
     verifyEmail();
   }, [token, navigate, apiUrl]);
 
-  // Resend Verification Email
   const handleResendVerification = async () => {
+    console.log("Resend button clicked");
     setIsResendDisabled(true);
 
     try {
       const email = searchParams.get('email');
+      console.log("Email from URL:", email);
+
       if (!email) {
         setAlert({ message: 'Email not provided. Please sign up again.', type: 'error' });
         setIsResendDisabled(false);
@@ -51,8 +53,12 @@ const VerifyEmail = () => {
 
       setAlert({ message: 'Verification email resent. Check your inbox.', type: 'success' });
 
-      setTimeout(() => setIsResendDisabled(false), 30000);
+      setTimeout(() => {
+        setIsResendDisabled(false);
+        console.log("Button re-enabled");
+      }, 30000);  // 30 seconds
     } catch (error) {
+      console.error("Error in resending email", error);
       setAlert({ message: error.response?.data?.message || 'Failed to resend email.', type: 'error' });
       setIsResendDisabled(false);
     }
@@ -77,7 +83,7 @@ const VerifyEmail = () => {
         {alert.message && <Alert message={alert.message} type={alert.type} />}
 
         {loading ? (
-          <p style={{ color: '#d0e6fd', fontWeight: 'bold' }}>Verifying email...</p> // ✅ Show loading message
+          <p style={{ color: '#d0e6fd', fontWeight: 'bold' }}>Verifying email...</p>
         ) : alert.type === 'success' ? (
           <Link to="/login" style={{ backgroundColor: '#d0e6fd', color: '#162660', padding: '10px', borderRadius: '5px', fontWeight: 'bold', textDecoration: 'none', display: 'inline-block', marginTop: '10px' }}>
             Go to Login
