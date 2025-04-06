@@ -70,7 +70,7 @@ const Login = ({ setUserRole }) => {
         <h2 style={styles.heading}>Login</h2>
         <form onSubmit={handleSubmit} style={styles.loginForm}>
           <div style={styles.formGroup}>
-            <label htmlFor="identifier" style={styles.label}>Username/Email:</label>
+            <label htmlFor="identifier" style={styles.label}>Username or Email:</label>
             <input type="text" name="identifier" id="identifier" value={credentials.identifier} onChange={handleChange} required style={styles.input} />
           </div>
           <div style={styles.formGroup}>
