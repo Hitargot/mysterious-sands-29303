@@ -15,36 +15,41 @@ const TradeDetails = ({ selectedService }) => {
   const [showCopy, setShowCopy] = useState(false);
   const [copiedTag, setCopiedTag] = useState("");
   const [generatedTag, setGeneratedTag] = useState(""); // Declare state for the generated tag
-            // Add a state to track whether the tag has been generated or deleted
-const [hasGeneratedTag, setHasGeneratedTag] = useState(false); // Track if the tag has been generated
-const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-const [isCopied, setIsCopied] = useState(false); // Track if the tag has been copied
+  // Add a state to track whether the tag has been generated or deleted
+  const [hasGeneratedTag, setHasGeneratedTag] = useState(false); // Track if the tag has been generated
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isCopied, setIsCopied] = useState(false); // Track if the tag has been copied
 
 
-useEffect(() => {
-  const handleResize = () => {
-    setIsMobile(window.innerWidth <= 768);
-  };
-  window.addEventListener('resize', handleResize);
-  return () => window.removeEventListener('resize', handleResize);
-}, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
 
 
   // Get token from localStorage or sessionStorage
-  const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
+  const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // If token exists, decode it and set user
-    if (token) {
-      const decodedToken = jwtDecode(token); // Decode the token
-      setUser(decodedToken); // Set the user from the decoded token
-      console.log("Decoded User:", decodedToken); // Check the decoded user data
-    }
-  }, [token]); // Re-run if the token changes
+    const storedToken = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
 
-  //const apiUrl = "http://localhost:22222";
+    if (storedToken) {
+      const decodedToken = jwtDecode(storedToken);
+      setUser(decodedToken);
+      setToken(storedToken);
+      console.log("Decoded User:", decodedToken);
+    }
+  }, []);
+
+
+
+  // const apiUrl = "http://localhost:22222";
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
 
 
@@ -81,36 +86,44 @@ useEffect(() => {
   }, [selectedService, apiUrl]);
 
   useEffect(() => {
-    if (!user || !user.id || !serviceDetails || !serviceDetails._id) {
-      console.error("User or Service details are not defined.");
-      return;
-    }
-  
-    // Retrieve the generated tag status from localStorage
-    const storedTag = localStorage.getItem(`tag_${user.id}_${serviceDetails._id}`);
-    const storedHasGeneratedTag = localStorage.getItem(`hasGeneratedTag_${user.id}_${serviceDetails._id}`);
-  
-    if (storedHasGeneratedTag === 'true') {
-      setGeneratedTag(storedTag); // Use the stored tag from localStorage
-      setHasGeneratedTag(true); // Set the state to reflect that the tag has been generated
-      console.log("Loaded generated tag from localStorage:", storedTag);
-    } else {
-      console.log("No tag found in localStorage, showing button.");
-    }
-  }, [user, serviceDetails]); // Run on component mount or when user/serviceDetails changes
-  
-  // The generateTag function to handle generating a tag
+    const checkExistingTag = async () => {
+      if (!user || !user.id || !serviceDetails || !serviceDetails._id) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`${apiUrl}/api/check-service-tag?userId=${user.id}&serviceId=${serviceDetails._id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+
+        if (data && data.tag) {
+          setGeneratedTag(data.tag);
+          setHasGeneratedTag(true);
+          console.log("Loaded tag from backend:", data.tag);
+        } else {
+          setHasGeneratedTag(false);
+          console.log("No tag found in backend, show generate button");
+        }
+      } catch (error) {
+        console.error("Failed to fetch tag:", error);
+      }
+    };
+
+    checkExistingTag();
+  }, [user, token, serviceDetails]);
+
   const generateTag = async () => {
     if (!user || !user.id) {
-      console.error("User is not defined");
       setAlertMessage("User is not defined. Please log in.");
       setAlertType("error");
       return;
     }
-  
+
     try {
-      console.log("Making API request to generate tag...");
-  
       const res = await fetch(`${apiUrl}/api/get-service-tag`, {
         method: "POST",
         headers: {
@@ -123,25 +136,21 @@ useEffect(() => {
           serviceId: serviceDetails._id,
         }),
       });
-  
+
       const data = await res.json();
-      console.log("API response received:", res);
-      console.log("Response data:", data);
-  
+
       if (data && data.tag) {
-        setGeneratedTag(data.tag); // Store the generated tag in state
-        setHasGeneratedTag(true); // Update the state to reflect the tag has been generated
-  
-        // Persist tag in localStorage
-        localStorage.setItem(`tag_${user.id}_${serviceDetails._id}`, data.tag);
-        localStorage.setItem(`hasGeneratedTag_${user.id}_${serviceDetails._id}`, 'true'); // Save the status of the generated tag
-  
-        console.log("Tag successfully generated:", data.tag);
-  
+        setGeneratedTag(data.tag);
+        setHasGeneratedTag(true);
         setAlertMessage(`Tag generated: ${data.tag}`);
         setAlertType("success");
+
+        // Update serviceDetails state with the new tag
+        setServiceDetails((prev) => ({
+          ...prev,
+          tags: [...(prev?.tags || []), { tag: data.tag, userId: user.id }],
+        }));
       } else {
-        console.error("No tag found in response");
         setAlertMessage("Failed to generate tag.");
         setAlertType("error");
       }
@@ -151,7 +160,8 @@ useEffect(() => {
       setAlertType("error");
     }
   };
-  
+
+
   const truncateTag = (tag) => {
     // Truncate tag for mobile view (e.g., exdollarium + exd)
     if (isMobile && tag.length > 10) {
@@ -159,7 +169,7 @@ useEffect(() => {
     }
     return tag; // Return full tag for desktop view
   };
-  
+
 
   const copyTag = async () => {
     console.log("Copy Tag function triggered");
@@ -196,8 +206,8 @@ useEffect(() => {
     }
   };
 
-  
-  
+
+
   const checkValidity = async () => {
     setRefreshing(true);
     try {
@@ -254,71 +264,71 @@ useEffect(() => {
           <p style={{ fontSize: "16px", color: "#333" }}>
             <strong>Note:</strong> {serviceDetails.note}
           </p>
-          
+
           {serviceDetails?._id === "678abb516cbaa411698e7fa0" && hasGeneratedTag === false && (
-  <button
-    onClick={generateTag}
-    style={{
-      marginTop: "15px",
-      padding: "10px 20px",
-      backgroundColor: "#007bff",
-      color: "#fff",
-      border: "none",
-      borderRadius: "5px",
-      cursor: "pointer",
-      fontSize: "16px",
-    }}
-  >
-    Generate Tag
-  </button>
-)}
+            <button
+              onClick={generateTag}
+              style={{
+                marginTop: "15px",
+                padding: "10px 20px",
+                backgroundColor: "#007bff",
+                color: "#fff",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+                fontSize: "16px",
+              }}
+            >
+              Generate Tag
+            </button>
+          )}
 
-{serviceDetails?._id !== "678abb516cbaa411698e7fa0" && (
-  <p style={{ fontSize: "16px", color: "#333" }}>
-    <strong>Tag:</strong> {generatedTag ? generatedTag : serviceDetails?.tag}
-  </p>
-)}
+          {serviceDetails?._id !== "678abb516cbaa411698e7fa0" && (
+            <p style={{ fontSize: "16px", color: "#333" }}>
+              <strong>Tag:</strong> {generatedTag ? generatedTag : serviceDetails?.tag}
+            </p>
+          )}
 
-{/* Check if serviceDetails and user exist before looping */}
-      {serviceDetails?.tags?.length > 0 && user?.id && (
-        <div style={{ marginTop: "15px" }}>
-          <strong>Tags:</strong>
-          {serviceDetails?.tags
-            .filter((tagObj) => tagObj.userId.toString() === user.id)
-            .map((tagObj, index) => (
-              <div key={index}>
-                <span>{truncateTag(tagObj.tag)}</span>
-              </div>
-            ))}
-        </div>
-      )}
+          {/* Check if serviceDetails and user exist before looping */}
+          {serviceDetails?.tags?.length > 0 && user?.id && (
+            <div style={{ marginTop: "15px" }}>
+              <strong>Tag:</strong>
+              {serviceDetails?.tags
+                .filter((tagObj) => tagObj.userId.toString() === user.id)
+                .map((tagObj, index) => (
+                  <div key={index}>
+                    <span>{truncateTag(tagObj.tag)}</span>
+                  </div>
+                ))}
+            </div>
+          )}
 
-      {/* Show the Copy Tag button and copied tag message */}
-      {serviceDetails?.tags?.length > 0 && showCopy && (
-  <>
-    <button
-      onClick={copyTag} // Call the copyTag function instead of handleCopyTag
-      style={{
-        marginTop: "15px",
-        padding: "10px 20px",
-        backgroundColor: "#ff8c00",
-        color: "#fff",
-        border: "none",
-        borderRadius: "5px",
-        cursor: "pointer",
-        fontSize: "16px",
-      }}
-    >
-      {isCopied ? "Copied" : "Copy Tag"} {/* Change button text after copying */}
-    </button>
+          {/* Show the Copy Tag button and copied tag message */}
+          {serviceDetails?.tags?.length > 0 && showCopy && (
+            <>
+              <button
+                onClick={copyTag} // Call the copyTag function instead of handleCopyTag
+                style={{
+                  marginTop: "15px",
+                  padding: "10px 20px",
+                  backgroundColor: "#ff8c00",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  fontSize: "16px",
+                }}
+              >
+                {isCopied ? "Copied" : "Copy Tag"} {/* Change button text after copying */}
+              </button>
 
-    {copiedTag && (
-      <p style={{ fontSize: "16px", color: "#333", marginTop: "10px" }}>
-        <strong>Copied Tag:</strong> {truncateTag(copiedTag)} {/* Display the copied tag */}
-      </p>
-    )}
-  </>
-)}
+              {copiedTag && (
+                <p style={{ fontSize: "16px", color: "#333", marginTop: "10px" }}>
+                  <strong>Copied Tag:</strong> {truncateTag(copiedTag)} {/* Display the copied tag */}
+                </p>
+              )}
+            </>
+          )}
 
 
           <button
@@ -354,9 +364,9 @@ useEffect(() => {
             </p>
           )}
 
-{alertMessage && (
-  <Alert message={alertMessage} type={alertType} />
-)}
+          {alertMessage && (
+            <Alert message={alertMessage} type={alertType} />
+          )}
 
           <div style={{
             marginTop: "20px",
