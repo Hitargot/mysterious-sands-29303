@@ -20,6 +20,15 @@ h2 {
   margin: 20px;
 }
 
+.verified-circle {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: green;
+  display: inline-block;
+  margin-left: 5px;
+}
+
 .controls label {
   font-weight: bold;
 }

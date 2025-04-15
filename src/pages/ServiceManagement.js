@@ -13,14 +13,18 @@ const ServiceManagement = () => {
     status: "valid",
     tag: "", // Add tag here
   });
-
+  const [tags, setTags] = useState([]);
+  const [selectedServiceId, setSelectedServiceId] = useState(null);
+  const [showTagModal, setShowTagModal] = useState(false);
+  const [editingTag, setEditingTag] = useState(null);
+  const [tagInput, setTagInput] = useState("");  
   const [editingService, setEditingService] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState(null);
   const [loading, setLoading] = useState(false); // Add a loading state
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  ///const apiUrl = "http://localhost:22222"; 
+  // const apiUrl = "http://localhost:22222"; 
 
   // Memoize the fetchServices function
   const fetchServices = useCallback(async () => {
@@ -52,6 +56,51 @@ const ServiceManagement = () => {
       }));
     }
   }, [formData.name]);
+
+  const fetchTags = async (serviceId) => {
+    try {
+      const response = await fetch(`${apiUrl}/api/service/${serviceId}/tags`);
+      const data = await response.json();
+      
+      console.log('Tags:', data.tags);
+  
+      setTags(data.tags);             // ✅ Set the fetched tags in state
+      setSelectedServiceId(serviceId); // ✅ So you know which service you're managing
+      setShowTagModal(true);           // ✅ Show the tag modal here after successful fetch
+    } catch (error) {
+      console.error('Error fetching tags:', error);
+    }
+  };
+  
+  
+  const handleEditTag = (tag) => {
+    setEditingTag(tag);
+    setTagInput(tag.tag);
+  };
+
+  
+  const handleUpdateTag = async () => {
+    try {
+      await axios.put(`${apiUrl}/api/update-service-tag/${selectedServiceId}/${editingTag._id}`, {
+        tag: tagInput,
+      });
+      fetchTags(selectedServiceId);
+      setEditingTag(null);
+      setTagInput("");
+    } catch (error) {
+      console.error("Error updating tag:", error);
+    }
+  };
+
+  const handleDeleteTag = async (tagId) => {
+    try {
+      await axios.delete(`${apiUrl}/api/delete-tag/${selectedServiceId}/${tagId}`);
+      fetchTags(selectedServiceId);
+    } catch (error) {
+      console.error("Error deleting tag:", error);
+    }
+  };
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -238,6 +287,21 @@ const ServiceManagement = () => {
               <div className="description">{service.description}</div>
               <div className="description">{service.tag}</div>
               {service.note && <div className="note">{service.note}</div>}
+          
+              {/* ✅ Add this button inside the map */}
+              {service._id === "678abb516cbaa411698e7fa0" && (
+  <button
+    onClick={() => {
+      fetchTags(service._id);
+      setShowTagModal(true);
+    }}
+    className="tag-btn"
+  >
+    Manage Tags
+  </button>
+)}
+
+          
               <div className="service-actions">
                 <button onClick={() => handleEdit(service)}>Edit</button>
                 <button
@@ -249,8 +313,43 @@ const ServiceManagement = () => {
                 <button onClick={() => openModal(service)}>Delete</button>
               </div>
             </div>
-          ))}
+          ))
+          }
       </div>
+
+{showTagModal && (
+  <div className="modal">
+    <div className="modal-content">
+      <h3>Manage Tags</h3>
+      {tags.length === 0 ? (
+        <p>No tags assigned yet.</p>
+      ) : (
+        tags.map((tag) => (
+          <div key={tag._id} className="tag-item">
+            {editingTag && editingTag._id === tag._id ? (
+              <>
+                <input
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                />
+                <button onClick={handleUpdateTag}>Save</button>
+                <button onClick={() => setEditingTag(null)}>Cancel</button>
+              </>
+            ) : (
+              <>
+                <span>{tag.tag}</span>
+                <button onClick={() => handleEditTag(tag)}>Edit</button>
+                <button onClick={() => handleDeleteTag(tag._id)}>Delete</button>
+              </>
+            )}
+          </div>
+        ))
+      )}
+      <button onClick={() => setShowTagModal(false)}>Close</button>
+    </div>
+  </div>
+)}
+
 
       {showModal && (
         <div className="modal">

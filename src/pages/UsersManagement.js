@@ -30,7 +30,7 @@ const UserManagement = () => {
   const [filteredUsers, setFilteredUsers] = useState([]); // New state for filtered users
   const [isLoading, setIsLoading] = useState(false); // Loading indicator state
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222"; 
+  // const apiUrl = "http://localhost:22222"; 
 
 
 
@@ -222,39 +222,45 @@ const UserManagement = () => {
       </div>
 
       {isLoading ? (
-        <LineLoaderOverlay />
-      ) : (
-        <div className="user-cards">
-          {filteredUsers.length === 0 ? (
-            <p>No user found</p>
-          ) : (
-            filteredUsers.map((user, index) => (
-              <div key={user._id} className="user-card">
-                <h4>{user.username}</h4>
-                <p>Email: {user.email}</p>
-                <p>Phone: {user.phone}</p>
-                <button onClick={() => handleFetchNotifications(user)}>Fetch Notifications</button>
-                <p>Wallet Balance: ₦{user.walletBalance || 0}</p>
-                <button onClick={() => fetchWalletBalance(user._id, index)}>Refresh Wallet</button>
-                <div className="user-actions">
-                  <button onClick={() => handleEditClick(user)}>Edit</button>
-                  <button onClick={() => toggleBlockUser(user._id, user.status)}>
-                    {user.status === "blocked" ? "Unblock" : "Block"}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsDeleteConfirmOpen(true);
-                      setUserToDelete(user._id);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
+  <LineLoaderOverlay />
+) : (
+  <div className="user-cards">
+    {filteredUsers.length === 0 ? (
+      <p>No user found</p>
+    ) : (
+      filteredUsers.map((user, index) => (
+        <div key={user._id} className="user-card">
+          <div className="user-header">
+            <h4>{user.username}</h4>
+            {user.isVerified && (
+              <span className="verified-circle"></span> // Green circle for verified user
+            )}
+          </div>
+          <p>Email: {user.email}</p>
+          <p>Phone: {user.phone}</p>
+          <button onClick={() => handleFetchNotifications(user)}>Fetch Notifications</button>
+          <p>Wallet Balance: ₦{user.walletBalance || 0}</p>
+          <button onClick={() => fetchWalletBalance(user._id, index)}>Refresh Wallet</button>
+          <div className="user-actions">
+            <button onClick={() => handleEditClick(user)}>Edit</button>
+            <button onClick={() => toggleBlockUser(user._id, user.status)}>
+              {user.status === "blocked" ? "Unblock" : "Block"}
+            </button>
+            <button
+              onClick={() => {
+                setIsDeleteConfirmOpen(true);
+                setUserToDelete(user._id);
+              }}
+            >
+              Delete
+            </button>
+          </div>
         </div>
-      )}
+      ))
+    )}
+  </div>
+)}
+
 
 
       {isEditing && selectedUser && (

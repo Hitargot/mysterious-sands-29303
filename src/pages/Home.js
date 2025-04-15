@@ -11,6 +11,8 @@ import FAQ from "../components/FAQ";
 import Contact from "../components/Contact";
 import Footer from "../components/Footer";
 import { useInView } from "react-intersection-observer";
+import oldReviews from "../data/oldReviews"; // Import old reviews
+
 
 const AnimatedSection = ({ children }) => {
   const { ref, inView } = useInView({ triggerOnce: false, threshold: 0.2 });
@@ -42,14 +44,32 @@ const Home = () => {
     fetchLatestReviews();
   }, []);
 
-  const fetchLatestReviews = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/api/approved`);
-      setLatestReviews(response.data.slice(0, 5)); // Get only the latest 5 reviews
-    } catch (error) {
-      console.error("Error fetching latest reviews:", error);
+  
+// Fetch the latest 5 approved reviews or fallback to old reviews
+const fetchLatestReviews = async () => {
+  try {
+    // Attempt to fetch approved reviews from the API
+    const response = await axios.get(`${apiUrl}/api/approved`);
+    
+    // Get the latest reviews from the API
+    let reviewsFromApi = response.data.slice(0, 5); // Get only the latest 5 reviews
+    
+    // If the API provides fewer than 5 reviews, fill the rest from oldReviews
+    if (reviewsFromApi.length < 5) {
+      const additionalReviewsNeeded = 5 - reviewsFromApi.length;
+      const additionalReviews = oldReviews.slice(0, additionalReviewsNeeded); // Get the required number of reviews from oldReviews
+      reviewsFromApi = [...reviewsFromApi, ...additionalReviews]; // Combine API reviews and old reviews to make up 5
     }
-  };
+    
+    // Set the final list of reviews (up to 5)
+    setLatestReviews(reviewsFromApi);
+  } catch (error) {
+    // If the API call fails, fallback to using only oldReviews
+    console.error("Error fetching latest reviews from API:", error);
+    setLatestReviews(oldReviews.slice(0, 5)); // Use the first 5 reviews from oldReviews as a fallback
+  }
+};
+
 
   return (
     <div>
