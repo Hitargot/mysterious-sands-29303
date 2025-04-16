@@ -199,12 +199,19 @@ const TradeDetails = ({ selectedService }) => {
       // Show success alert for tag copied
       setAlertMessage(`Copied: ${generatedTag}`);
       setAlertType("success");
+
+      // Reset button text back to "Copy Tag" after 2 seconds
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 2000); // You can change the time (in milliseconds) to control how long "Copied" stays
+
     } catch (err) {
       console.error("Copy failed:", err);
       setAlertMessage("Failed to copy tag.");
       setAlertType("error"); // Show error alert for failed copy
     }
   };
+
 
 
 
@@ -257,24 +264,47 @@ const TradeDetails = ({ selectedService }) => {
       {loading ? (
         <p style={{ fontSize: "16px", color: "#333" }}>Loading...</p>
       ) : (
-        <>
-          <p style={{ fontSize: "16px", color: "#333" }}>
-            <strong>Description:</strong> {serviceDetails.description}
+        <div
+          style={{
+            background: "#fdfdfd",
+            padding: "24px",
+            borderRadius: "12px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            lineHeight: "1.7",
+            color: "#222",
+            maxWidth: "650px",
+            margin: "0 auto"
+          }}
+        >
+          <p><strong>Description:</strong> {serviceDetails.description}</p>
+          <p><strong>Note:</strong> {serviceDetails.note}</p>
+          <p><strong>Fees:</strong> {serviceDetails.fees}</p>
+          <p>
+            <strong>Minimum Amount:</strong> ${Number(serviceDetails.minAmount).toLocaleString()}
           </p>
-          <p style={{ fontSize: "16px", color: "#333" }}>
-            <strong>Note:</strong> {serviceDetails.note}
-          </p>
+          <small className="text-gray-500">
+            If you want to trade lower than this, please contact support.
+          </small>
 
-          {serviceDetails?._id === "678abb516cbaa411698e7fa0" && hasGeneratedTag === false && (
+          <p>
+            <strong>Maximum Amount:</strong> ${Number(serviceDetails.maxAmount).toLocaleString()}
+          </p>
+          <small className="text-gray-500">
+            If you want to trade higher than this, please contact support.
+          </small>
+
+
+          {/* GENERATE TAG for specific service */}
+          {serviceDetails?._id === "678abb516cbaa411698e7fa0" && !hasGeneratedTag && (
             <button
               onClick={generateTag}
               style={{
-                marginTop: "15px",
-                padding: "10px 20px",
+                marginTop: "20px",
+                padding: "10px 24px",
                 backgroundColor: "#007bff",
                 color: "#fff",
                 border: "none",
-                borderRadius: "5px",
+                borderRadius: "6px",
                 cursor: "pointer",
                 fontSize: "16px",
               }}
@@ -283,17 +313,16 @@ const TradeDetails = ({ selectedService }) => {
             </button>
           )}
 
+          {/* SHOW tag if not special service */}
           {serviceDetails?._id !== "678abb516cbaa411698e7fa0" && (
-            <p style={{ fontSize: "16px", color: "#333" }}>
-              <strong>Tag:</strong> {generatedTag ? generatedTag : serviceDetails?.tag}
-            </p>
+            <p><strong>Tag:</strong> {generatedTag || serviceDetails?.tag}</p>
           )}
 
-          {/* Check if serviceDetails and user exist before looping */}
+          {/* USER TAG DISPLAY */}
           {serviceDetails?.tags?.length > 0 && user?.id && (
-            <div style={{ marginTop: "15px" }}>
-              <strong>Tag:</strong>
-              {serviceDetails?.tags
+            <div style={{ marginTop: "16px" }}>
+              <strong>Your Tag:</strong>
+              {serviceDetails.tags
                 .filter((tagObj) => tagObj.userId.toString() === user.id)
                 .map((tagObj, index) => (
                   <div key={index}>
@@ -303,53 +332,55 @@ const TradeDetails = ({ selectedService }) => {
             </div>
           )}
 
-          {/* Show the Copy Tag button and copied tag message */}
+          {/* COPY TAG BUTTON */}
           {serviceDetails?.tags?.length > 0 && showCopy && (
             <>
               <button
-                onClick={copyTag} // Call the copyTag function instead of handleCopyTag
+                onClick={copyTag}
                 style={{
-                  marginTop: "15px",
-                  padding: "10px 20px",
+                  marginTop: "20px",
+                  padding: "10px 24px",
                   backgroundColor: "#ff8c00",
                   color: "#fff",
                   border: "none",
-                  borderRadius: "5px",
+                  borderRadius: "6px",
                   cursor: "pointer",
                   fontSize: "16px",
                 }}
               >
-                {isCopied ? "Copied" : "Copy Tag"} {/* Change button text after copying */}
+                {isCopied ? "Copied" : "Copy Tag"}
               </button>
 
               {copiedTag && (
-                <p style={{ fontSize: "16px", color: "#333", marginTop: "10px" }}>
-                  <strong>Copied Tag:</strong> {truncateTag(copiedTag)} {/* Display the copied tag */}
+                <p style={{ marginTop: "10px" }}>
+                  <strong>Copied Tag:</strong> {truncateTag(copiedTag)}
                 </p>
               )}
             </>
           )}
 
-
+          {/* VALIDITY CHECK BUTTON */}
           <button
             onClick={checkValidity}
             disabled={refreshing}
             style={{
               width: "100%",
-              padding: "12px",
-              marginTop: "15px",
-              background: refreshing ? "#ccc" : "#162660",
-              color: "white",
+              padding: "14px",
+              marginTop: "24px",
+              backgroundColor: refreshing ? "#ccc" : "#162660",
+              color: "#fff",
               border: "none",
-              borderRadius: "5px",
-              fontSize: "18px",
+              borderRadius: "6px",
+              fontSize: "17px",
+              fontWeight: "500",
               cursor: refreshing ? "not-allowed" : "pointer",
-              transition: "background 0.3s ease-in-out"
+              transition: "0.3s"
             }}
           >
             {refreshing ? "Refreshing..." : "Check Validity"}
           </button>
 
+          {/* VALIDITY STATUS */}
           {!validityCheckedRef.current ? (
             <p style={{ fontSize: "14px", color: "#666", marginTop: "10px" }}>
               Click "Check Validity" to see if the details are still valid.
@@ -364,22 +395,31 @@ const TradeDetails = ({ selectedService }) => {
             </p>
           )}
 
+          {/* ALERT MESSAGE */}
           {alertMessage && (
-            <Alert message={alertMessage} type={alertType} />
+            <div style={{ marginTop: "15px" }}>
+              <Alert message={alertMessage} type={alertType} />
+            </div>
           )}
 
-          <div style={{
-            marginTop: "20px",
-            padding: "15px",
-            background: "#d0e6fd",
-            borderRadius: "10px",
-            textAlign: "center"
-          }}>
-            <h4 style={{ fontSize: "18px", color: "#162660" }}>Submit receipt for Confirmation</h4>
+          {/* CONFIRMATION FORM */}
+          <div
+            style={{
+              marginTop: "30px",
+              padding: "18px",
+              background: "#d0e6fd",
+              borderRadius: "12px",
+              textAlign: "center"
+            }}
+          >
+            <h4 style={{ fontSize: "18px", color: "#162660", marginBottom: "10px" }}>
+              Submit Receipt for Confirmation
+            </h4>
             <ConfirmationForm selectedService={selectedService} />
           </div>
-        </>
+        </div>
       )}
+
     </div>
   );
 };

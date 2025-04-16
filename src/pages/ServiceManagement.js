@@ -12,19 +12,23 @@ const ServiceManagement = () => {
     note: "",
     status: "valid",
     tag: "", // Add tag here
+    fees: "", // Add fees explanation
+    minAmount: "", // Minimum transaction amount
+    maxAmount: "", // Maximum transaction amount
   });
   const [tags, setTags] = useState([]);
   const [selectedServiceId, setSelectedServiceId] = useState(null);
   const [showTagModal, setShowTagModal] = useState(false);
   const [editingTag, setEditingTag] = useState(null);
-  const [tagInput, setTagInput] = useState("");  
+  const [tagInput, setTagInput] = useState("");
   const [editingService, setEditingService] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState(null);
   const [loading, setLoading] = useState(false); // Add a loading state
+
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  // const apiUrl = "http://localhost:22222"; 
+  // const apiUrl = "http://localhost:22222";
 
   // Memoize the fetchServices function
   const fetchServices = useCallback(async () => {
@@ -61,9 +65,9 @@ const ServiceManagement = () => {
     try {
       const response = await fetch(`${apiUrl}/api/service/${serviceId}/tags`);
       const data = await response.json();
-      
+
       console.log('Tags:', data.tags);
-  
+
       setTags(data.tags);             // ✅ Set the fetched tags in state
       setSelectedServiceId(serviceId); // ✅ So you know which service you're managing
       setShowTagModal(true);           // ✅ Show the tag modal here after successful fetch
@@ -71,14 +75,14 @@ const ServiceManagement = () => {
       console.error('Error fetching tags:', error);
     }
   };
-  
-  
+
+
   const handleEditTag = (tag) => {
     setEditingTag(tag);
     setTagInput(tag.tag);
   };
 
-  
+
   const handleUpdateTag = async () => {
     try {
       await axios.put(`${apiUrl}/api/update-service-tag/${selectedServiceId}/${editingTag._id}`, {
@@ -100,7 +104,7 @@ const ServiceManagement = () => {
       console.error("Error deleting tag:", error);
     }
   };
-  
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -130,7 +134,7 @@ const ServiceManagement = () => {
       } else {
         await axios.post(`${apiUrl}/api/services/create`, serviceData);
       }
-    
+
       fetchServices();
       setFormData({
         name: "",
@@ -144,7 +148,7 @@ const ServiceManagement = () => {
       setShowForm(false);
     } catch (error) {
       console.error("Error saving service:", error);
-    }    
+    }
   };
 
   const handleEdit = (service) => {
@@ -194,7 +198,6 @@ const ServiceManagement = () => {
       <button onClick={() => setShowForm(true)} className="create-service-btn">
         Create Service
       </button>
-
       {showForm && (
         <div className="form-overlay">
           <form onSubmit={handleSubmit} className="service-form">
@@ -246,12 +249,46 @@ const ServiceManagement = () => {
               onChange={handleInputChange}
               required
             ></textarea>
+
             <textarea
               name="note"
               placeholder="Note"
               value={formData.note}
               onChange={handleInputChange}
             ></textarea>
+
+            {/* New Fields */}
+            <textarea
+              name="fees"
+              placeholder="Fees Explanation (e.g., PayPal charges 3%...)"
+              value={formData.fees}
+              onChange={handleInputChange}
+              required
+            ></textarea>
+
+            <input
+              type="text"
+              name="minAmount"
+              placeholder="Minimum Amount (e.g., 5)"
+              value={formData.minAmount}
+              onChange={(e) => handleInputChange(e, 'minAmount')}
+              required
+              pattern="^[A-Za-z0-9-]+$"
+              title="Please enter a valid number" // Show custom message for invalid input
+            />
+
+            <input
+              type="text"
+              name="maxAmount"
+              placeholder="Maximum Amount (e.g., 1000)"
+              value={formData.maxAmount}
+              onChange={(e) => handleInputChange(e, 'maxAmount')}
+              required
+              pattern="^[A-Za-z0-9-]+$"
+              title="Please enter a valid number" // Show custom message for invalid input
+            />
+
+
             <select
               name="status"
               value={formData.status}
@@ -260,6 +297,7 @@ const ServiceManagement = () => {
               <option value="valid">Valid</option>
               <option value="invalid">Invalid</option>
             </select>
+
             <button type="submit">
               {editingService ? "Update Service" : "Add Service"}
             </button>
@@ -269,6 +307,7 @@ const ServiceManagement = () => {
           </form>
         </div>
       )}
+
 
       <div className="service-list">
         <WindmillSpinner
@@ -287,21 +326,21 @@ const ServiceManagement = () => {
               <div className="description">{service.description}</div>
               <div className="description">{service.tag}</div>
               {service.note && <div className="note">{service.note}</div>}
-          
+
               {/* ✅ Add this button inside the map */}
               {service._id === "678abb516cbaa411698e7fa0" && (
-  <button
-    onClick={() => {
-      fetchTags(service._id);
-      setShowTagModal(true);
-    }}
-    className="tag-btn"
-  >
-    Manage Tags
-  </button>
-)}
+                <button
+                  onClick={() => {
+                    fetchTags(service._id);
+                    setShowTagModal(true);
+                  }}
+                  className="tag-btn"
+                >
+                  Manage Tags
+                </button>
+              )}
 
-          
+
               <div className="service-actions">
                 <button onClick={() => handleEdit(service)}>Edit</button>
                 <button
@@ -314,41 +353,41 @@ const ServiceManagement = () => {
               </div>
             </div>
           ))
-          }
+        }
       </div>
 
-{showTagModal && (
-  <div className="modal">
-    <div className="modal-content">
-      <h3>Manage Tags</h3>
-      {tags.length === 0 ? (
-        <p>No tags assigned yet.</p>
-      ) : (
-        tags.map((tag) => (
-          <div key={tag._id} className="tag-item">
-            {editingTag && editingTag._id === tag._id ? (
-              <>
-                <input
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                />
-                <button onClick={handleUpdateTag}>Save</button>
-                <button onClick={() => setEditingTag(null)}>Cancel</button>
-              </>
+      {showTagModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Manage Tags</h3>
+            {tags.length === 0 ? (
+              <p>No tags assigned yet.</p>
             ) : (
-              <>
-                <span>{tag.tag}</span>
-                <button onClick={() => handleEditTag(tag)}>Edit</button>
-                <button onClick={() => handleDeleteTag(tag._id)}>Delete</button>
-              </>
+              tags.map((tag) => (
+                <div key={tag._id} className="tag-item">
+                  {editingTag && editingTag._id === tag._id ? (
+                    <>
+                      <input
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                      />
+                      <button onClick={handleUpdateTag}>Save</button>
+                      <button onClick={() => setEditingTag(null)}>Cancel</button>
+                    </>
+                  ) : (
+                    <>
+                      <span>{tag.tag}</span>
+                      <button onClick={() => handleEditTag(tag)}>Edit</button>
+                      <button onClick={() => handleDeleteTag(tag._id)}>Delete</button>
+                    </>
+                  )}
+                </div>
+              ))
             )}
+            <button onClick={() => setShowTagModal(false)}>Close</button>
           </div>
-        ))
+        </div>
       )}
-      <button onClick={() => setShowTagModal(false)}>Close</button>
-    </div>
-  </div>
-)}
 
 
       {showModal && (

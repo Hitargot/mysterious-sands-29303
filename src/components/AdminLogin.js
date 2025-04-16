@@ -12,7 +12,7 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222";
+  // const apiUrl = "http://localhost:22222";
 
   // Check token validity on component mount
   useEffect(() => {
@@ -140,9 +140,9 @@ const AdminLogin = () => {
         <p>
           Forgot your password? <a href="/admin/forgot-password">Reset it here</a>
         </p>
-        <p>
+        {/* <p>
           Don’t have an account? <a href="/admin/signup">Create one</a>
-        </p>
+        </p> */}
       </div>
     </div>
   );

@@ -7,14 +7,15 @@ import { v4 as uuidv4 } from "uuid";
 const ConfirmationForm = ({ selectedService }) => {
   const [services, setServices] = useState([]);
   const [selectedServiceId, setSelectedServiceId] = useState(selectedService || "");
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);  // use array to hold multiple files
   const [note, setNote] = useState("");
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(false);
   const [transactionId, setTransactionId] = useState("");
   const [showModal, setShowModal] = useState(false);
-  //const [apiUrl] = useState("http://localhost:22222");
 
+
+  // const [apiUrl] = useState("http://localhost:22222");
   const [apiUrl] = useState("https://mysterious-sands-29303-c1f04c424030.herokuapp.com");
 
 
@@ -60,13 +61,13 @@ const ConfirmationForm = ({ selectedService }) => {
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
+    setFiles(Array.from(e.target.files)); // convert FileList to an array
+  };  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!selectedServiceId || !file || !note || !transactionId) {
+    if (!selectedServiceId || !files || !note || !transactionId) {
       showAlert("Please fill out all fields.", "error");
       return;
     }
@@ -82,11 +83,16 @@ const ConfirmationForm = ({ selectedService }) => {
     }
 
     const formData = new FormData();
-    formData.append("serviceId", selectedServiceId);
-    formData.append("file", file);
-    formData.append("note", note);
-    formData.append("userId", userId);
-    formData.append("transactionId", transactionId);
+formData.append("serviceId", selectedServiceId);
+formData.append("note", note);
+formData.append("userId", userId);
+formData.append("transactionId", transactionId);
+
+files.forEach(file => {
+  formData.append("files", file); // Append each file individually
+});
+
+
 
     try {
       const response = await axios.post(`${apiUrl}/api/confirmations`, formData, {
@@ -99,7 +105,7 @@ const ConfirmationForm = ({ selectedService }) => {
       if (response.data.success) {
         showAlert("Confirmation submitted successfully!", "success");
         setSelectedServiceId("");
-        setFile(null);
+        setFiles(null);
         setNote("");
         setTransactionId("");
         setShowModal(false);
@@ -146,7 +152,7 @@ const ConfirmationForm = ({ selectedService }) => {
 
               <div style={styles.formGroup}>
                 <label style={styles.label}>Upload Document</label>
-                <input type="file" onChange={handleFileChange} style={styles.fileInput} />
+                <input type="file" onChange={handleFileChange} style={styles.fileInput} name="files" multiple />
               </div>
 
               <div style={styles.formGroup}>

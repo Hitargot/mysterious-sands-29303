@@ -17,7 +17,7 @@ import Overview from './components/Overview';
 import adminRoutes from './routes/adminRoutes'; // Import adminRoutes
 import AdminLayout from './layouts/AdminLayout'; // Layout for admin pages
 import PrivateRoute from './components/PrivateRoute'; // PrivateRoute component
-import AdminSignup from './components/AdminSignup'; // Import the AdminSignup component
+// import AdminSignup from './components/AdminSignup';
 import VerifyAccount from './components/VerifyAccount';
 import VerifyRole from './components/VerifyRole';
 import AdminLogin from './components/AdminLogin';
@@ -57,7 +57,7 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/TradeCalculator" element={<TradeCalculator />} />
           <Route path="/WalletPage" element={<WalletPage />} />
-          <Route path="/admin/signup" element={<AdminSignup />} />
+          {/* <Route path="/admin/signup" element={<AdminSignup />} /> */}
           <Route path="/overview" element={<Overview walletBalance={walletBalance} setWalletBalance={setWalletBalance} />} />
           <Route path="/Notifications" element={<Notifications />} />
           <Route path="/admin/login" element={<AdminLogin />} />
