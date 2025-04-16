@@ -29,7 +29,7 @@ const PayPalFeeCalculator = () => {
     }
   };
 
-  const { feePercentageAmount, fixedFeeAmount, totalFee, net, gross } = calculate();
+  const { totalFee, net, gross } = calculate();
 
   // Function to calculate how much the user should ask for to receive a specific amount
   const calculateAskAmount = () => {
