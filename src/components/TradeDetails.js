@@ -403,15 +403,13 @@ const TradeDetails = ({ selectedService }) => {
           )}
 
           {/* CONFIRMATION FORM */}
-          <div
-            style={{
-              marginTop: "30px",
-              padding: "18px",
-              background: "#d0e6fd",
-              borderRadius: "12px",
-              textAlign: "center"
-            }}
-          >
+          <div style={{
+            marginTop: "20px",
+            padding: "15px",
+            background: "#d0e6fd",
+            borderRadius: "10px",
+            textAlign: "center"
+          }}>
             <h4 style={{ fontSize: "18px", color: "#162660", marginBottom: "10px" }}>
               Submit Receipt for Confirmation
             </h4>

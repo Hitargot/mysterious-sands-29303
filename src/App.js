@@ -35,6 +35,7 @@ import ResetPinPage from "./components/ResetPinPage";
 import TermsAndConditions from './components/TermsAndConditions';
 import RequestOtpPage from './components/RequestOtpPage';
 import SetWithdrawPin from './components/SetWithdrawPin';
+import PayPalFeeCalculator from './components/paypalCalculator';
 
 const App = () => {
   const [userRole, setUserRole] = useState(null);
@@ -73,6 +74,7 @@ const App = () => {
           <Route path="/request-otp" element={<RequestOtpPage />} />
           <Route path="/verify-otp" element={<VerifyOtpPage />} />
           <Route path="/reset-pin" element={<ResetPinPage />} />
+          <Route path="/paypal-fee-calculator" element={<PayPalFeeCalculator />} />
 
           <Route
             path="/admin"
