@@ -12,6 +12,7 @@ import ManageContacts from '../pages/ManageContacts';
 import  BankAccountList from '../pages/BankAccountList';
 import AdminFAQ from '../pages/AdminFAQ';
 import AdminReviewPage from '../pages/AdminReviewPage';
+import SecondaryAdminWallet from '../pages/SecondaryAdminWallet';
 
 
 const adminRoutes = [
@@ -21,6 +22,7 @@ const adminRoutes = [
   { path: '/admin/withdrawals', component: WithdrawalRequests, permissions: ['view_withdrawals', 'approve_withdrawals'] },
   { path: '/admin/services', component: ServiceManagement, permissions: ['manage_services'] },
   { path: '/admin/wallet', component: AdminWallet, permissions: ['view_wallet'] },
+  { path: '/admin/secondary-admin/wallet', component: SecondaryAdminWallet, permissions: ['view_wallet'] },
   { path: '/admin/roles', component: RoleManagement, permissions: ['manage_roles'] },
   { path: '/admin/notifications', component: NotificationsManagement, permissions: ['view_notifications'] },
   { path: '/admin/audit-logs', component: AuditLogs, permissions: ['view_audit_logs'] },

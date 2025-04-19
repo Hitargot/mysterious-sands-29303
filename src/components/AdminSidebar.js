@@ -50,6 +50,10 @@ const AdminSidebar = () => {
           <FaWallet className="sidebar-icon" />
           {isExpanded && <span>Wallet</span>} {/* Link to Admin Wallet */}
         </Link>
+        <Link to="/admin/secondary-admin/wallet">
+          <FaWallet className="sidebar-icon" />
+          {isExpanded && <span>Withdrawal Wallet</span>} {/* Link to Admin Wallet */}
+        </Link>
         <Link to="/admin/services">
           <FaCogs className="sidebar-icon" />
           {isExpanded && <span>Services</span>} {/* Link to Admin Services */}

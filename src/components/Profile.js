@@ -27,9 +27,13 @@ const Profile = () => {
   const [clipboardMessage, setClipboardMessage] = useState(""); // Clipboard message state
 
   const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
+
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   //const FRONTEND_URL = "https://exdollarium-preview.netlify.app";
   const FRONTEND_URL = "https://exdollarium.com";
+  // const apiUrl = 'http://localhost:22222';
+
+
 
   useEffect(() => {
     if (!token) {
