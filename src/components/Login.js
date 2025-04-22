@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import Alert from '../components/Alert';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import { requestFcmToken } from "../utils/requestFcmToken";
+
 
 const Login = ({ setUserRole }) => {
   const [credentials, setCredentials] = useState({ identifier: '', password: '' });
@@ -19,26 +21,34 @@ const Login = ({ setUserRole }) => {
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   // const apiUrl = "http://localhost:22222";
 
+  // const token =
+  // localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true); // ✅ Show "Logging in..."
+    setIsLoading(true);
     try {
       const response = await axios.post(`${apiUrl}/api/auth/login`, credentials);
       if (response.status === 200) {
         setAlertMessage("Login successful! Redirecting...");
         const token = response.data.token;
         const decodedToken = jwtDecode(token);
-
+  
         setUserRole(decodedToken.role);
         localStorage.setItem("jwtToken", token);
         localStorage.setItem("username", decodedToken.username);
         localStorage.removeItem("activeComponent");
-
-        // ✅ Get redirect path or fallback to dashboard
+  
+        // ✅ Move FCM logic here with fresh token
+        try {
+          await sendIfNewToken(token);
+        } catch (e) {
+          console.warn("FCM token not saved:", e.message);
+        }
+        
         const redirectPath = sessionStorage.getItem("redirectAfterLogin");
         sessionStorage.removeItem("redirectAfterLogin");
-
+  
         setTimeout(() => {
           navigate(redirectPath || "/dashboard");
         }, 3000);
@@ -46,10 +56,38 @@ const Login = ({ setUserRole }) => {
     } catch (err) {
       setAlertMessage(err.response?.data?.message || "Login failed");
     } finally {
-      setIsLoading(false); // ✅ Reset button after login attempt
+      setIsLoading(false);
     }
   };
 
+  const sendIfNewToken = async (newToken) => {
+    console.log("Checking FCM token with newToken:", newToken);
+    const fcmToken = await requestFcmToken();
+    const stored = localStorage.getItem("fcmToken");
+    console.log("Current stored FCM token:", stored);
+
+    if (fcmToken && fcmToken !== stored) {
+      console.log("New FCM token found:", fcmToken);
+
+      if (newToken) {
+        // Use the fresh token passed from handleSubmit
+        await axios.post(`${apiUrl}/api/auth/save-fcm-token`, { fcmToken }, {
+          headers: { Authorization: `Bearer ${newToken}` },
+        });
+
+        localStorage.setItem("fcmToken", fcmToken);
+        console.log("FCM token saved:", fcmToken);
+      } else {
+        console.error('No JWT token found.');
+      }
+    } else {
+      console.log("FCM token not changed, skipping save.");
+    }
+  };
+
+  
+  
+  
 
   return (
     <div style={styles.login}>

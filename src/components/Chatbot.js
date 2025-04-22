@@ -50,8 +50,11 @@ const Chatbot = () => {
   };
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
+  
 
   return (
     <div className={`chatbot-container ${isFullScreen ? "full-screen" : ""}`}>

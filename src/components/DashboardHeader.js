@@ -30,12 +30,25 @@ const DashboardHeader = ({
   const handleLogout = useCallback(() => {
     clearJwtToken();
     localStorage.removeItem('jwtToken');
-    setBankAccounts?.([]);
-    setSelectedBankAccount?.(null);
-    setWalletBalance?.(0);
-    navigate('/login');
+  
+    if (setBankAccounts) {
+      setBankAccounts([]);
+    }
+  
+    if (setSelectedBankAccount) {
+      setSelectedBankAccount(null);
+    }
+  
+    if (setWalletBalance) {
+      setWalletBalance(0);
+    }
+  
     handleAlert('Logged out successfully.', 'success');
-  }, [clearJwtToken, setBankAccounts, setSelectedBankAccount, setWalletBalance, navigate, handleAlert]);
+  
+    // 👇 Add this line to redirect after logout
+    navigate('/login'); // or '/auth', depending on your route
+  }, [clearJwtToken, setBankAccounts, setSelectedBankAccount, setWalletBalance, handleAlert, navigate]);
+  
 
   // ✅ Now handleLogout is defined before use
   const checkTokenExpiration = useCallback(() => {

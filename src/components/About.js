@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import React from 'react'; // Add this import statement
 import styled, { keyframes } from "styled-components";
 import image1 from "../assets/images/949shots_so.png"; 
 import image2 from "../assets/images/969shots_so.png";

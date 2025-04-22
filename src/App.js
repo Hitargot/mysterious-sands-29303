@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { requestPermissionAndGetToken, onMessageListener } from './firebase';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import axios from 'axios';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import UserDashboard from './dashboards/UserDashboard'; // User Dashboard
@@ -40,6 +42,45 @@ import PayPalFeeCalculator from './components/paypalCalculator';
 const App = () => {
   const [userRole, setUserRole] = useState(null);
   const [walletBalance, setWalletBalance] = useState(0);
+
+  useEffect(() => {
+    // Request permission and get the FCM token
+    requestPermissionAndGetToken().then((token) => {
+      if (token) {
+        // Send the token to the backend for storage
+        axios.post("http://localhost:22222/api/notifications/save-token", { token })
+          .then((response) => {
+            console.log("Token sent to backend successfully:", response);
+          })
+          .catch((error) => {
+            console.error("Error sending token to backend:", error);
+          });
+      }
+    });
+
+    // Listen for incoming push notifications
+    onMessageListener().then((payload) => {
+      console.log("Push received:", payload);
+      // Show toast or in-app alert
+      // Example: Toast notification
+      alert(`New notification: ${payload.notification.body}`);
+    });
+
+    // Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js', { type: 'module' })
+    .then(function(registration) {
+      console.log('Service Worker registered with scope:', registration.scope);
+    })
+    .catch(function(error) {
+      console.error('Service Worker registration failed:', error);
+    });
+}
+
+  }, []);
+  
+
+  
 
   return (
     <NotificationProvider>
