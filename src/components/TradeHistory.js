@@ -20,7 +20,7 @@ const TradeHistory = () => {
   const [statusFilter, setStatusFilter] = useState("");
 
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222";
+  // const apiUrl = "http://localhost:22222";
 
   useEffect(() => {
     const fetchConfirmations = async () => {
@@ -112,27 +112,31 @@ const TradeHistory = () => {
   };
 
   const handleViewReceipt = (confirmation) => {
-    const receiptData = {
-      title: "Transaction Receipt",
-      fields: [
-        { label: "Service", value: confirmation.serviceId?.name || "N/A" },
-        { label: "Service Tag", value: confirmation.serviceTag || "N/A" }, // ✅ Uses stored tag
-        { label: "Transaction ID", value: confirmation.transactionId || "N/A", copyable: true },
-        { label: "Date", value: new Date(confirmation.createdAt).toLocaleString() || "N/A" },
-        { label: "Status", value: confirmation.status || "N/A" },
-        { label: "Note", value: confirmation.note || "No additional notes." },
-        {
-          label: "Receipt File",
-          value: confirmation.fileUrl ?
-            <a href={confirmation.fileUrl} target="_blank" rel="noopener noreferrer">
-              Download Receipt
-            </a> : "No receipt available"
-        },
-      ],
-    };
+  const receiptData = {
+    title: "Transaction Receipt",
+    fields: [
+      { label: "Service", value: confirmation.serviceId?.name || "N/A" },
+      { label: "Service Tag", value: confirmation.serviceTag || "N/A" },
+      { label: "Transaction ID", value: confirmation.transactionId || "N/A", copyable: true },
+      { label: "Date", value: new Date(confirmation.createdAt).toLocaleString() || "N/A" },
+      { label: "Status", value: confirmation.status || "N/A" },
+      { label: "Note", value: confirmation.note || "No additional notes." },
+      {
+        label: "Receipt File",
+        value: confirmation.fileUrls ?
+          <a href={confirmation.fileUrls} target="_blank" rel="noopener noreferrer">
+            Download Receipt
+          </a> : "No receipt available"
+      },
+    ],
+  };
 
-    // ✅ Show "Amount in Naira" and "Amount in Selected Currency" if status is "Funded"
+  // ✅ Show "Amount in Naira" and "Amount in Selected Currency" if status is "Funded"
 if (confirmation.status === "Funded") {
+  console.log("Transaction funded:");
+  console.log("Amount in Foreign Currency:", confirmation.amountInForeignCurrency);
+  console.log("Amount in Naira:", confirmation.amountInNaira);
+
   receiptData.fields.push(
     {
       label: `Amount in ${confirmation.selectedCurrency.toUpperCase()}`,
@@ -147,19 +151,28 @@ if (confirmation.status === "Funded") {
         : "N/A",
     }
   );
+
+  // Add the exchange rate (exchangeRateUsed) if available
+  if (confirmation.exchangeRateUsed) {
+    console.log("Exchange Rate Used:", confirmation.exchangeRateUsed);
+    receiptData.fields.push({
+      label: "Exchange Rate",
+      value: `₦${confirmation.exchangeRateUsed.toLocaleString()} per ${confirmation.selectedCurrency?.toUpperCase() || 'unit'}`,
+    });
+  }
 }
 
 
+  if (confirmation.status === "Rejected") {
+    receiptData.fields.push({
+      label: "Rejection Reason",
+      value: confirmation.rejectionReason || "No reason provided"
+    });
+  }
 
-    if (confirmation.status === "Rejected") {
-      receiptData.fields.push({
-        label: "Rejection Reason",
-        value: confirmation.rejectionReason || "No reason provided"
-      });
-    }
+  setSelectedReceipt(receiptData);
+};
 
-    setSelectedReceipt(receiptData);
-  };
 
   const handleCloseReceipt = () => {
     setSelectedReceipt(null);
@@ -192,16 +205,16 @@ if (confirmation.status === "Funded") {
       </div>
       {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage("")} />}
       <h2 className="section-title">Transaction History</h2>
-      
+
       {/* Mount AccountStatementExport Here */}
       <AccountStatementExport transactions={filteredConfirmations} />
-      
+
       <div className="transaction-cards">
         {filteredConfirmations.length > 0 ? (
           filteredConfirmations.map((confirmation) => {
             const timeLeft = timers[confirmation._id] || 0;
             const showDispute = confirmation.status === "Pending" && timeLeft === 0;
-  
+
             return (
               <Card key={confirmation._id} className="card">
                 <CardHeader className="card-header">
@@ -211,7 +224,7 @@ if (confirmation.status === "Funded") {
                   </div>
                   <p className="date"><strong>Date:</strong> {new Date(confirmation.createdAt).toLocaleString() || "N/A"}</p>
                 </CardHeader>
-  
+
                 <CardContent className="card-content">
                   <p className="transaction-id">
                     <strong>Transaction ID:</strong> {confirmation.transactionId || "N/A"}{" "}
@@ -223,11 +236,11 @@ if (confirmation.status === "Funded") {
                     <p className="countdown"><strong>Time Remaining:</strong> {Math.floor(timers[confirmation._id] / 60)} min {timers[confirmation._id] % 60} sec</p>
                   )}
                 </CardContent>
-  
+
                 <CardFooter className="card-footer">
-                  <Button className="card-button" variant="outline" size="sm" disabled={!confirmation.fileUrl} onClick={() => handleViewReceipt(confirmation)}>
+                  <Button className="card-button" variant="outline" size="sm" disabled={!confirmation.fileUrls} onClick={() => handleViewReceipt(confirmation)}>
                     <FileText className="mr-2" />
-                    {confirmation.fileUrl ? "View Receipt" : "No Receipt Available"}
+                    {confirmation.fileUrls ? "View Receipt" : "No Receipt Available"}
                   </Button>
                   {showDispute && (
                     <Button className="dispute-button" variant="destructive" size="sm" onClick={() => {
