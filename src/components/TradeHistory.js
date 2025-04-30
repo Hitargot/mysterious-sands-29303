@@ -18,38 +18,51 @@ const TradeHistory = () => {
   const [alertMessage, setAlertMessage] = useState("");
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [statusFilter, setStatusFilter] = useState("");
+  const [noData, setNoData] = useState(false);
 
   const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   // const apiUrl = "http://localhost:22222";
 
   useEffect(() => {
     const fetchConfirmations = async () => {
+      const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
+      console.log("Token used for fetchConfirmations:", token);
+  
+      if (!token) {
+        setError("You must be logged in to view trade history.");
+        setLoading(false);
+        return;
+      }
+  
       try {
-        const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
         const response = await axios.get(`${apiUrl}/api/confirmations`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
+  
         const sortedConfirmations = response.data.confirmations.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
-
+  
         if (sortedConfirmations.length === 0) {
-          setError("No trade history found.");
+          setNoData(true);
+          setConfirmations([]); // or leave empty, depending on the case
         } else {
           setConfirmations(sortedConfirmations);
-          setError(""); // Clear any previous error
+          setNoData(false);
         }
+        
+        
       } catch (err) {
+        console.error("Error fetching confirmations:", err);
         setError("Failed to load trade history. Please try again.");
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchConfirmations();
   }, [apiUrl]);
-
+  
   // Filtered Confirmations (should be placed before using it in useEffect)
   const filteredConfirmations = confirmations.filter(
     (confirmation) =>
@@ -182,8 +195,8 @@ if (confirmation.status === "Funded") {
 
 
   if (loading) return <div className="loading-container"><div className="spinner"></div></div>;
-  if (error) return <div className="error-container"><p>{error}</p></div>;
-
+ 
+  
 
   return (
     <div className="transaction-history">
@@ -210,54 +223,57 @@ if (confirmation.status === "Funded") {
       <AccountStatementExport transactions={filteredConfirmations} />
 
       <div className="transaction-cards">
-        {filteredConfirmations.length > 0 ? (
-          filteredConfirmations.map((confirmation) => {
-            const timeLeft = timers[confirmation._id] || 0;
-            const showDispute = confirmation.status === "Pending" && timeLeft === 0;
+      {noData ? (
+    <p className="no-history">No trade history found.</p>
+  ) : filteredConfirmations.length > 0 ? (
+    filteredConfirmations.map((confirmation) => {
+    const timeLeft = timers[confirmation._id] || 0;
+    const showDispute = confirmation.status === "Pending" && timeLeft === 0;
 
-            return (
-              <Card key={confirmation._id} className="card">
-                <CardHeader className="card-header">
-                  <div className="service-status-container">
-                    <h3 className="card-title">{confirmation.serviceId?.name || "Unknown Service"}</h3>
-                    <span className={`status-badge ${confirmation.status === "Success" ? "success" : "error"}`}>{confirmation.status || "N/A"}</span>
-                  </div>
-                  <p className="date"><strong>Date:</strong> {new Date(confirmation.createdAt).toLocaleString() || "N/A"}</p>
-                </CardHeader>
+    return (
+      <Card key={confirmation._id} className="card">
+        <CardHeader className="card-header">
+          <div className="service-status-container">
+            <h3 className="card-title">{confirmation.serviceId?.name || "Unknown Service"}</h3>
+            <span className={`status-badge ${confirmation.status === "Success" ? "success" : "error"}`}>{confirmation.status || "N/A"}</span>
+          </div>
+          <p className="date"><strong>Date:</strong> {new Date(confirmation.createdAt).toLocaleString() || "N/A"}</p>
+        </CardHeader>
 
-                <CardContent className="card-content">
-                  <p className="transaction-id">
-                    <strong>Transaction ID:</strong> {confirmation.transactionId || "N/A"}{" "}
-                    {confirmation.transactionId && (
-                      <ClipboardCopy className="clipboard-icon" onClick={() => copyToClipboard(confirmation.transactionId)} />
-                    )}
-                  </p>
-                  {confirmation.status === "Pending" && timers[confirmation._id] > 0 && (
-                    <p className="countdown"><strong>Time Remaining:</strong> {Math.floor(timers[confirmation._id] / 60)} min {timers[confirmation._id] % 60} sec</p>
-                  )}
-                </CardContent>
+        <CardContent className="card-content">
+          <p className="transaction-id">
+            <strong>Transaction ID:</strong> {confirmation.transactionId || "N/A"}{" "}
+            {confirmation.transactionId && (
+              <ClipboardCopy className="clipboard-icon" onClick={() => copyToClipboard(confirmation.transactionId)} />
+            )}
+          </p>
+          {confirmation.status === "Pending" && timers[confirmation._id] > 0 && (
+            <p className="countdown"><strong>Time Remaining:</strong> {Math.floor(timers[confirmation._id] / 60)} min {timers[confirmation._id] % 60} sec</p>
+          )}
+        </CardContent>
 
-                <CardFooter className="card-footer">
-                  <Button className="card-button" variant="outline" size="sm" disabled={!confirmation.fileUrls} onClick={() => handleViewReceipt(confirmation)}>
-                    <FileText className="mr-2" />
-                    {confirmation.fileUrls ? "View Receipt" : "No Receipt Available"}
-                  </Button>
-                  {showDispute && (
-                    <Button className="dispute-button" variant="destructive" size="sm" onClick={() => {
-                      const phoneNumber = "+2348139935240";
-                      const message = encodeURIComponent(`Hello, I have a dispute regarding my transaction.\n\nTransaction ID: ${confirmation.transactionId}`);
-                      window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
-                    }}>
-                      Dispute on WhatsApp
-                    </Button>
-                  )}
-                </CardFooter>
-              </Card>
-            );
-          })
-        ) : (
-          <p className="no-history">No trade history found.</p>
-        )}
+        <CardFooter className="card-footer">
+          <Button className="card-button" variant="outline" size="sm" disabled={!confirmation.fileUrls} onClick={() => handleViewReceipt(confirmation)}>
+            <FileText className="mr-2" />
+            {confirmation.fileUrls ? "View Receipt" : "No Receipt Available"}
+          </Button>
+          {showDispute && (
+            <Button className="dispute-button" variant="destructive" size="sm" onClick={() => {
+              const phoneNumber = "+2348139935240";
+              const message = encodeURIComponent(`Hello, I have a dispute regarding my transaction.\n\nTransaction ID: ${confirmation.transactionId}`);
+              window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
+            }}>
+              Dispute on WhatsApp
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+    );
+  })
+  ) : (
+    <p className="no-history">No history results found.</p>
+  )}
+
       </div>
       {selectedReceipt && <ReceiptModal receiptData={selectedReceipt} onClose={handleCloseReceipt} />}
     </div>
