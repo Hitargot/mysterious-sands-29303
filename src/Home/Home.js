@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import React from 'react'; // Add this import statement
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Header from "../components/Header";
-import Hero from "../components/Hero";
-import About from "../components/About";
-import Services from "../components/Services";
-import WhyChooseUsTree from "../components/WhyChooseUsTree";
-import Calculator from "../components/Calculator";
-import FAQ from "../components/FAQ";
-import Contact from "../components/Contact";
-import Footer from "../components/Footer";
+import Header from "./Header";
+import Hero from "./Hero";
+import About from "./About";
+import Services from "./Services";
+import WhyChooseUsTree from "./WhyChooseUsTree";
+import Calculator from "./Calculator";
+import FAQ from "./FAQ";
+import Contact from "./Contact";
+import Footer from "./Footer";
 import { useInView } from "react-intersection-observer";
 import oldReviews from "../data/oldReviews"; // Import old reviews
 

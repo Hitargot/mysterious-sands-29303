@@ -17,8 +17,8 @@ const TradeTransactions = () => {
     const [showApproveModal, setShowApproveModal] = useState(false); // Modal state for approval
     const [selectedTransaction, setSelectedTransaction] = useState(null); // For selected transaction
     const [searchTerm, setSearchTerm] = useState(""); // For search term
-    // const apiUrl = "http://localhost:22222";
-    const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+    const apiUrl = "http://localhost:22222";
+    // const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [confirmationId, setConfirmationId] = useState(null);
 

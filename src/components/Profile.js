@@ -5,7 +5,8 @@ import { FaClipboard } from 'react-icons/fa';  // Import the clipboard icon
 
 const Profile = () => {
   const [userInfo, setUserInfo] = useState({
-    fullName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
     isVerified: false,
@@ -17,8 +18,10 @@ const Profile = () => {
     referralBonusEarned: 0,
   });
 
+
   const [showWalletSummary, setShowWalletSummary] = useState(false);
-  const [newFullName, setNewFullName] = useState("");
+  const [newFirstName, setNewFirstName] = useState("");
+  const [newLastName, setNewLastName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -28,10 +31,10 @@ const Profile = () => {
 
   const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
 
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  // const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   //const FRONTEND_URL = "https://exdollarium-preview.netlify.app";
   const FRONTEND_URL = "https://exdollarium.com";
-  // const apiUrl = 'http://localhost:22222';
+  const apiUrl = 'http://localhost:22222';
 
 
 
@@ -59,19 +62,29 @@ const Profile = () => {
 
   const handleEditProfile = () => {
     setIsEditing(true);
-    setNewFullName(userInfo.fullName);
+    setNewFirstName(userInfo.firstName);
+    setNewLastName(userInfo.lastName);
   };
+
 
   const handleSaveProfile = async () => {
     try {
       const response = await axios.post(
         `${apiUrl}/api/user/update-profile`,
-        { fullName: newFullName },
+        {
+          firstName: newFirstName,
+          lastName: newLastName
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       setAlert({ message: response.data.message, type: "success", show: true });
       setIsEditing(false);
-      setUserInfo((prev) => ({ ...prev, fullName: newFullName }));
+      setUserInfo((prev) => ({
+        ...prev,
+        firstName: newFirstName,
+        lastName: newLastName
+      }));
     } catch (error) {
       setAlert({ message: "Failed to update profile", type: "error", show: true });
     }
@@ -126,18 +139,33 @@ const Profile = () => {
       <div style={styles.section}>
         <h3 style={styles.subHeading}>Personal Information</h3>
         <label style={styles.label}>
-          Full Name:
+          First Name:
           {isEditing ? (
             <input
               type="text"
-              value={newFullName}
-              onChange={(e) => setNewFullName(e.target.value)}
+              value={newFirstName}
+              onChange={(e) => setNewFirstName(e.target.value)}
               style={styles.input}
             />
           ) : (
-            <p style={styles.text}>{userInfo.fullName}</p>
+            <p style={styles.text}>{userInfo.firstName}</p>
           )}
         </label>
+
+        <label style={styles.label}>
+          Last Name:
+          {isEditing ? (
+            <input
+              type="text"
+              value={newLastName}
+              onChange={(e) => setNewLastName(e.target.value)}
+              style={styles.input}
+            />
+          ) : (
+            <p style={styles.text}>{userInfo.lastName}</p>
+          )}
+        </label>
+
         <label style={styles.label}>
           Email:
           <p style={styles.text}>

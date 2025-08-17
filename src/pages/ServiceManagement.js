@@ -27,8 +27,8 @@ const ServiceManagement = () => {
   const [serviceToDelete, setServiceToDelete] = useState(null);
   const [loading, setLoading] = useState(false); // Add a loading state
 
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  // const apiUrl = "http://localhost:22222";
+  // const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = "http://localhost:22222";
 
   // Memoize the fetchServices function
   const fetchServices = useCallback(async () => {

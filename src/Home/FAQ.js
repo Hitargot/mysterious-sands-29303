@@ -6,8 +6,8 @@ const FAQ = () => {
   const [activeIndex, setActiveIndex] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222";
+  // const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = "http://localhost:22222";
 
   // Fetch FAQs from the backend
   useEffect(() => {

@@ -6,7 +6,7 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import UserDashboard from './dashboards/UserDashboard'; // User Dashboard
 import AdminDashboard from './dashboards/AdminDashboard'; // Admin Dashboard
-import Home from './pages/Home';
+import Home from './Home/Home';
 import Testimonials from './pages/Testimonials';
 import ResetPassword from './components/ResetPassword';
 import ForgotPassword from './components/ForgotPassword';

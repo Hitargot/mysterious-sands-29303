@@ -18,8 +18,8 @@ const WithdrawalRequests = () => {
   const navigate = useNavigate(); // Use navigate for routing
   const token = localStorage.getItem('adminToken');
   
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-//  const apiUrl = "http://localhost:22222";
+  // const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+ const apiUrl = "http://localhost:22222";
 
   // Function to check if the token is expired
   const isTokenExpired = (token) => {
