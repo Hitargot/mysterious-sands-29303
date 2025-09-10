@@ -383,7 +383,7 @@ const TransactionHistory = () => {
               {receipt.type === "withdrawal" && (
                 <div className="receipt-row">
                   <p className="label">Bank ID:</p>
-                  <p className="value">{receipt.bankId || "Not Available"}</p>
+                  <p className="value">{receipt.bankMeta || receipt.bankId}</p>  
                 </div>
               )}
 
