@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Alert from './Alert'; // replace with your actual alert component
 
@@ -6,7 +6,6 @@ const API_URL = 'http://localhost:22222'; // replace with your API
 
 const BankManager = () => {
   const [bankList, setBankList] = useState([]);       // All banks
-  const [userBanks, setUserBanks] = useState([]);     // User's saved bank accounts
   const [searchText, setSearchText] = useState('');
   const [bankCode, setBankCode] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
@@ -27,7 +26,7 @@ const BankManager = () => {
     localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
 
   // Fetch all banks
-  const fetchBankList = async () => {
+  const fetchBankList = useCallback(async () => {
     try {
       const token = getToken();
       if (!token) return;
@@ -41,47 +40,36 @@ const BankManager = () => {
       console.error('Failed to fetch banks:', err);
       showAlert({ message: 'Error fetching banks', type: 'error' });
     }
-  };
+  }, []);
 
-  // Fetch user's saved bank accounts
-  const fetchUserBanks = async () => {
+  // Fetch user's saved bank accounts (optional, can be removed if not used)
+  const fetchUserBanks = useCallback(async () => {
     try {
       const token = getToken();
       if (!token) return;
 
-      const res = await axios.get(`${API_URL}/api/wallet/banks`, {
+      await axios.get(`${API_URL}/api/wallet/banks`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setUserBanks(res.data);
+      // You can store user banks if needed
     } catch (err) {
       console.error('Failed to fetch user banks:', err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchBankList();
     fetchUserBanks();
-  }, []);
+  }, [fetchBankList, fetchUserBanks]);
 
   // Resolve account when bankCode and accountNumber are set
-  useEffect(() => {
-    if (bankCode && accountNumber.length === 10) {
-      resolveAccount();
-    } else {
-      setAccountName('');
-      setResolveError('');
-      setResolving(false);
-    }
-  }, [bankCode, accountNumber]);
-
-  const resolveAccount = async () => {
+  const resolveAccount = useCallback(async () => {
     if (!bankCode || accountNumber.length !== 10) return;
 
     setResolving(true);
     setAccountName('');
     setResolveError('');
 
-    // Use bank name for cache key
     const selectedBank = bankList.find(bank => bank.code === bankCode);
     const bankNameForCache = selectedBank ? selectedBank.name : '';
     const cacheKey = `${bankNameForCache}-${accountNumber}`;
@@ -103,7 +91,7 @@ const BankManager = () => {
 
       if (res.data.accountName) {
         setAccountName(res.data.accountName);
-        localStorage.setItem(cacheKey, res.data.accountName); // cache
+        localStorage.setItem(cacheKey, res.data.accountName);
       } else {
         setResolveError('Account not found ❌');
       }
@@ -113,7 +101,17 @@ const BankManager = () => {
     } finally {
       setResolving(false);
     }
-  };
+  }, [bankCode, accountNumber, bankList]);
+
+  useEffect(() => {
+    if (bankCode && accountNumber.length === 10) {
+      resolveAccount();
+    } else {
+      setAccountName('');
+      setResolveError('');
+      setResolving(false);
+    }
+  }, [bankCode, accountNumber, resolveAccount]);
 
   // Submit new bank account
   const handleSubmit = async () => {
@@ -121,32 +119,29 @@ const BankManager = () => {
       showAlert({ message: 'Please fill all fields', type: 'error' });
       return;
     }
-  
+
     const selectedBank = bankList.find(bank => bank.code === bankCode);
     const bankNameToSubmit = selectedBank ? selectedBank.name : '';
-  
+
     setSubmitting(true);
     try {
       const token = getToken();
-  
+
       await axios.post(
         `${API_URL}/api/wallet/banks`,
         { bankCode, bankName: bankNameToSubmit, accountNumber, accountName },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       showAlert({ message: 'Bank added successfully!', type: 'success' });
-  
+
       setBankCode('');
       setAccountNumber('');
       setAccountName('');
-      fetchUserBanks(); // refresh saved banks
+      fetchUserBanks();
     } catch (err) {
       console.error('Add Bank Error:', err);
-  
-      // Check if backend returned 400 for already added account
       if (err.response && err.response.status === 400) {
-        // You can also check err.response.data.message if backend sends a message
         showAlert({ message: 'This bank account is already added', type: 'error' });
       } else {
         showAlert({ message: 'Failed to add bank', type: 'error' });
@@ -155,7 +150,7 @@ const BankManager = () => {
       setSubmitting(false);
     }
   };
-  
+
   const filteredBanks = bankList.filter(bank =>
     bank.name.toLowerCase().includes(searchText.toLowerCase())
   );
@@ -164,7 +159,6 @@ const BankManager = () => {
     <div style={{ maxWidth: '500px', margin: 'auto', padding: '20px' }}>
       <h2>Manage Bank Accounts</h2>
 
-      {/* ALERT */}
       {alert.show && <Alert message={alert.message} type={alert.type} />}
 
       <label>Search Banks</label>

@@ -19,7 +19,7 @@ const WalletPage = ({ setActiveComponent }) => {
   const [alertMessage, setAlertMessage] = useState('');
   const [showPinInput, setShowPinInput] = useState(false); // State to control the PIN input visibility
   const [alertType, setAlertType] = useState('success');
-  const [showAddBankForm, setShowAddBankForm] = useState(false);
+  // const [showAddBankForm, setShowAddBankForm] = useState(false);
   const { addNotification } = useNotification();
   const [showBankManager, setShowBankManager] = useState(false);
   // const [newBankAccount, setNewBankAccount] = useState({
@@ -256,20 +256,20 @@ const WalletPage = ({ setActiveComponent }) => {
   }, [withdrawAmount, selectedBankAccount, showPinInput]);
 
 
-  const fetchUserBanks = async () => {
-    const token = getJwtToken();
-    if (!token) return;
+  // const fetchUserBanks = async () => {
+  //   const token = getJwtToken();
+  //   if (!token) return;
 
-    try {
-      const response = await axios.get(`${apiUrl}/api/wallet/banks`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+  //   try {
+  //     const response = await axios.get(`${apiUrl}/api/wallet/banks`, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
 
-      setBankAccounts(response.data.banks);
-    } catch (error) {
-      console.error("Error fetching banks:", error);
-    }
-  };
+  //     setBankAccounts(response.data.banks);
+  //   } catch (error) {
+  //     console.error("Error fetching banks:", error);
+  //   }
+  // };
 
   // // Handle adding a new bank account
   // const handleAddBankAccount = async () => {
