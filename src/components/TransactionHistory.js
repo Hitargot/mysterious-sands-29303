@@ -19,6 +19,7 @@ const TransactionHistory = () => {
   const [filterType, setFilterType] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   // const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   const apiUrl = "http://localhost:22222";
@@ -31,24 +32,66 @@ const TransactionHistory = () => {
       try {
         const token =
           localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
-        const response = await axios.get(
-          `${apiUrl}/api/transaction/transaction-history`,
-          {
+
+        const [txnRes, userRes] = await Promise.all([
+          axios.get(`${apiUrl}/api/transaction/transaction-history`, {
             headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        setTransactions(response.data.transactions);
+          }),
+          axios.get(`${apiUrl}/api/user/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        const userId = userRes.data._id?.toString?.();
+        setCurrentUserId(userId);
+
+        const mapped = (txnRes.data.transactions || []).map((t) => {
+          const senderIdStr =
+            typeof t.senderId === "object"
+              ? t.senderId._id?.toString()
+              : t.senderId?.toString();
+
+          // const recipientIdStr =
+          //   typeof t.recipientId === "object"
+          //     ? t.recipientId._id?.toString()
+          //     : t.recipientId?.toString();
+
+          const isSender = senderIdStr === userId;
+          // const isReceiver = recipientIdStr === userId; // ✅ Now used
+          const counterparty = isSender ? t.recipientId : t.senderId;
+          const payId =
+            counterparty?.payId || counterparty?.username || "Unknown";
+
+          return {
+            ...t,
+            displayType:
+              t.type?.toLowerCase() === "transfer"
+                ? isSender
+                  ? "Sent Transfer"
+                  : "Received Transfer"
+                : t.type,
+            displayLabel: isSender ? "To" : "From",
+            counterparty: payId,
+            displayAmount:
+              typeof t.amount === "number"
+                ? t.amount
+                : typeof t.ngnAmount === "number"
+                  ? t.ngnAmount
+                  : 0,
+          };
+        });
+
+        setTransactions(mapped);
       } catch (error) {
         console.error("Error fetching transactions:", error);
-        setAlertMessage(
-          "Failed to fetch transactions. Please try again later."
-        );
+        setAlertMessage("Failed to fetch transactions. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
     fetchTransactions();
   }, [apiUrl]);
+
 
   useEffect(() => {
     let filtered = transactions;
@@ -94,6 +137,7 @@ const TransactionHistory = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+      
       setReceipt(response.data);
     } catch (error) {
       console.error("Error fetching receipt:", error);
@@ -222,7 +266,7 @@ const TransactionHistory = () => {
           {filteredTransactions.map((transaction) => (
             <div className="transaction-card" key={transaction._id}>
               <div className="card-header">
-                <span className="transaction-type">{transaction.type}</span>
+                <span className="transaction-type">{transaction.displayType}</span>
                 <span
                   className={`status-badge ${transaction.status === "Completed" ? "success" : "error"
                     }`}
@@ -237,16 +281,17 @@ const TransactionHistory = () => {
                 </p>
                 <p>
                   <strong>Amount:</strong>{" "}
-                  {transaction?.type?.toLowerCase() === "withdrawal"
-                    ? (typeof transaction.amount === "number"
-                      ? transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                      : "N/A")
-                    : (typeof transaction.ngnAmount === "number"
-                      ? transaction.ngnAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                      : "N/A")}{" "}
+                  {transaction.displayAmount.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}{" "}
                   NGN
                 </p>
-
+                {transaction.type?.toLowerCase() === "transfer" && (
+                  <p>
+                    <strong>{transaction.displayLabel}:</strong> {transaction.counterparty}
+                  </p>
+                )}
               </div>
               <div className="card-actions">
                 <button onClick={() => fetchReceipt(transaction._id)}>
@@ -254,6 +299,7 @@ const TransactionHistory = () => {
                 </button>
               </div>
             </div>
+
           ))}
         </div>
       )}
@@ -269,7 +315,11 @@ const TransactionHistory = () => {
         <div className="receipt-modal">
           <div className="receipt-modal-content" id="receipt-content">
             <div className="receipt-header">
-              <img src={require('../assets/images/Exodollarium-01.png')} alt="Exdollarium Logo" className="company-logo" />
+              <img
+                src={require("../assets/images/Exodollarium-01.png")}
+                alt="Exdollarium Logo"
+                className="company-logo"
+              />
               <h2>Exdollarium</h2>
               <p>Official Transaction Receipt</p>
             </div>
@@ -281,19 +331,23 @@ const TransactionHistory = () => {
                   {new Date(receipt.date).toLocaleDateString()}
                 </p>
               </div>
+
               <div className="receipt-row">
                 <p className="label">Time:</p>
                 <p className="value">
                   {new Date(receipt.date).toLocaleTimeString()}
                 </p>
               </div>
+
               <div className="receipt-row">
                 <p className="label">Transaction ID:</p>
                 <div className="value">
                   <span>{receipt.transactionId}</span>
                   <span
                     className="clipboard-icon"
-                    onClick={() => handleCopyTransactionId(receipt.transactionId)}
+                    onClick={() =>
+                      handleCopyTransactionId(receipt.transactionId)
+                    }
                   >
                     📋
                   </span>
@@ -302,11 +356,15 @@ const TransactionHistory = () => {
                   )}
                 </div>
               </div>
+
               <div className="receipt-row">
                 <p className="label">Amount:</p>
                 <p className="value">
                   {typeof receipt.amount === "number"
-                    ? receipt.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    ? receipt.amount.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
                     : "N/A"}{" "}
                   {receipt.currency || "NGN"}
                 </p>
@@ -316,30 +374,71 @@ const TransactionHistory = () => {
                 <p className="label">Status:</p>
                 <p className="value">{receipt.status}</p>
               </div>
+
               <div className="receipt-row">
                 <p className="label">Type:</p>
                 <p className="value">{receipt.type}</p>
               </div>
+
               {receipt.type === "withdrawal" && (
                 <div className="receipt-row">
                   <p className="label">Bank ID:</p>
                   <p className="value">{receipt.bankId || "Not Available"}</p>
                 </div>
               )}
+
+{/* ✅ Conditional Sender/Receiver for receipt */}
+{receipt.type?.toLowerCase() === "transfer" && currentUserId && (
+  <>
+    {receipt.senderId?._id?.toString?.() === currentUserId ? (
+      // You are the sender → show receiver only
+      <div className="receipt-row">
+        <p className="label">Receiver:</p>
+        <p className="value">
+          {receipt.recipientId?.payId ||
+            receipt.recipientId?.username ||
+            receipt.recipientId?._id?.toString?.() ||
+            "Unknown"}
+        </p>
+      </div>
+    ) : (
+      // You are the receiver → show sender only
+      <div className="receipt-row">
+        <p className="label">Sender:</p>
+        <p className="value">
+          {receipt.senderId?.payId ||
+            receipt.senderId?.username ||
+            receipt.senderId?._id?.toString?.() ||
+            "Unknown"}
+        </p>
+      </div>
+    )}
+  </>
+)}
+
             </div>
 
             <div className="receipt-footer">
-              <p>Thank you for choosing <strong>Exdollarium</strong>. We appreciate your trust.</p>
+              <p>
+                Thank you for choosing <strong>Exdollarium</strong>. We appreciate
+                your trust.
+              </p>
               <div className="footer-buttons">
-                <button className="share-btn hide-on-share" onClick={handleShareAsImage}>
+                <button
+                  className="share-btn hide-on-share"
+                  onClick={handleShareAsImage}
+                >
                   Share as Image
                 </button>
-                <button className="close-bt hide-on-share" onClick={onClose}>Close</button>
+                <button className="close-bt hide-on-share" onClick={onClose}>
+                  Close
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 };

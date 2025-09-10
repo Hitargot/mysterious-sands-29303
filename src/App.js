@@ -38,6 +38,7 @@ import TermsAndConditions from './components/TermsAndConditions';
 import RequestOtpPage from './components/RequestOtpPage';
 import SetWithdrawPin from './components/SetWithdrawPin';
 import PayPalFeeCalculator from './components/paypalCalculator';
+import TransferPage from './components/TransferPage';
 
 const App = () => {
   const [userRole, setUserRole] = useState(null);
@@ -116,7 +117,7 @@ if ('serviceWorker' in navigator) {
           <Route path="/verify-otp" element={<VerifyOtpPage />} />
           <Route path="/reset-pin" element={<ResetPinPage />} />
           <Route path="/paypal-fee-calculator" element={<PayPalFeeCalculator />} />
-
+          <Route path="/transfer" element={<TransferPage />} />
           <Route
             path="/admin"
             element={

@@ -16,9 +16,11 @@ const Profile = () => {
     totalFunded: 0,
     totalWithdrawn: 0,
     referralBonusEarned: 0,
+    payId: "", // ✅ add payId
   });
 
-
+  const [newPayId, setNewPayId] = useState(""); // ✅ input for Pay ID
+  const [isEditingPayId, setIsEditingPayId] = useState(false);
   const [showWalletSummary, setShowWalletSummary] = useState(false);
   const [newFirstName, setNewFirstName] = useState("");
   const [newLastName, setNewLastName] = useState("");
@@ -66,7 +68,37 @@ const Profile = () => {
     setNewLastName(userInfo.lastName);
   };
 
+// ✅ Save Pay ID
+const handleSavePayId = async () => {
+  try {
+    const response = await axios.post(
+      `${apiUrl}/api/user/set-payid`,
+      { payId: newPayId },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
+    setAlert({ message: response.data.message, type: "success", show: true });
+    setUserInfo((prev) => ({ ...prev, payId: response.data.payId }));
+    setIsEditingPayId(false);
+  } catch (error) {
+    setAlert({
+      message: error.response?.data?.message || "Failed to set Pay ID",
+      type: "error",
+      show: true,
+    });
+  }
+};
+
+const handleClipboardCopy = (text) => {
+  navigator.clipboard.writeText(text)
+    .then(() => {
+      setClipboardMessage("Copied to clipboard!");
+      setTimeout(() => setClipboardMessage(""), 2000);
+    })
+    .catch(() => {
+      setClipboardMessage("Failed to copy!");
+    });
+};
   const handleSaveProfile = async () => {
     try {
       const response = await axios.post(
@@ -112,16 +144,16 @@ const Profile = () => {
     }
   };
 
-  const handleClipboardCopy = (text) => {
-    navigator.clipboard.writeText(text)
-      .then(() => {
-        setClipboardMessage("Copied to clipboard!");
-        setTimeout(() => setClipboardMessage(""), 2000); // Clear the message after 2 seconds
-      })
-      .catch(() => {
-        setClipboardMessage("Failed to copy!");
-      });
-  };
+  // const handleClipboardCopy = (text) => {
+  //   navigator.clipboard.writeText(text)
+  //     .then(() => {
+  //       setClipboardMessage("Copied to clipboard!");
+  //       setTimeout(() => setClipboardMessage(""), 2000); // Clear the message after 2 seconds
+  //     })
+  //     .catch(() => {
+  //       setClipboardMessage("Failed to copy!");
+  //     });
+  // };
 
   const formatEmail = (email) => {
     const [localPart, domain] = email.split('@'); // Split the email into local part and domain
@@ -195,6 +227,49 @@ const Profile = () => {
         )}
       </div>
 
+ {/* ✅ Pay ID Section */}
+ <div style={styles.section}>
+        <h3 style={styles.subHeading}>Your Pay ID</h3>
+        {isEditingPayId ? (
+          <>
+            <input
+              type="text"
+              value={newPayId}
+              onChange={(e) => setNewPayId(e.target.value)}
+              style={styles.input}
+              placeholder="Enter Pay ID"
+            />
+            <button style={styles.saveButton} onClick={handleSavePayId}>
+              Save Pay ID
+            </button>
+          </>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <p style={styles.text}>
+              {userInfo.payId ? userInfo.payId : "Not set yet"}
+            </p>
+            {userInfo.payId && (
+              <FaClipboard
+                style={{ cursor: "pointer" }}
+                onClick={() => handleClipboardCopy(userInfo.payId)}
+              />
+            )}
+            <button
+              style={styles.editButton}
+              onClick={() => {
+                setIsEditingPayId(true);
+                setNewPayId(userInfo.payId || "");
+              }}
+            >
+              {userInfo.payId ? "Update" : "Set"} Pay ID
+            </button>
+          </div>
+        )}
+      </div>
+
+      {clipboardMessage && (
+        <div style={styles.clipboardMessage}>{clipboardMessage}</div>
+      )}
 
       {/* Referral Info */}
       <div style={styles.section}>

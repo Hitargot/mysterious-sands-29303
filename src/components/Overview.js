@@ -24,8 +24,21 @@ const Overview = ({ setActiveComponent }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
-        if (!token) return;
+        // Somewhere before mapping transactions
+        const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
+        let currentUserId = null;
+
+        if (token) {
+          try {
+            const base64Url = token.split(".")[1];
+            const decoded = JSON.parse(atob(base64Url));
+            currentUserId = decoded.id || decoded._id; // depends on your JWT payload
+          } catch (err) {
+            console.error("Error decoding JWT:", err);
+          }
+        }
+
+        const currentUserIdStr = currentUserId?.toString();
 
         const responses = await Promise.allSettled([
           axios.get(`${apiUrl}/api/wallet/data`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -41,16 +54,47 @@ const Overview = ({ setActiveComponent }) => {
           setWalletBalance(walletRes.balance || 0);
         }
 
-        const transactions = (transactionsRes?.transactions || []).map((t) => ({
-          ...t,
-          type: 'Withdrawal',
-        }));
+        const transactions = (transactionsRes?.transactions || []).map((t) => {
+          const senderIdStr =
+            typeof t.senderId === "object"
+              ? t.senderId._id?.toString()
+              : t.senderId?.toString();
+
+          const recipientIdStr =
+            typeof t.recipientId === "object"
+              ? t.recipientId._id?.toString()
+              : t.recipientId?.toString();
+
+          const isSender = senderIdStr === currentUserIdStr;
+          const counterparty = isSender ? t.recipientId : t.senderId;
+
+          return {
+            ...t,
+            type:
+              t.type?.toLowerCase() === "transfer"
+                ? isSender
+                  ? "Sent Transfer"
+                  : "Received Transfer"
+                : t.type,
+            counterparty:
+              counterparty?.payId ||
+              counterparty?.username ||
+              counterparty?._id ||
+              "Unknown",
+            amount: t.amount || t.ngnAmount || 0,
+            status: t.status || "N/A",
+            debug: { senderIdStr, recipientIdStr, currentUserIdStr, isSender },
+          };
+        });
+
+        console.log("🟢 Transactions mapped:", transactions.slice(0, 5));
 
         const confirmations = (confirmationsRes?.confirmations || []).map((c) => ({
           ...c,
           type: 'Trade Confirmation',
           serviceName: c.serviceId?.name || 'N/A',
         }));
+
 
         const fundingTransactions = (walletRes?.transactions || [])
           .filter((f) => f.type === "Funding")
@@ -111,9 +155,9 @@ const Overview = ({ setActiveComponent }) => {
             onMouseEnter={(e) => (e.target.style = { ...styles.button, ...styles.buttonHover })}
             onMouseLeave={(e) => (e.target.style = styles.button)}
           >
-            {index === 0 && <FaArrowRight style={styles.icon} />} 
-            {index === 1 && <FaMoneyCheckAlt style={styles.icon} />} 
-            {index === 2 && <FaDollarSign style={styles.icon} />} 
+            {index === 0 && <FaArrowRight style={styles.icon} />}
+            {index === 1 && <FaMoneyCheckAlt style={styles.icon} />}
+            {index === 2 && <FaDollarSign style={styles.icon} />}
             {index === 0 ? 'Start Trade' : index === 1 ? 'Withdraw' : 'Fund Account'}
           </button>
         ))}
@@ -121,7 +165,7 @@ const Overview = ({ setActiveComponent }) => {
 
       {/* Recent Activities Card */}
       <div style={{ ...styles.card, ...styles.recentTransactionsCard }}>
-      <h3 style={styles.recentActivitiesHeading}>Recent Activities</h3>
+        <h3 style={styles.recentActivitiesHeading}>Recent Activities</h3>
         {loading ? (
           <p>Loading...</p>
         ) : recentActivities.length > 0 ? (
@@ -141,17 +185,33 @@ const Overview = ({ setActiveComponent }) => {
                 setIsHovered((prev) => prev.map((val, i) => (i === index ? false : val)))
               }
             >
-              <div style={styles.transactionText}>{activity.type}</div>
               <div style={styles.transactionText}>
-                {activity.type === 'Withdrawal' || activity.type === 'Funding'
-                  ? `₦${activity.amount ? activity.amount.toLocaleString() : '0'}`
-                  : activity.type === 'Trade Confirmation'
-                  ? activity.serviceName
-                  : 'N/A'}
+                {activity.type}
               </div>
-              <div style={{ ...styles.transactionText, color: activity.status === 'Funded' ? '#28a745' : '#dc3545' }}>
-                {activity.status || 'N/A'}
+              <div style={styles.transactionText}>
+                {activity.type?.toLowerCase().includes("transfer")
+                  ? `${activity.counterparty} - ₦${activity.amount.toLocaleString()}`
+                  : ["withdrawal", "funding"].includes(activity.type?.toLowerCase())
+                    ? `₦${activity.amount ? activity.amount.toLocaleString() : "0"}`
+                    : activity.type?.toLowerCase() === "trade confirmation"
+                      ? activity.serviceName
+                      : "N/A"}
               </div>
+              <div
+                style={{
+                  ...styles.transactionText,
+                  color:
+                    activity.status?.toLowerCase() === "funded" ||
+                      activity.status?.toLowerCase() === "completed"
+                      ? "#28a745" // ✅ Green for success
+                      : activity.status?.toLowerCase() === "pending"
+                        ? "#ffc107" // 🟡 Yellow for pending
+                        : "#dc3545", // ❌ Red for failed/cancelled/others
+                }}
+              >
+                {activity.status || "N/A"}
+              </div>
+
               <div style={styles.transactionText}>
                 {new Date(activity.createdAt || activity.date).toLocaleString('en-GB')}
               </div>
@@ -161,7 +221,7 @@ const Overview = ({ setActiveComponent }) => {
           <p>No recent activities</p>
         )}
 
-<button style={{ ...styles.button, ...styles.seeMoreButton }} onClick={() => setActiveComponent('transaction-history')}>
+        <button style={{ ...styles.button, ...styles.seeMoreButton }} onClick={() => setActiveComponent('transaction-history')}>
           See More
         </button>
       </div>
@@ -249,7 +309,7 @@ const styles = {
     cursor: 'pointer',
     flexDirection: window.innerWidth <= 768 ? 'column' : 'row', // Stack items on mobile
     alignItems: window.innerWidth <= 768 ? 'flex-start' : 'center',
-  },  
+  },
   transactionCardHover: {
     transform: 'scale(1.02)',
     boxShadow: '0 5px 12px #f1e4d1',
@@ -265,9 +325,9 @@ const styles = {
     alignSelf: 'center',
     marginTop: '15px',
   },
- recentActivitiesHeading: {
-    fontSize: '20px', 
-    fontWeight: 'bold', 
+  recentActivitiesHeading: {
+    fontSize: '20px',
+    fontWeight: 'bold',
     color: '#162660', // Vibrant blue
     borderBottom: '2px solid #007bff', // Underline effect
     paddingBottom: '5px',
@@ -275,8 +335,8 @@ const styles = {
     textTransform: 'uppercase', // Optional: Makes text uppercase
   },
   walletBalanceHeading: {
-    fontSize: '20px', 
-    fontWeight: 'bold', 
+    fontSize: '20px',
+    fontWeight: 'bold',
     color: '#d0e6fd', // Vibrant blue
     paddingBottom: '5px',
     marginBottom: '15px',

@@ -7,9 +7,10 @@ import { useNotification } from '../context/NotificationContext';
 import { v4 as uuidv4 } from 'uuid';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import eye icons from react-icons
 import WithdrawalPinInput from './WithdrawalPinInput'; // Import the PIN input component
+import BankManager from "./BankManager"; // make sure path is correct
 
 
-const WalletPage = () => {
+const WalletPage = ({ setActiveComponent }) => {
   const [walletBalance, setWalletBalance] = useState(0);
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [bankAccounts, setBankAccounts] = useState([]);
@@ -20,19 +21,20 @@ const WalletPage = () => {
   const [alertType, setAlertType] = useState('success');
   const [showAddBankForm, setShowAddBankForm] = useState(false);
   const { addNotification } = useNotification();
-  const [newBankAccount, setNewBankAccount] = useState({
-    bankName: '',
-    accountNumber: '',
-    accountName: '',
-  });
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const [showBankManager, setShowBankManager] = useState(false);
+  // const [newBankAccount, setNewBankAccount] = useState({
+  //   bankName: '',
+  //   accountNumber: '',
+  //   accountName: '',
+  // });
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
 
-    // Allow only numbers for accountNumber
-    if (name === "accountNumber" && !/^\d*$/.test(value)) return;
+  //   // Allow only numbers for accountNumber
+  //   if (name === "accountNumber" && !/^\d*$/.test(value)) return;
 
-    setNewBankAccount((prev) => ({ ...prev, [name]: value }));
-  };
+  //   setNewBankAccount((prev) => ({ ...prev, [name]: value }));
+  // };
 
   const [isBalanceVisible, setIsBalanceVisible] = useState(false);
   // const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
@@ -269,37 +271,37 @@ const WalletPage = () => {
     }
   };
 
-  // Handle adding a new bank account
-  const handleAddBankAccount = async () => {
-    const token = getJwtToken();
-    if (!token) return;
+  // // Handle adding a new bank account
+  // const handleAddBankAccount = async () => {
+  //   const token = getJwtToken();
+  //   if (!token) return;
 
-    const { bankName, accountNumber, accountName } = newBankAccount;
-    if (!bankName || !accountNumber || !accountName) {
-      handleAlert('Please fill in all fields to add a bank account.', 'error');
-      return;
-    }
+  //   const { bankName, accountNumber, accountName } = newBankAccount;
+  //   if (!bankName || !accountNumber || !accountName) {
+  //     handleAlert('Please fill in all fields to add a bank account.', 'error');
+  //     return;
+  //   }
 
-    try {
-      const response = await axios.post(
-        `${apiUrl}/api/wallet/banks`,
-        { bankName, accountNumber, accountName },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+  //   try {
+  //     const response = await axios.post(
+  //       `${apiUrl}/api/wallet/banks`,
+  //       { bankName, accountNumber, accountName },
+  //       { headers: { Authorization: `Bearer ${token}` } }
+  //     );
 
-      // ✅ Update state correctly
-      setBankAccounts((prevBanks) => [...prevBanks, response.data.bank]);
+  //     // ✅ Update state correctly
+  //     setBankAccounts((prevBanks) => [...prevBanks, response.data.bank]);
 
-      // ✅ Ensure the withdrawal form updates with the latest banks
-      fetchUserBanks();
+  //     // ✅ Ensure the withdrawal form updates with the latest banks
+  //     fetchUserBanks();
 
-      setNewBankAccount({ bankName: '', accountNumber: '', accountName: '' });
-      setShowAddBankForm(false);
-      handleAlert('Bank account added successfully!', 'success');
-    } catch (error) {
-      handleAlert(error.response?.data?.message || 'Error adding bank account.', 'error');
-    }
-  };
+  //     setNewBankAccount({ bankName: '', accountNumber: '', accountName: '' });
+  //     setShowAddBankForm(false);
+  //     handleAlert('Bank account added successfully!', 'success');
+  //   } catch (error) {
+  //     handleAlert(error.response?.data?.message || 'Error adding bank account.', 'error');
+  //   }
+  // };
 
   // Handle adding balance (for testing)
   // const handleAddBalance = async () => {
@@ -454,9 +456,31 @@ const WalletPage = () => {
         {showPinInput && <WithdrawalPinInput onPinSubmit={handlePinSubmit} />}
       </div>
 
+{/* Send Money Button */}
+<button
+  onClick={() => setActiveComponent("transfer")} // ✅ Switch dashboard content
+  style={{
+    backgroundColor: "#28a745",
+    color: "#fff",
+    padding: "10px",
+    borderRadius: "5px",
+    width: "100%",
+    marginTop: "10px",
+    border: "none",
+    cursor: "pointer",
+    fontWeight: "bold",
+  }}
+  onMouseOver={(e) => (e.target.style.backgroundColor = "#218838")}
+  onMouseOut={(e) => (e.target.style.backgroundColor = "#28a745")}
+>
+  Send Money to Exdollarium user
+</button>
+
+
+<div style={{ padding: "20px" }}>
       {/* Add Bank Account Button */}
       <button
-        onClick={() => setShowAddBankForm(!showAddBankForm)}
+        onClick={() => setShowBankManager(!showBankManager)}
         style={{
           backgroundColor: "#162660",
           color: "#f1e4d1",
@@ -469,99 +493,16 @@ const WalletPage = () => {
           fontWeight: "bold",
         }}
       >
-        {showAddBankForm ? "Cancel" : "Add Bank Account"}
+        {showBankManager ? "Close Bank Manager" : "Add Bank Account"}
       </button>
 
-      {/* Add Bank Account Form */}
-      {showAddBankForm && (
-        <div
-          style={{
-            backgroundColor: "#ffffff",
-            padding: "15px",
-            borderRadius: "8px",
-            marginTop: "15px",
-            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.05)",
-          }}
-        >
-          <h3 style={{ color: "#162660", marginBottom: "10px" }}>Add New Bank Account</h3>
-
-          <div style={{ marginBottom: "10px" }}>
-            <label style={{ color: "#162660", fontWeight: "bold", display: "block" }}>Bank Name:</label>
-            <input
-              type="text"
-              name="bankName"
-              value={newBankAccount.bankName}
-              onChange={handleInputChange}
-              style={{
-                display: "block",
-                width: "100%",
-                padding: "8px",
-                border: "1px solid #162660",
-                borderRadius: "5px",
-                backgroundColor: "#f9f9f9",
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: "10px" }}>
-            <label style={{ color: "#162660", fontWeight: "bold", display: "block" }}>Account Number:</label>
-            <input
-              type="number"
-              name="accountNumber"
-              value={newBankAccount.accountNumber}
-              onChange={handleInputChange}
-              onKeyDown={(e) => {
-                if (e.key === "e" || e.key === "+" || e.key === "-") {
-                  e.preventDefault(); // Prevents entering "e", "+", and "-" in the field
-                }
-              }}
-              style={{
-                display: "block",
-                width: "100%",
-                padding: "8px",
-                border: "1px solid #162660",
-                borderRadius: "5px",
-                backgroundColor: "#f9f9f9",
-              }}
-            />
-
-          </div>
-
-          <div style={{ marginBottom: "10px" }}>
-            <label style={{ color: "#162660", fontWeight: "bold", display: "block" }}>Account Name:</label>
-            <input
-              type="text"
-              name="accountName"
-              value={newBankAccount.accountName}
-              onChange={handleInputChange}
-              style={{
-                display: "block",
-                width: "100%",
-                padding: "8px",
-                border: "1px solid #162660",
-                borderRadius: "5px",
-                backgroundColor: "#f9f9f9",
-              }}
-            />
-          </div>
-
-          <button
-            onClick={handleAddBankAccount}
-            style={{
-              backgroundColor: "#162660",
-              color: "#f1e4d1",
-              padding: "10px",
-              borderRadius: "5px",
-              width: "100%",
-              border: "none",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            Add Account
-          </button>
+      {/* Render BankManager Component */}
+      {showBankManager && (
+        <div style={{ marginTop: "15px" }}>
+          <BankManager />
         </div>
       )}
+    </div>
 
 
 

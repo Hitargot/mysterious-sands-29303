@@ -12,6 +12,7 @@ const Profile = lazy(() => import('../components/Profile'));
 const TradeHistory = lazy(() => import('../components/TradeHistory'));
 const Wallet = lazy(() => import('../components/WalletPage'));
 const Chatbot = lazy(() => import('../components/Chatbot'));
+const TransferPage = lazy(() => import('../components/TransferPage'));
 
 
 const UserDashboard = () => {
@@ -57,8 +58,8 @@ const UserDashboard = () => {
         return <Overview setActiveComponent={setActiveComponent} />;
       case 'trade-calculator':
         return <TradeCalculator />;
-      case 'wallet':
-        return <Wallet />;
+        case 'wallet':
+          return <Wallet setActiveComponent={setActiveComponent} />;        
       case 'transaction-history':
         return <TransactionHistory />;
       case 'trade-history':
@@ -67,6 +68,8 @@ const UserDashboard = () => {
         return <Chatbot />;
       case 'profile':
         return <Profile />;
+      case 'transfer':
+        return <TransferPage />;
       default:
         return <Overview setActiveComponent={setActiveComponent} />;
     }
@@ -123,8 +126,8 @@ const UserDashboard = () => {
       <div style={styles.dashboardMain}>
         {/* Sidebar with Expandable Width */}
         <div style={styles.sidebarContainer}>
-          <Sidebar 
-            setActiveComponent={setActiveComponent} 
+          <Sidebar
+            setActiveComponent={setActiveComponent}
             activeComponent={activeComponent}
             setIsSidebarExpanded={setIsSidebarExpanded} // Send state handler to Sidebar
           />

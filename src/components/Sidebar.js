@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaHome, FaCalculator, FaHistory, FaUser, FaWallet, FaExchangeAlt, FaRobot } from 'react-icons/fa';
+import { GiReceiveMoney } from 'react-icons/gi';
 import Logo from '../assets/images/Exodollarium-01.png'; // Ensure correct path
 
 const Sidebar = ({ setActiveComponent, activeComponent }) => {
@@ -13,6 +14,7 @@ const Sidebar = ({ setActiveComponent, activeComponent }) => {
     { label: 'Overview', icon: <FaHome />, component: 'overview' },
     { label: 'Trade Calculator', icon: <FaCalculator />, component: 'trade-calculator' },
     { label: 'Wallet', icon: <FaWallet />, component: 'wallet' },
+    { label: 'Transfer', icon: <GiReceiveMoney />, component: 'transfer' },
     { label: 'Transaction History', icon: <FaHistory />, component: 'transaction-history' },
     { label: 'Trade History', icon: <FaExchangeAlt />, component: 'trade-history' },
     { label: 'Profile', icon: <FaUser />, component: 'profile' },
