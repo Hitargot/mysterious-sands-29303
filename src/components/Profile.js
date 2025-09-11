@@ -338,11 +338,11 @@ const Profile = () => {
           </label>
           <label style={styles.label}>
             <strong>Total Withdrawn:</strong>
-            <p style={styles.text}>₦{userInfo.totalWithdrawn.toLocaleString()}</p>
+            <p style={styles.text}>₦{userInfo.totalWithdrawn.toLocaleString() || "0"}</p>
           </label>
           <label style={styles.label}>
             <strong>Total Transferred:</strong>
-            <p style={styles.text}>₦{userInfo.totalSentTransfers.toLocaleString()}</p>
+            <p style={styles.text}>₦{userInfo.totalSentTransfers.toLocaleString() || "0"}</p>
           </label>
         </div>
       )}
