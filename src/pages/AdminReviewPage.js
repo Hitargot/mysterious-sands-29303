@@ -1,17 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 
 const AdminReviewPage = () => {
   const [reviews, setReviews] = useState([]);
-
-  useEffect(() => {
-    fetchReviews();
-  }, []);
-
   const apiUrl = process.env.REACT_APP_API_URL;
 
-
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(`${apiUrl}/api/admin/reviews`, {
@@ -21,7 +15,12 @@ const AdminReviewPage = () => {
     } catch (error) {
       console.error("Error fetching reviews:", error);
     }
-  };
+  }, [apiUrl]); // ✅ stable function, only changes if apiUrl changes
+  
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]); // no ESLint warning now
+  
 
   const handleAction = async (reviewId, status) => {
     try {

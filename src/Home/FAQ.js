@@ -23,7 +23,7 @@ const FAQ = () => {
     };
 
     fetchFAQs();
-  }, []);
+  }, [apiUrl]);
 
   const toggleFAQ = (index) => {
     setActiveIndex(activeIndex === index ? null : index);

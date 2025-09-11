@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import Alert from '../components/Alert';  // Import the alert component
 import '../styles/BankAccountList.css'; // Import the CSS file
@@ -26,23 +26,24 @@ const BankAccountList = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
 
   // Fetch bank accounts from the backend API
-  const fetchBankAccounts = async () => {
+  const fetchBankAccounts = useCallback(async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/bankaccounts`);
       setBankAccounts(response.data.bankAccounts);
       setFilteredAccounts(response.data.bankAccounts);
     } catch (err) {
-      console.error('Error fetching bank accounts:', err);
-      setError('Failed to load bank accounts.');
-      setAlert({ message: 'Failed to load bank accounts.', type: 'error' }); // Trigger error alert
+      console.error("Error fetching bank accounts:", err);
+      setError("Failed to load bank accounts.");
+      setAlert({ message: "Failed to load bank accounts.", type: "error" });
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiUrl]); 
 
   useEffect(() => {
     fetchBankAccounts();
-  }, [apiUrl]);
+  }, [fetchBankAccounts]);
+    
 
   // Handle search bar input
   const handleSearchChange = (e) => {

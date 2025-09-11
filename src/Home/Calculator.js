@@ -22,7 +22,8 @@ const Calculator = () => {
       }
     };
     fetchServices();
-  }, []);
+  }, [apiUrl]); // ✅ include apiUrl
+  
 
   const handleServiceChange = (e) => {
     setSelectedService(e.target.value);

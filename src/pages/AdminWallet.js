@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Alert from '../components/Alert';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import eye icons
@@ -27,25 +27,32 @@ const AdminWallet = () => {
 
   const apiUrl = process.env.REACT_APP_API_URL;
   
-  const fetchWalletData = async () => {
+  const fetchWalletData = useCallback(async () => {
     try {
-      const token = localStorage.getItem("adminToken"); // Retrieve the admin token
+      const token = localStorage.getItem("adminToken");
       if (!token) {
         setAlert({ type: "error", message: "Admin not authenticated" });
         return;
       }
   
       const { data } = await axios.get(`${apiUrl}/api/wallet`, {
-        headers: { Authorization: `Bearer ${token}` }, // Attach the token
+        headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
   
       setAdminBalance(data.balance);
       setTransactions(data.transactions);
     } catch (error) {
-      setAlert({ type: "error", message: error.response?.data?.message || error.message });
+      setAlert({
+        type: "error",
+        message: error.response?.data?.message || error.message,
+      });
     }
-  };
+  }, [apiUrl]); // only changes if apiUrl changes
+
+  useEffect(() => {
+    fetchWalletData();
+  }, [fetchWalletData]);
   
 
   // Update displayed transactions whenever transactions or showAllTransactions or filterType change
@@ -60,10 +67,6 @@ const AdminWallet = () => {
 
     setDisplayedTransactions(showAllTransactions ? filtered : filtered.slice(0, 10));
   }, [transactions, showAllTransactions, filterType]);
-
-  useEffect(() => {
-    fetchWalletData();
-  }, [apiUrl]);
 
   // Fund Admin Wallet
   const handleFundWallet = async () => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import TestimonialHeader from "../components/TestimonialsHeader"; 
 import oldReviews from "../data/oldReviews"; // Import old reviews
@@ -9,21 +9,23 @@ const Testimonials = () => {
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
-  useEffect(() => {
-    fetchApprovedReviews();
-  }, []);
 
-  const fetchApprovedReviews = async () => {
+  const fetchApprovedReviews = useCallback(async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/approved`);
-      console.log("Fetched Reviews:", response.data); 
-      setReviews([...response.data, ...oldReviews]); // Merge API + old reviews
+      console.log("Fetched Reviews:", response.data);
+      setReviews([...response.data, ...oldReviews]);
     } catch (error) {
       console.error("Error fetching reviews:", error);
-      setReviews([...oldReviews]); // Show old reviews if API fails
+      setReviews([...oldReviews]);
     }
     setLoading(false);
-  };
+  }, [apiUrl]); // depends only on apiUrl
+
+  useEffect(() => {
+    fetchApprovedReviews();
+  }, [fetchApprovedReviews]); // ✅ no warning now
+  
 
   return (
     <div style={{

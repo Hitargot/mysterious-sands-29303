@@ -113,7 +113,7 @@ const TradeDetails = ({ selectedService }) => {
     };
 
     checkExistingTag();
-  }, [user, token, serviceDetails]);
+  }, [user, token, serviceDetails, apiUrl]);
 
   const generateTag = async () => {
     if (!user || !user.id) {

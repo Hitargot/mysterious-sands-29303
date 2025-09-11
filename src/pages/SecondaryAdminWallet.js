@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Alert from '../components/Alert';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -24,29 +24,33 @@ const SecondaryAdminWallet = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const fetchWalletData = async () => {
+  const fetchWalletData = useCallback(async () => {
     try {
       const token = localStorage.getItem("adminToken");
       if (!token) {
         setAlert({ type: "error", message: "Admin not authenticated" });
         return;
       }
-
+  
       const { data } = await axios.get(`${apiUrl}/api/secondary-wallet`, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
-
+  
       setBalance(data.balance);
       setTransactions(data.transactions);
     } catch (error) {
-      setAlert({ type: "error", message: error.response?.data?.message || error.message });
+      setAlert({
+        type: "error",
+        message: error.response?.data?.message || error.message,
+      });
     }
-  };
+  }, [apiUrl]); // ✅ include dependencies
 
   useEffect(() => {
     fetchWalletData();
-  }, [apiUrl]);
+  }, [fetchWalletData]); // ✅
+  
 
   useEffect(() => {
     const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
