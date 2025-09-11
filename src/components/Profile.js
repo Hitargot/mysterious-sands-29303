@@ -342,7 +342,7 @@ const handleClipboardCopy = (text) => {
           </label>
           <label style={styles.label}>
             <strong>Total Transferred:</strong>
-            <p style={styles.text}>₦{userInfo.totalTransferred.toLocaleString()}</p>
+            <p style={styles.text}>₦{userInfo.totalTransferred}</p>
           </label>
         </div>
       )}
