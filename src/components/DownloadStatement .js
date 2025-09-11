@@ -8,9 +8,7 @@ const AccountStatementExport = () => {
     const [loading, setLoading] = useState(false);
     const [showOptions, setShowOptions] = useState(false);
 
-    //const apiUrl = "http://localhost:22222";
-    const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     const handleDownload = async () => {
         if (!showOptions) {

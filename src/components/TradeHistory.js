@@ -20,8 +20,7 @@ const TradeHistory = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [noData, setNoData] = useState(false);
 
-  // const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  const apiUrl = "http://localhost:22222";
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchConfirmations = async () => {

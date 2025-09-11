@@ -16,8 +16,8 @@ const TransferPage = () => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [hasTyped, setHasTyped] = useState(false); // Track if user typed
 
-  const apiUrl = 'http://localhost:22222';
-
+  const apiUrl = process.env.REACT_APP_API_URL;
+  
   const handleAlert = (message, type) => {
     setAlertMessage(message);
     setAlertType(type);

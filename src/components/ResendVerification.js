@@ -9,9 +9,8 @@ const ResendVerification = () => {
   const [alert, setAlert] = useState({ message: '', type: '' });
   const [loading, setLoading] = useState(false);
 
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222";
-  
+  const apiUrl = process.env.REACT_APP_API_URL;
+
   const handleResend = async (e) => {
     e.preventDefault();
     setLoading(true);

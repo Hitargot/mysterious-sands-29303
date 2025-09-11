@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Alert from './Alert'; // replace with your actual alert component
 
-const API_URL = 'http://localhost:22222'; // replace with your API
+const apiUrl = process.env.REACT_APP_API_URL;
+
 
 const BankManager = () => {
   const [bankList, setBankList] = useState([]);       // All banks
@@ -31,7 +32,7 @@ const BankManager = () => {
       const token = getToken();
       if (!token) return;
 
-      const res = await axios.get(`${API_URL}/api/banks`, {
+      const res = await axios.get(`${apiUrl}/api/banks`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const sortedBanks = res.data.sort((a, b) => a.name.localeCompare(b.name));
@@ -48,7 +49,7 @@ const BankManager = () => {
       const token = getToken();
       if (!token) return;
 
-      await axios.get(`${API_URL}/api/wallet/banks`, {
+      await axios.get(`${apiUrl}/api/wallet/banks`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       // You can store user banks if needed
@@ -84,7 +85,7 @@ const BankManager = () => {
     try {
       const token = getToken();
       const res = await axios.post(
-        `${API_URL}/api/wallet/resolve`,
+        `${apiUrl}/api/wallet/resolve`,
         { bankCode, accountNumber },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -128,7 +129,7 @@ const BankManager = () => {
       const token = getToken();
 
       await axios.post(
-        `${API_URL}/api/wallet/banks`,
+        `${apiUrl}/api/wallet/banks`,
         { bankCode, bankName: bankNameToSubmit, accountNumber, accountName },
         { headers: { Authorization: `Bearer ${token}` } }
       );

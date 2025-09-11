@@ -17,9 +17,7 @@ const Login = ({ setUserRole }) => {
     const { name, value } = e.target;
     setCredentials({ ...credentials, [name]: value });
   };
-
-  // const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  const apiUrl = "http://localhost:22222";
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   // const token =
   // localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");

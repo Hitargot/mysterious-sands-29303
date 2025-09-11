@@ -33,10 +33,10 @@ const Profile = () => {
 
   const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
 
-  // const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  const apiUrl = process.env.REACT_APP_API_URL;
   //const FRONTEND_URL = "https://exdollarium-preview.netlify.app";
   const FRONTEND_URL = "https://exdollarium.com";
-  const apiUrl = 'http://localhost:22222';
+
 
 
 
@@ -385,80 +385,99 @@ const handleClipboardCopy = (text) => {
 // Inline Styles
 const styles = {
   profilePage: {
-    maxWidth: "700px",
-    margin: "40px auto",
-    padding: "25px",
-    fontFamily: "Poppins, sans-serif",
-    backgroundColor: "#f1e4d1",
-    borderRadius: "12px",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+    maxWidth: "720px",
+    margin: "50px auto",
+    padding: "30px",
+    fontFamily: "'Poppins', sans-serif",
+    backgroundColor: "#ffffff",
+    borderRadius: "16px",
+    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.08)",
     textAlign: "center",
   },
   heading: {
-    color: "#162660",
-    fontSize: "22px",
-    marginBottom: "20px",
+    color: "#1A237E",
+    fontSize: "24px",
+    fontWeight: "600",
+    marginBottom: "25px",
   },
   section: {
-    backgroundColor: "#d0e6fd",
-    padding: "20px",
-    marginBottom: "15px",
-    borderRadius: "8px",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+    backgroundColor: "#F0F4FF",
+    padding: "25px",
+    marginBottom: "20px",
+    borderRadius: "12px",
+    boxShadow: "0 3px 10px rgba(0, 0, 0, 0.05)",
     textAlign: "left",
+    transition: "all 0.3s ease",
   },
   subHeading: {
-    fontSize: "18px",
-    fontWeight: "bold",
+    fontSize: "20px",
+    fontWeight: "600",
     marginBottom: "15px",
+    color: "#0D47A1",
   },
   label: {
     display: "block",
-    marginBottom: "10px",
-    color: "#004d78",
+    marginBottom: "12px",
+    color: "#0D47A1",
+    fontWeight: "500",
   },
   text: {
-    color: "#333",
+    color: "#424242",
     fontSize: "16px",
+    marginBottom: "8px",
   },
   input: {
     width: "100%",
-    padding: "10px",
-    borderRadius: "5px",
-    border: "1px solid #ccc",
-    marginBottom: "15px",
+    padding: "12px 15px",
+    borderRadius: "8px",
+    border: "1px solid #BDBDBD",
+    marginBottom: "16px",
+    fontSize: "15px",
+    transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+  },
+  inputFocus: {
+    borderColor: "#1A237E",
+    boxShadow: "0 0 5px rgba(26, 35, 126, 0.3)",
   },
   clipboardMessage: {
-    marginTop: "10px",
-    padding: "10px",
-    backgroundColor: "#d1f5e0",
-    color: "#388e3c",
-    fontWeight: "bold",
-    borderRadius: "5px",
+    marginTop: "12px",
+    padding: "12px",
+    backgroundColor: "#E0F7FA",
+    color: "#00796B",
+    fontWeight: "600",
+    borderRadius: "6px",
+    textAlign: "center",
   },
   toggleButton: {
-    backgroundColor: "#f3a8e3",
+    backgroundColor: "#7B1FA2",
     color: "#fff",
-    padding: "12px 20px",
-    borderRadius: "8px",
+    padding: "14px 25px",
+    borderRadius: "10px",
     cursor: "pointer",
-    marginBottom: "20px",
+    marginBottom: "25px",
+    fontWeight: "500",
+    transition: "background-color 0.3s ease",
   },
   editButton: {
-    backgroundColor: "#0058a3",
+    backgroundColor: "#1976D2",
     color: "#fff",
-    padding: "10px 20px",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-  saveButton: {
-    backgroundColor: "#00a852",
-    color: "#fff",
-    padding: "12px 24px",
+    padding: "10px 22px",
     borderRadius: "8px",
     cursor: "pointer",
-    marginTop: "20px",
+    fontWeight: "500",
+    transition: "background-color 0.3s ease",
   },
+  saveButton: {
+    backgroundColor: "#388E3C",
+    color: "#fff",
+    padding: "14px 28px",
+    borderRadius: "10px",
+    cursor: "pointer",
+    marginTop: "20px",
+    fontWeight: "600",
+    transition: "background-color 0.3s ease",
+  },
+
 };
 
 export default Profile;

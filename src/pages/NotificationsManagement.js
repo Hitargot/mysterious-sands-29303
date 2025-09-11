@@ -13,8 +13,8 @@ const NotificationManagement = () => {
   const [showCreateNotification, setShowCreateNotification] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222"; 
+  
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     fetch(`${apiUrl}/api/users`)

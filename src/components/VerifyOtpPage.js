@@ -10,10 +10,10 @@ const VerifyOtpPage = () => {
   const [alert, setAlert] = useState({ message: '', type: '' });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  //const apiUrl = 'http://localhost:22222'; // Your API URL
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
   const [otpValid, setOtpValid] = useState(false);
   const location = useLocation();
+
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);

@@ -8,7 +8,7 @@ const AdminFAQ = () => {
   const [editingId, setEditingId] = useState(null); // Track which FAQ is being edited
   const [alert, setAlert] = useState("");
 
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com" || "http://localhost:22222";
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   // ✅ Wrap fetchFAQs in useCallback to prevent re-creation on every render
   const fetchFAQs = useCallback(async () => {

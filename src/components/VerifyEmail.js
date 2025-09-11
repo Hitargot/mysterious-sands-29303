@@ -11,7 +11,8 @@ const VerifyEmail = () => {
   const [loading, setLoading] = useState(true);
   const [isResendDisabled, setIsResendDisabled] = useState(false);
   const navigate = useNavigate();
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+  
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     if (!token) {

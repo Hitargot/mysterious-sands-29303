@@ -90,7 +90,7 @@ const ResetPassword = () => {
   const [alert, setAlert] = useState({ message: '', type: '' });
   const [isHovered, setIsHovered] = useState(false);
 
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com" || "http://localhost:22222";
+  const apiUrl = process.env.REACT_APP_API_URL;
 
 
   const handleSubmit = async (e) => {

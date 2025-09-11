@@ -11,14 +11,14 @@ import {
   ADD_BANK_ACCOUNT_FAILURE,
 } from './walletActionTypes';
 
-const API_BASE_URL = 'http://localhost:22222/api'; // Replace with your backend URL
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 // Fetch Wallet Balance
 export const fetchWalletBalance = () => async (dispatch) => {
   dispatch({ type: FETCH_WALLET_BALANCE_REQUEST });
 
   try {
-    const { data } = await axios.get(`${API_BASE_URL}/wallet/data`);
+    const { data } = await axios.get(`${API_BASE_URL}/api/wallet/data`);
     dispatch({ type: FETCH_WALLET_BALANCE_SUCCESS, payload: data });
   } catch (error) {
     dispatch({
@@ -33,7 +33,7 @@ export const withdrawFunds = (amount, accountNumber) => async (dispatch) => {
   dispatch({ type: WITHDRAW_FUNDS_REQUEST });
 
   try {
-    const { data } = await axios.post(`${API_BASE_URL}/wallet/withdraw`, {
+    const { data } = await axios.post(`${API_BASE_URL}/api/wallet/withdraw`, {
       amount,
       accountNumber,
     });
@@ -51,7 +51,7 @@ export const addBankAccount = (bankDetails) => async (dispatch) => {
   dispatch({ type: ADD_BANK_ACCOUNT_REQUEST });
 
   try {
-    const { data } = await axios.post(`${API_BASE_URL}/wallet/bank`, bankDetails);
+    const { data } = await axios.post(`${API_BASE_URL}/api/wallet/bank`, bankDetails);
     dispatch({ type: ADD_BANK_ACCOUNT_SUCCESS, payload: data });
   } catch (error) {
     dispatch({

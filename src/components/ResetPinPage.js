@@ -5,8 +5,7 @@ import { jwtDecode } from 'jwt-decode';
 import logo from '../assets/images/Exodollarium-01.png';
 import Alert from '../components/Alert';
 
-//const apiUrl = 'http://localhost:22222'; // Your API URL
-const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
+const apiUrl = process.env.REACT_APP_API_URL;
 
 const ResetPinPage = () => {
   const [newPin, setNewPin] = useState('');

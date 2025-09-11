@@ -10,9 +10,9 @@ const AdminLogin = () => {
   const [messageType, setMessageType] = useState('');
   const [tempPasswordExpiry, setTempPasswordExpiry] = useState(null);
   const navigate = useNavigate();
+  
+  const apiUrl = process.env.REACT_APP_API_URL;
 
-  // const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  const apiUrl = "http://localhost:22222";
 
   // Check token validity on component mount
   useEffect(() => {

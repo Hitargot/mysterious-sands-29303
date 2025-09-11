@@ -137,7 +137,7 @@ const TransactionHistory = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      
+
       setReceipt(response.data);
     } catch (error) {
       console.error("Error fetching receipt:", error);
@@ -382,39 +382,39 @@ const TransactionHistory = () => {
 
               {receipt.type === "withdrawal" && (
                 <div className="receipt-row">
-                  <p className="label">Bank ID:</p>
-                  <p className="value">{receipt.bankMeta || receipt.bankId}</p>  
+                  <p className="label">Bank:</p>
+                  <p className="value">{receipt.bankMeta || receipt.bankId}</p>
                 </div>
               )}
 
-{/* ✅ Conditional Sender/Receiver for receipt */}
-{receipt.type?.toLowerCase() === "transfer" && currentUserId && (
-  <>
-    {receipt.senderId?._id?.toString?.() === currentUserId ? (
-      // You are the sender → show receiver only
-      <div className="receipt-row">
-        <p className="label">Receiver:</p>
-        <p className="value">
-          {receipt.recipientId?.payId ||
-            receipt.recipientId?.username ||
-            receipt.recipientId?._id?.toString?.() ||
-            "Unknown"}
-        </p>
-      </div>
-    ) : (
-      // You are the receiver → show sender only
-      <div className="receipt-row">
-        <p className="label">Sender:</p>
-        <p className="value">
-          {receipt.senderId?.payId ||
-            receipt.senderId?.username ||
-            receipt.senderId?._id?.toString?.() ||
-            "Unknown"}
-        </p>
-      </div>
-    )}
-  </>
-)}
+              {/* ✅ Conditional Sender/Receiver for receipt */}
+              {receipt.type?.toLowerCase() === "transfer" && currentUserId && (
+                <>
+                  {receipt.senderId?._id?.toString?.() === currentUserId ? (
+                    // You are the sender → show receiver only
+                    <div className="receipt-row">
+                      <p className="label">Receiver:</p>
+                      <p className="value">
+                        {receipt.recipientId?.payId ||
+                          receipt.recipientId?.username ||
+                          receipt.recipientId?._id?.toString?.() ||
+                          "Unknown"}
+                      </p>
+                    </div>
+                  ) : (
+                    // You are the receiver → show sender only
+                    <div className="receipt-row">
+                      <p className="label">Sender:</p>
+                      <p className="value">
+                        {receipt.senderId?.payId ||
+                          receipt.senderId?.username ||
+                          receipt.senderId?._id?.toString?.() ||
+                          "Unknown"}
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
 
             </div>
 

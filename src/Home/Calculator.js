@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const Calculator = () => {
-  const apiUrl = "https://mysterious-sands-29303-c1f04c424030.herokuapp.com";
-  //const apiUrl = "http://localhost:22222";
+  const apiUrl = process.env.REACT_APP_API_URL;
+
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState('');
   const [selectedCurrency, setSelectedCurrency] = useState('usd');
