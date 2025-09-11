@@ -15,7 +15,7 @@ const Profile = () => {
     referredCount: 0,
     totalFunded: 0,
     totalWithdrawn: 0,
-    totalSentTransfers: 0,
+    // totalSentTransfers: 0,
     referralBonusEarned: 0,
     payId: "", // ✅ add payId
   });
@@ -340,10 +340,10 @@ const Profile = () => {
             <strong>Total Withdrawn:</strong>
             <p style={styles.text}>₦{userInfo.totalWithdrawn.toLocaleString() || "0"}</p>
           </label>
-          <label style={styles.label}>
+          {/* <label style={styles.label}>
             <strong>Total Transferred:</strong>
             <p style={styles.text}>₦{userInfo.totalSentTransfers}</p>
-          </label>
+          </label> */}
         </div>
       )}
 
