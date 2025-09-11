@@ -212,7 +212,7 @@ const Signup = () => {
   // Styles
   const styles = {
     signup: {
-      height: "100vh",
+      minHeight: "100vh", // 🔥 cover full page, even when scrolling
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
@@ -227,6 +227,7 @@ const Signup = () => {
       borderRadius: "10px",
       boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
       textAlign: "center",
+      margin: "40px 0", // 🔥 add spacing so it’s not glued to top on scroll
     },
     signupHeader: {
       display: "flex",
@@ -458,7 +459,6 @@ const Signup = () => {
               checked={termsAccepted}
               onChange={handleCheckboxChange}
               id="terms"
-              disabled={!termsAccepted} // Disable until accepted
               style={{ marginRight: "10px" }}
             />
 
@@ -476,6 +476,7 @@ const Signup = () => {
           <button type="submit" style={styles.button} disabled={!termsAccepted || loading}>
             {loading ? "Signing up..." : "Sign up"}
           </button>
+
 
         </form>
 
