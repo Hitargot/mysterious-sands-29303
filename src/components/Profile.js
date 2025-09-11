@@ -15,6 +15,7 @@ const Profile = () => {
     referredCount: 0,
     totalFunded: 0,
     totalWithdrawn: 0,
+    totalTransferred: 0,
     referralBonusEarned: 0,
     payId: "", // ✅ add payId
   });
@@ -338,6 +339,10 @@ const handleClipboardCopy = (text) => {
           <label style={styles.label}>
             <strong>Total Withdrawn:</strong>
             <p style={styles.text}>₦{userInfo.totalWithdrawn.toLocaleString()}</p>
+          </label>
+          <label style={styles.label}>
+            <strong>Total Transferred:</strong>
+            <p style={styles.text}>₦{userInfo.totalTransferred.toLocaleString()}</p>
           </label>
         </div>
       )}
