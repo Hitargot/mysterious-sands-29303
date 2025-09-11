@@ -342,7 +342,7 @@ const Profile = () => {
           </label>
           <label style={styles.label}>
             <strong>Total Transferred:</strong>
-            <p style={styles.text}>₦{userInfo.totalSentTransfers.toLocaleString() || "0"}</p>
+            <p style={styles.text}>₦{userInfo.totalSentTransfers}</p>
           </label>
         </div>
       )}
