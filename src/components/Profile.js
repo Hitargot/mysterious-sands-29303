@@ -15,7 +15,7 @@ const Profile = () => {
     referredCount: 0,
     totalFunded: 0,
     totalWithdrawn: 0,
-    totalTransferred: 0,
+    totalSentTransfers: 0,
     referralBonusEarned: 0,
     payId: "", // ✅ add payId
   });
@@ -69,37 +69,37 @@ const Profile = () => {
     setNewLastName(userInfo.lastName);
   };
 
-// ✅ Save Pay ID
-const handleSavePayId = async () => {
-  try {
-    const response = await axios.post(
-      `${apiUrl}/api/user/set-payid`,
-      { payId: newPayId },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+  // ✅ Save Pay ID
+  const handleSavePayId = async () => {
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/user/set-payid`,
+        { payId: newPayId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-    setAlert({ message: response.data.message, type: "success", show: true });
-    setUserInfo((prev) => ({ ...prev, payId: response.data.payId }));
-    setIsEditingPayId(false);
-  } catch (error) {
-    setAlert({
-      message: error.response?.data?.message || "Failed to set Pay ID",
-      type: "error",
-      show: true,
-    });
-  }
-};
+      setAlert({ message: response.data.message, type: "success", show: true });
+      setUserInfo((prev) => ({ ...prev, payId: response.data.payId }));
+      setIsEditingPayId(false);
+    } catch (error) {
+      setAlert({
+        message: error.response?.data?.message || "Failed to set Pay ID",
+        type: "error",
+        show: true,
+      });
+    }
+  };
 
-const handleClipboardCopy = (text) => {
-  navigator.clipboard.writeText(text)
-    .then(() => {
-      setClipboardMessage("Copied to clipboard!");
-      setTimeout(() => setClipboardMessage(""), 2000);
-    })
-    .catch(() => {
-      setClipboardMessage("Failed to copy!");
-    });
-};
+  const handleClipboardCopy = (text) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        setClipboardMessage("Copied to clipboard!");
+        setTimeout(() => setClipboardMessage(""), 2000);
+      })
+      .catch(() => {
+        setClipboardMessage("Failed to copy!");
+      });
+  };
   const handleSaveProfile = async () => {
     try {
       const response = await axios.post(
@@ -228,8 +228,8 @@ const handleClipboardCopy = (text) => {
         )}
       </div>
 
- {/* ✅ Pay ID Section */}
- <div style={styles.section}>
+      {/* ✅ Pay ID Section */}
+      <div style={styles.section}>
         <h3 style={styles.subHeading}>Your Pay ID</h3>
         {isEditingPayId ? (
           <>
@@ -342,7 +342,7 @@ const handleClipboardCopy = (text) => {
           </label>
           <label style={styles.label}>
             <strong>Total Transferred:</strong>
-            <p style={styles.text}>₦{userInfo.totalTransferred}</p>
+            <p style={styles.text}>₦{userInfo.totalSentTransfers.toLocaleString()}</p>
           </label>
         </div>
       )}
