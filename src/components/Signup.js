@@ -459,6 +459,7 @@ const Signup = () => {
               checked={termsAccepted}
               onChange={handleCheckboxChange}
               id="terms"
+              disabled={!termsAccepted} // Disable until accepted
               style={{ marginRight: "10px" }}
             />
 
