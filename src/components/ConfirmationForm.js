@@ -15,7 +15,10 @@ const ConfirmationForm = ({ selectedService }) => {
   const [showModal, setShowModal] = useState(false);
 
 
-  const [apiUrl] = process.env.REACT_APP_API_URL;
+  // const [apiUrl] = useState("http://localhost:22222");
+  // const [apiUrl] = useState("https://exdollarium-6f0f5aab6a7d.herokuapp.com");
+
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     if (selectedServiceId) {

@@ -12,7 +12,7 @@ const AdminSignup = () => {
   const [nextMessage, setNextMessage] = useState(null); // For the next alert message after expiration
   const navigate = useNavigate();
 
-  const [apiUrl] = process.env.REACT_APP_API_URL;
+  const apiUrl = process.env.REACT_APP_API_URL;
 
 
   const handleSubmit = async (e) => {
