@@ -27,9 +27,9 @@ const ConfirmationForm = ({ selectedService }) => {
   }, [selectedServiceId]);
 
   const generateTransactionId = () => {
-    const timestamp = new Date().getTime();
-    const randomPart = uuidv4().split("-")[0];
-    return `TRX-${timestamp}-${randomPart} 💸`;
+  const timestamp = new Date().getTime();
+  const randomPart = uuidv4().split("-")[0];
+  return `TRX-${timestamp}-${randomPart}`; // No emoji
   };
 
   useEffect(() => {
@@ -84,14 +84,16 @@ const ConfirmationForm = ({ selectedService }) => {
     }
 
     const formData = new FormData();
-formData.append("serviceId", selectedServiceId);
-formData.append("note", note);
-formData.append("userId", userId);
-formData.append("transactionId", transactionId);
+    // Remove emoji from transactionId before storing
+    const cleanTransactionId = transactionId.replace(/\p{Emoji}/gu, '').replace(/\s+$/g, '');
+    formData.append("serviceId", selectedServiceId);
+    formData.append("note", note);
+    formData.append("userId", userId);
+    formData.append("transactionId", cleanTransactionId);
 
-files.forEach(file => {
-  formData.append("files", file); // Append each file individually
-});
+    files.forEach(file => {
+      formData.append("files", file); // Append each file individually
+    });
 
 
 
