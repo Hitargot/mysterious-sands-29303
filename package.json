@@ -62,9 +62,10 @@
     "generate-icons": "node scripts/generate-icons.js"
   },
   "devDependencies": {
+    "cross-env": "^10.1.0",
     "jimp": "^0.16.1",
-    "png-to-ico": "^1.0.0"
-    ,"to-ico": "^1.0.0"
+    "png-to-ico": "^1.0.0",
+    "to-ico": "^1.0.0"
   },
   "eslintConfig": {
     "extends": [
