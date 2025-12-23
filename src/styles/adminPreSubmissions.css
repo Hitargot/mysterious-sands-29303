@@ -1,0 +1,15 @@
+/* Minimal styles for AdminPreSubmissions page */
+.admin-pre-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+.admin-pre-card {
+  border: 1px solid #eee;
+  padding: 12px;
+  border-radius: 6px;
+  background: #fff;
+}
+.admin-pre-card h4 {
+  margin: 0 0 6px 0;
+}
