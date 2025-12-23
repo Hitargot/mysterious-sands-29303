@@ -1,6 +1,6 @@
-import React, { useRef, useEffect, useState } from "react";
+import React from "react";
+import { useNavigate } from 'react-router-dom';
 import styled from "styled-components";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import paypalIcon from "../assets/images/path_to_paypal_icon.png";
 import cryptoIcon from "../assets/images/path_to_crypto_icon.png";
 import payoneerIcon from "../assets/images/path_to_payonee.png";
@@ -11,23 +11,25 @@ import websiteRechargeIcon from "../assets/images/path_to_website_recharge_icon.
 import cardIcon from "../assets/images/2019-01-30-gift-cards.jpeg";
 
 const services = [
-  { name: "PayPal Exchange", icon: paypalIcon },
-  { name: "Crypto Exchange (BTC, USDT, ETH, etc.)", icon: cryptoIcon },
-  { name: "Gift Card Redeem (Steam, Apple, iTune, Ebay, etc)", icon: cardIcon },
-  { name: "Payoneer Exchange", icon: payoneerIcon },
-  { name: "Fiverr Withdrawal", icon: fiverrIcon },
-  { name: "US Bank Transfer", icon: usBankIcon },
-  { name: "Upwork Withdrawal", icon: upworkIcon },
-  { name: "Website Recharge (smscode, pivapin)", icon: websiteRechargeIcon },
+  { name: "PayPal Exchange", icon: paypalIcon, desc: "Convert PayPal balances to Naira quickly with competitive rates." },
+  { name: "Crypto Exchange", icon: cryptoIcon, desc: "Buy/sell BTC, USDT, ETH and more with instant settlement." },
+  { name: "Gift Card Redeem", icon: cardIcon, desc: "Redeem Steam, Apple, iTunes and other gift cards for cash." },
+  { name: "Payoneer Exchange", icon: payoneerIcon, desc: "Withdraw Payoneer balances to your local account easily." },
+  { name: "Fiverr Withdrawal", icon: fiverrIcon, desc: "Get paid from Fiverr and convert to Naira or local bank transfers." },
+  { name: "US Bank Transfer", icon: usBankIcon, desc: "Receive USD payouts directly to your US bank account." },
+  { name: "Upwork Withdrawal", icon: upworkIcon, desc: "Withdraw your Upwork earnings fast and securely." },
+  { name: "Website Recharge", icon: websiteRechargeIcon, desc: "Top-up websites and services using smscode and pivapin methods." },
 ];
 
 const ServicesSection = styled.section`
   background: linear-gradient(135deg, #d0e6fd, #f1e4d1);
   color: #162660;
-  padding: 80px 20px;
+  padding: 60px 20px;
   text-align: center;
   position: relative;
 `;
+
+/* two-column layout removed; calculator panel lives elsewhere on the page */
 
 const Heading = styled.h2`
   font-size: 2.5rem;
@@ -43,169 +45,111 @@ const Description = styled.p`
   margin-right: auto;
 `;
 
-const CarouselWrapper = styled.div`
-  position: relative;
-  overflow: hidden;
-  max-width: 90%;
-  margin: auto;
-`;
-
-const ServiceCarousel = styled.div`
-  display: flex;
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
-  transition: transform 0.5s ease-in-out;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding-bottom: 10px;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  max-width: 1100px;
+  margin: 0 auto;
+  align-items: stretch;
 `;
 
 const ServiceCard = styled.div`
-  min-width: 200px;
-  max-width: 220px;
-  background: rgba(255, 255, 255, 0.2);
+  background: #fff;
   border-radius: 12px;
   padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: left;
+  box-shadow: 0 6px 20px rgba(16,24,40,0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-8px);
+    box-shadow: 0 18px 40px rgba(16,24,40,0.12);
+  }
+
+  .top {
+    display: flex;
+    gap: 14px;
+    align-items: center;
   }
 
   img {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 15px;
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 10px;
+    background: #f7fafc;
   }
 
-  p {
-    font-size: 1.1rem;
-    font-weight: bold;
+  h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: #162660;
   }
 
-  @media (max-width: 768px) {
-    img {
-      width: 50px;
-      height: 50px;
-    }
-
-    p {
-      font-size: 0.9rem;
-    }
-  }
-`;
-
-const ArrowButton = styled.button`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #162660;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 1.5rem;
-  opacity: ${({ show }) => (show ? "1" : "0")};
-  transition: opacity 0.3s ease-in-out;
-  z-index: 10;
-
-  &:hover {
-    background: #0e1b4a;
+  p.desc {
+    margin: 12px 0 0 0;
+    color: #475569;
+    font-size: 0.95rem;
+    line-height: 1.4;
   }
 
-  @media (max-width: 768px) {
-    display: none;
+  .cta-row {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  button {
+    background: #162660;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
   }
 `;
 
-const LeftArrow = styled(ArrowButton)`
-  left: 10px;
-`;
-
-const RightArrow = styled(ArrowButton)`
-  right: 10px;
-`;
+/* Arrow buttons removed - grid layout uses direct CTA */
 
 const Services = () => {
-  const carouselRef = useRef(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-  const [scrollDirection, setScrollDirection] = useState("right");
-
-  useEffect(() => {
-    const carousel = carouselRef.current;
-    if (!carousel) return;
-
-    const checkScroll = () => {
-      setCanScrollLeft(carousel.scrollLeft > 0);
-      setCanScrollRight(carousel.scrollLeft + carousel.clientWidth < carousel.scrollWidth);
-    };
-
-    carousel.addEventListener("scroll", checkScroll);
-    checkScroll();
-
-    let interval = setInterval(() => {
-      if (scrollDirection === "right" && canScrollRight) {
-        scrollCarousel("right");
-      } else if (scrollDirection === "left" && canScrollLeft) {
-        scrollCarousel("left");
-      } else {
-        setScrollDirection((prev) => (prev === "right" ? "left" : "right"));
-      }
-    }, 3000);
-
-    return () => {
-      clearInterval(interval);
-      carousel.removeEventListener("scroll", checkScroll);
-    };
-  }, [scrollDirection, canScrollLeft, canScrollRight]);
-
-  const scrollCarousel = (direction) => {
-    const scrollAmount = 240;
-    const carousel = carouselRef.current;
-    if (!carousel) return;
-
-    const newScrollLeft = direction === "left" ? carousel.scrollLeft - scrollAmount : carousel.scrollLeft + scrollAmount;
-    carousel.scrollTo({ left: newScrollLeft, behavior: "smooth" });
-
-    setTimeout(() => {
-      setCanScrollLeft(carousel.scrollLeft > 0);
-      setCanScrollRight(carousel.scrollLeft + carousel.clientWidth < carousel.scrollWidth);
-    }, 300);
-  };
-
+  const navigate = useNavigate();
   return (
     <ServicesSection id="services">
       <Heading>Our Services</Heading>
-      <Description>Explore our range of services by scrolling through the icons below.</Description>
+      <Description>We offer a wide range of exchange and payout services — fast, secure and reliable. Click a service to get started.</Description>
 
-      <CarouselWrapper>
-        <LeftArrow show={canScrollLeft} onClick={() => scrollCarousel("left")}>
-          <FaChevronLeft />
-        </LeftArrow>
-
-        <ServiceCarousel ref={carouselRef}>
-          {services.map((service, index) => (
-            <ServiceCard key={index}>
-              <img src={service.icon} alt={service.name} />
-              <p>{service.name}</p>
-            </ServiceCard>
-          ))}
-        </ServiceCarousel>
-
-        <RightArrow show={canScrollRight} onClick={() => scrollCarousel("right")}>
-          <FaChevronRight />
-        </RightArrow>
-      </CarouselWrapper>
+      <Grid>
+        {services.map((s, i) => (
+          <ServiceCard key={i} role="article" aria-label={s.name}>
+            <div>
+              <div className="top">
+                <img src={s.icon} alt={s.name} />
+                <div>
+                  <h3>{s.name}</h3>
+                </div>
+              </div>
+              <p className="desc">{s.desc}</p>
+            </div>
+            <div className="cta-row">
+              <button onClick={() => {
+                const el = document.getElementById('calculator');
+                  if (el) {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  const input = el.querySelector('select, input');
+                  if (input) input.focus();
+                } else {
+                  navigate('/services');
+                }
+              }}>Exchange</button>
+            </div>
+          </ServiceCard>
+        ))}
+      </Grid>
     </ServicesSection>
   );
 };

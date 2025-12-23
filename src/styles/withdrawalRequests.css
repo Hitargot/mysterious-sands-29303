@@ -1,122 +1,134 @@
-/* Card Layout for Withdrawal Requests */
+/* Combined styles for Withdrawal Requests page: cards + table + modal */
+.withdrawal-requests-page {
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.status-select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn.small {
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+.btn.danger { background: #ef4444; }
+.btn.close { background: #9ca3af; }
+.btn.refresh { background: #10b981; }
+
+.table-wrap { overflow-x: auto; }
+
+.withdrawals-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.withdrawals-table th,
+.withdrawals-table td {
+  border-bottom: 1px solid #eee;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; }
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: white;
+}
+
+.status-badge.pending { background: #f59e0b; }
+.status-badge.processing_admin, .status-badge.processing_provider { background: #06b6d4; }
+.status-badge.completed { background: #10b981; }
+.status-badge.rejected { background: #ef4444; }
+
+.cards-wrap { display: none; }
+
+.withdrawal-card {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.card-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.card-body div { margin-bottom:6px; }
+.card-actions { margin-top: 8px; display:flex; gap:8px; }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.4);
+  z-index: 4000;
+}
+.modal { background: white; padding: 18px; border-radius: 8px; width: 420px; max-width: 96%; }
+.modal-actions { display:flex; gap:8px; margin-top: 12px; justify-content:flex-end; }
+
+.pagination { display:flex; gap:12px; align-items:center; margin-top: 12px; }
+
+/* Responsive: hide table, show cards under 900px */
+@media (max-width: 900px) {
+  .table-wrap { display: none; }
+  .cards-wrap { display: block; }
+}
+
+/* small improvements */
+.actions { display:flex; gap:8px; }
+
+.status { padding:6px 8px; border-radius:6px; color:white; font-size:13px; }
+.status.pending { background:#f59e0b }
+.status.processing_admin, .status.processing_provider { background:#06b6d4 }
+.status.completed { background:#10b981 }
+.status.rejected { background:#ef4444 }
+
+.muted { color: #6b7280; font-size: 13px; margin-top: 4px; }
+
+/* legacy card styles (kept for compatibility) */
 .withdrawal-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-  }
-  
-  .withdrawal-card {
-    border: 1px solid #ddd;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
-  }
-  
-  .withdrawal-card h3 {
-    margin-top: 0;
-  }
-  
-  .actions button {
-    padding: 8px 16px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    cursor: pointer;
-    margin-right: 10px;
-  }
-  
-  .actions button:hover {
-    background-color: #45a049;
-  }
-  
-  .actions button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-  }
-  
-  /* Modal Overlay Styling */
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .modal {
-    background-color: white;
-    padding: 20px;
-    border-radius: 5px;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    max-width: 400px;
-    width: 100%;
-  }
-  
-  .modal-actions button {
-    padding: 10px 20px;
-    margin: 0 10px;
-    cursor: pointer;
-  }
-  
-  .modal-actions button:first-child {
-    background-color: #4CAF50;
-    color: white;
-  }
-  
-  .modal-actions button:last-child {
-    background-color: #f44336;
-    color: white;
-  }
-  
-  .close-btn {
-    background-color: #ccc;
-    color: black;
-    margin-top: 10px;
-  }
-  
-  .modal {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 400px;
-    margin: auto;
-  }
-  
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-  }
-  
-  .btn {
-    margin: 5px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-  }
-  
-  .btn-success {
-    background: green;
-    color: white;
-  }
-  
-  .btn-danger {
-    background: red;
-    color: white;
-  }
-  
-  .btn-secondary {
-    background: gray;
-    color: white;
-  }
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.withdrawal-card h3 { margin-top: 0; }
+
+.actions button { padding: 8px 16px; background-color: #4CAF50; color: white; border: none; cursor: pointer; margin-right: 10px; }
+.actions button:hover { background-color: #45a049; }
+.actions button:disabled { background-color: #ccc; cursor: not-allowed; }
+
+.btn-success { background: green; color: white; }
+.btn-danger { background: red; color: white; }
+.btn-secondary { background: gray; color: white; }
   

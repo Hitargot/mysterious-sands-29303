@@ -97,7 +97,7 @@ const Calculator = () => {
 
 
   return (
-    <section style={styles.calculatorContainer}>
+    <section id="calculator" style={styles.calculatorContainer}>
       <h3 style={styles.heading}>Exchange Rate Calculator</h3>
 
       {showAlert && <div style={styles.alert}>{alertMessage}</div>}

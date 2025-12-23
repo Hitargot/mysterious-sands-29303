@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import dayjs from 'dayjs';
 import { DotLoaderOverlay } from 'react-spinner-overlay'; // Spinner for loading
 import "../styles/NotificationManagement.css";
 import Alert from '../components/Alert';
+import api from '../lib/api';
 
 const NotificationManagement = () => {
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [message, setMessage] = useState('');
+  const [title, setTitle] = useState('');
   const [notificationsHistory, setNotificationsHistory] = useState([]);
   const [alert, setAlert] = useState({ message: '', type: '', show: false });
   const [loading, setLoading] = useState({ users: true, notifications: true });
@@ -14,43 +17,55 @@ const NotificationManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   
-  const apiUrl = process.env.REACT_APP_API_URL;
+  
 
   useEffect(() => {
-    fetch(`${apiUrl}/api/users`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setUsers(Array.isArray(data) ? data : []);
+    let cancelled = false;
+    api
+      .get('/api/users')
+      .then((res) => {
+        if (cancelled) return;
+        // backend returns an array for /api/users
+        setUsers(Array.isArray(res.data) ? res.data : []);
         setLoading((prev) => ({ ...prev, users: false }));
       })
       .catch((error) => {
         setAlert({ message: 'Error fetching users.', type: 'error', show: true });
         setLoading((prev) => ({ ...prev, users: false }));
       });
-  }, [apiUrl]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
-    fetch(`${apiUrl}/api/notifications`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setNotificationsHistory(Array.isArray(data) ? data.reverse() : []);
+    let cancelled = false;
+    // backend notifications route is mounted at /api/notifications and exposes GET /notifications
+    api
+      .get('/api/notifications')
+      .then((res) => {
+        if (cancelled) return;
+        // Support two backend shapes:
+        // - Admin route returns an array (res.data === [ ...notifications ])
+        // - User route returns { notifications: [...] }
+        let data = [];
+        if (Array.isArray(res.data)) data = res.data;
+        else if (res.data && Array.isArray(res.data.notifications)) data = res.data.notifications;
+        setNotificationsHistory(data.reverse());
         setLoading((prev) => ({ ...prev, notifications: false }));
       })
       .catch((error) => {
-        setAlert({ message: 'Error fetching notifications.', type: 'error', show: true });
+        // If unauthorized or other error, surface a helpful alert
+        const msg = error?.response?.status === 401 ? 'Not authorized to fetch notifications.' : 'Error fetching notifications.';
+        setAlert({ message: msg, type: 'error', show: true });
         setLoading((prev) => ({ ...prev, notifications: false }));
       });
-  }, [apiUrl]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleUserSelection = (userId) => {
     setSelectedUsers((prev) =>
@@ -70,29 +85,31 @@ const NotificationManagement = () => {
 
     const notificationData = {
       users: selectedUsers,
+      title,
       message,
       status: 'new',
       type: 'general',
     };
 
-    fetch(`${apiUrl}/api/send-notification`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(notificationData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
+    api
+      .post('/api/send-notification', notificationData)
+      .then((res) => {
+        const data = res.data || {};
+        // prefer notification returned by server, otherwise fall back to local data
+        const created = data.notification || {};
         setNotificationsHistory((prev) => [
-          { message: data.message, users: data.users || [], status: 'new' },
+          { title: created.title || notificationData.title || '', message: created.message || data.message || notificationData.message, users: created.userIds || data.users || notificationData.users || [], status: created.status || data.status || notificationData.status, createdAt: created.createdAt || new Date().toISOString() },
           ...prev,
         ]);
         setAlert({ message: 'Notification sent successfully.', type: 'success', show: true });
         setMessage('');
+        setTitle('');
         setSelectedUsers([]);
         setShowCreateNotification(false);
       })
       .catch((error) => {
-        setAlert({ message: 'Error sending notification.', type: 'error', show: true });
+        const msg = error?.response?.status === 401 ? 'Not authorized to send notifications.' : 'Error sending notification.';
+        setAlert({ message: msg, type: 'error', show: true });
       });
   };
 
@@ -148,50 +165,67 @@ const NotificationManagement = () => {
       </div>
 
       {showCreateNotification && (
-        <div className="create-notification-form">
-          <div className="user-selection">
-            <label>Select Users:</label>
-            <div>
-              <input
-                type="checkbox"
-                checked={selectedUsers.length === users.length && users.length > 0}
-                onChange={handleSelectAll}
-              />
-              <label>Select All</label>
+        <div className={`notifications-overlay active`} onClick={() => setShowCreateNotification(false)}>
+          <div className={`notifications-modal active`} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <h3 style={{ margin: 0 }}>Create Notification</h3>
+              <button onClick={() => setShowCreateNotification(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>✕</button>
             </div>
 
-            {loading.users ? (
-              <DotLoaderOverlay
-                active={true}
-                spinnerSize={50}
-                color="#36d7b7"
-                backgroundColor="rgba(0, 0, 0, 0.5)"
+            <div className="user-selection">
+              <label>Select Users:</label>
+              <div>
+                <input
+                  type="checkbox"
+                  checked={selectedUsers.length === users.length && users.length > 0}
+                  onChange={handleSelectAll}
+                />
+                <label>Select All</label>
+              </div>
+
+              {loading.users ? (
+                <DotLoaderOverlay
+                  active={true}
+                  spinnerSize={50}
+                  color="#36d7b7"
+                  backgroundColor="rgba(0, 0, 0, 0.5)"
+                />
+              ) : (
+                filteredUsers.map((user) => (
+                  <div key={user._id} className="user-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={selectedUsers.includes(user._id)}
+                      onChange={() => handleUserSelection(user._id)}
+                    />
+                    <label>{user.username} ({user.email})</label>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="message-input" style={{ marginTop: 12 }}>
+              <label>Notification Title (optional):</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter a short title for the notification (optional)"
+                style={{ width: '100%', padding: 8, marginBottom: 8 }}
               />
-            ) : (
-              filteredUsers.map((user) => (
-                <div key={user._id} className="user-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={selectedUsers.includes(user._id)}
-                    onChange={() => handleUserSelection(user._id)}
-                  />
-                  <label>{user.username} ({user.email})</label>
-                </div>
-              ))
-            )}
-          </div>
+              <label>Notification Message:</label>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Enter the notification message"
+                style={{ width: '100%', minHeight: 120, padding: 8 }}
+              />
+            </div>
 
-          <div className="message-input">
-            <label>Notification Message:</label>
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Enter the notification message"
-            />
-          </div>
-
-          <div className="send-notification">
-            <button onClick={sendNotification}>Send Notification</button>
+            <div className="send-notification" style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              <button onClick={() => setShowCreateNotification(false)} style={{ padding: '8px 12px' }}>Cancel</button>
+              <button onClick={sendNotification} style={{ padding: '8px 12px', background: '#36d7b7', border: 'none', color: '#fff', borderRadius: 4 }}>Send Notification</button>
+            </div>
           </div>
         </div>
       )}
@@ -212,9 +246,15 @@ const NotificationManagement = () => {
                 key={index}
                 className={`notification-card ${notification.status}`}
               >
-                <h3>{notification.message}</h3>
-                <p className="status">Status: {notification.status}</p>
-                <p className="type">Type: {notification.type}</p>
+                <h3>{notification.title && notification.title.length ? notification.title : notification.message}</h3>
+                <p className="meta">
+                  <span className="status">Status: {notification.status}</span>
+                  {' '}&middot;{' '}
+                  <span className="type">Type: {notification.type}</span>
+                </p>
+                <p className="time" title={notification.createdAt ? dayjs(notification.createdAt).toString() : ''}>
+                  {notification.createdAt ? `${dayjs(notification.createdAt).fromNow()} • ${dayjs(notification.createdAt).format('YYYY-MM-DD HH:mm')}` : 'No date'}
+                </p>
                 <p className="users">
                   Sent to: {Array.isArray(notification.userIds) && notification.userIds.length > 0
                     ? notification.userIds.map((user) => user.username).join(', ')

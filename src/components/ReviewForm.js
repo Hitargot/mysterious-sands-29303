@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import logo from "../assets/images/Exodollarium-01.png";
+import ResponsiveLogo from './ResponsiveLogo';
 import Alert from "../components/Alert";
 
 const ReviewForm = () => {
@@ -64,7 +64,7 @@ const ReviewForm = () => {
       }}>
         <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <div style={{ display: "flex", alignItems: "center", color: "#f1e4d1", fontWeight: "bold" }}>
-            <img src={logo} alt="Logo" style={{ height: "30px", marginRight: "10px" }} />
+            <ResponsiveLogo alt="Exdollarium" style={{ marginRight: '10px', height: undefined }} />
             <span>Exdollarium</span>
           </div>
         </header>

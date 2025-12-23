@@ -167,3 +167,68 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* Desktop table styles */
+.transactions-table-wrap {
+  overflow-x: auto;
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.transactions-table th,
+.transactions-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eef2f7;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.transactions-table thead th {
+  background: #fafafa;
+  font-weight: 600;
+  color: #333;
+}
+
+.transactions-table .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; }
+
+.status-badge {
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.status-badge.approved { background: #e6f6ec; color: #18794e; }
+.status-badge.rejected { background: #fdecea; color: #8b1c1c; }
+.status-badge.pending { background: #fff7e6; color: #7a5d00; }
+.files-cell a, .file-link { color: #2563eb; text-decoration: underline; font-size: 13px; }
+.files-cell .muted { color: #6b7280; }
+
+.timestamps { font-size: 0.85rem; color: #374151; margin-top: 6px; }
+.timestamps .created, .timestamps .action { margin-top: 4px; color: #6b7280; }
+
+.actions-inline .btn { margin-right: 8px; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; }
+.actions-inline .btn.approve { background: #28a745; color: white; }
+.actions-inline .btn.reject { background: #dc3545; color: white; }
+.actions-inline .btn.fund { background: #0b74de; color: white; }
+
+/* Mobile card tweaks */
+.card-row { display:flex; justify-content:space-between; align-items:center; }
+.card-left h3 { margin:0; }
+.card-left .muted { color: #666; font-size:0.9rem; }
+.card-amounts .amt { font-size: 0.95rem; margin-top:4px; }
+.card-amounts .derived { color:#666; font-size:0.85rem; margin-left:6px; }
+.card-actions .btn { margin-right:8px; }
+.card-actions { margin-top: 8px; display:flex; gap:8px; }
+
+/* Small screens: reduce padding to make list compact */
+@media (max-width: 640px) {
+  .transaction-card { padding: 12px; }
+  .transactions-table { min-width: 700px; }
+}

@@ -7,9 +7,9 @@ const Footer = () => {
   return (
     <footer style={styles.footer}>
       <div style={styles.footerLinks}>
-        <a href="https://chat.whatsapp.com/LcT3Fe47rPtCjjL2ZISHcP" target="_blank" rel="noopener noreferrer" style={styles.link}>
-          <span style={styles.icon}><i className="fab fa-whatsapp"></i></span>
-          <span>WhatsApp</span>
+        <a href="https://t.me/Exdollarium" target="_blank" rel="noopener noreferrer" style={styles.link}>
+          <span style={styles.icon}><i className="fab fa-telegram-plane"></i></span>
+          <span>Telegram</span>
         </a>
         <a href="https://www.instagram.com/exdollarium/" target="_blank" rel="noopener noreferrer" style={styles.link}>
           <span style={styles.icon}><i className="fab fa-instagram"></i></span>

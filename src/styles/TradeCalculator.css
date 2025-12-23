@@ -91,12 +91,12 @@
   color: #ff0000;
 }
 
-/* Fixed WhatsApp Button */
-.whatsapp-support-btn {
+/* Fixed Telegram Button */
+.telegram-support-btn {
   position: fixed;
   bottom: 20px;
   right: 20px; /* Ensures it's properly placed */
-  background: #25D366;
+  background: #0088cc; /* Telegram brand blue */
   color: white;
   border: none;
   border-radius: 50%;
@@ -112,6 +112,6 @@
   z-index: 1000; /* Keeps it above other elements */
 }
 
-.whatsapp-support-btn:hover {
-  background: #1DA851;
+.telegram-support-btn:hover {
+  background: #0077b6;
 }

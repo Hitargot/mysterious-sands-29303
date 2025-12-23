@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { requestPermissionAndGetToken, onMessageListener } from './firebase';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE from './config/api';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import UserDashboard from './dashboards/UserDashboard'; // User Dashboard
@@ -19,7 +20,6 @@ import Overview from './components/Overview';
 import adminRoutes from './routes/adminRoutes'; // Import adminRoutes
 import AdminLayout from './layouts/AdminLayout'; // Layout for admin pages
 import PrivateRoute from './components/PrivateRoute'; // PrivateRoute component
-// import AdminSignup from './components/AdminSignup';
 import VerifyAccount from './components/VerifyAccount';
 import VerifyRole from './components/VerifyRole';
 import AdminLogin from './components/AdminLogin';
@@ -30,7 +30,7 @@ import NoAccess from './components/NoAccess';
 import TradeHistory from './components/TradeHistory';
 import VerifyEmail from './components/VerifyEmail';
 import ResendVerification from './components/ResendVerification';
-import Chatbot from './components/Chatbot';
+// Chatbot temporarily removed
 import ReviewForm from './components/ReviewForm';
 import VerifyOtpPage from "./components/VerifyOtpPage";
 import ResetPinPage from "./components/ResetPinPage";
@@ -40,6 +40,7 @@ import SetWithdrawPin from './components/SetWithdrawPin';
 import PayPalFeeCalculator from './components/paypalCalculator';
 import TransferPage from './components/TransferPage';
 
+
 const App = () => {
   const [userRole, setUserRole] = useState(null);
   const [walletBalance, setWalletBalance] = useState(0);
@@ -48,8 +49,9 @@ const App = () => {
     // Request permission and get the FCM token
     requestPermissionAndGetToken().then((token) => {
       if (token) {
-        // Send the token to the backend for storage
-        axios.post("http://localhost:22222/api/notifications/save-token", { token })
+        // Send the token to the backend for storage (use configured API_BASE)
+        const saveTokenUrl = API_BASE ? `${API_BASE}/api/notifications/save-token` : '/api/notifications/save-token';
+        axios.post(saveTokenUrl, { token })
           .then((response) => {
             console.log("Token sent to backend successfully:", response);
           })
@@ -97,19 +99,18 @@ if ('serviceWorker' in navigator) {
           <Route path="/admin/verify" element={<VerifyAccount />} />
           <Route path="/roles/verify" element={<VerifyRole />} />
           <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/TradeCalculator" element={<TradeCalculator />} />
-          <Route path="/WalletPage" element={<WalletPage />} />
-          {/* <Route path="/admin/signup" element={<AdminSignup />} /> */}
-          <Route path="/overview" element={<Overview walletBalance={walletBalance} setWalletBalance={setWalletBalance} />} />
-          <Route path="/Notifications" element={<Notifications />} />
+          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route path="/TradeCalculator" element={<PrivateRoute><TradeCalculator /></PrivateRoute>} />
+          <Route path="/WalletPage" element={<PrivateRoute><WalletPage /></PrivateRoute>} />
+          <Route path="/overview" element={<PrivateRoute><Overview walletBalance={walletBalance} setWalletBalance={setWalletBalance} /></PrivateRoute>} />
+          <Route path="/Notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/role/login" element={<RoleLogin />} />
           <Route path="/role/no-access" element={<NoAccess />} />
-          <Route path="/trade-history" element={<TradeHistory />} />
+          <Route path="/trade-history" element={<PrivateRoute><TradeHistory /></PrivateRoute>} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/resend-verification" element={<ResendVerification />} />
-          <Route path="/chat-bot" element={<Chatbot />} />
+          {/* Chatbot route disabled temporarily */}
           <Route path="/reviews/submit" element={<ReviewForm />} />
           <Route path="/terms" element={<TermsAndConditions />} />
           <Route path="/set-pin" element={<SetWithdrawPin />} />
@@ -117,11 +118,13 @@ if ('serviceWorker' in navigator) {
           <Route path="/verify-otp" element={<VerifyOtpPage />} />
           <Route path="/reset-pin" element={<ResetPinPage />} />
           <Route path="/paypal-fee-calculator" element={<PayPalFeeCalculator />} />
-          <Route path="/transfer" element={<TransferPage />} />
+          <Route path="/transfer" element={<PrivateRoute><TransferPage /></PrivateRoute>} />
+          <Route path="/pre-submission" element={<PrivateRoute><Navigate to="/dashboard?panel=create-presubmission" replace /></PrivateRoute>} />
+          <Route path="/my-pre-submissions" element={<PrivateRoute><Navigate to="/dashboard?panel=my-pre-submissions" replace /></PrivateRoute>} />
           <Route
             path="/admin"
             element={
-              <PrivateRoute >
+              <PrivateRoute adminOnly={true}>
                 <AdminLayout>
                   <AdminHome />
                 </AdminLayout>
@@ -133,7 +136,7 @@ if ('serviceWorker' in navigator) {
               key={index}
               path={path}
               element={
-                <PrivateRoute>
+                <PrivateRoute adminOnly={true}>
                   <AdminLayout>
                     {React.createElement(component)}
                   </AdminLayout>
@@ -146,7 +149,7 @@ if ('serviceWorker' in navigator) {
           <Route path="*" element={<Navigate to="/" replace />} />
 
           {/* Role-based dashboard routing */}
-          <Route path="/dashboard" element={userRole === 'admin' ? <AdminDashboard /> : <UserDashboard />} />
+          <Route path="/dashboard/*" element={<PrivateRoute>{userRole === 'admin' ? <AdminDashboard /> : <UserDashboard />}</PrivateRoute>} />
         </Routes>
       </Router>
     </NotificationProvider>

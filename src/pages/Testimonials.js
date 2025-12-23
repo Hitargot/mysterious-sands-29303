@@ -1,134 +1,92 @@
-import React, { useEffect, useState, useCallback } from "react";
-import axios from "axios";
-import TestimonialHeader from "../components/TestimonialsHeader"; 
-import oldReviews from "../data/oldReviews"; // Import old reviews
+import React, { useEffect, useState, useCallback } from 'react';
+import axios from 'axios';
+import TestimonialsHeader from '../components/TestimonialsHeader';
+import oldReviews from '../data/oldReviews';
 
 const Testimonials = () => {
   const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
   const apiUrl = process.env.REACT_APP_API_URL;
-
 
   const fetchApprovedReviews = useCallback(async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/approved`);
-      console.log("Fetched Reviews:", response.data);
       setReviews([...response.data, ...oldReviews]);
     } catch (error) {
-      console.error("Error fetching reviews:", error);
+      console.error('Error fetching reviews:', error);
       setReviews([...oldReviews]);
     }
     setLoading(false);
-  }, [apiUrl]); // depends only on apiUrl
+  }, [apiUrl]);
 
   useEffect(() => {
     fetchApprovedReviews();
-  }, [fetchApprovedReviews]); // ✅ no warning now
-  
+  }, [fetchApprovedReviews]);
+
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const styles = {
+    testimonialsPage: {
+      background: 'linear-gradient(180deg,#dff0ff 0%, #eaf6ff 100%)',
+      minHeight: '100vh',
+      boxSizing: 'border-box',
+    },
+    container: { width: '100%', maxWidth: 1100, margin: '0 auto', padding: isMobile ? 16 : 28, boxSizing: 'border-box' },
+    hero: { padding: isMobile ? '28px 0 12px' : '48px 0 20px', textAlign: 'center' },
+    h1: { fontSize: isMobile ? 22 : 32, color: '#162660', margin: '0 0 8px' },
+    lead: { color: '#6b7280', margin: '0 auto', maxWidth: isMobile ? 360 : 760, fontSize: isMobile ? 14 : 16 },
+    loading: { padding: 30, textAlign: 'center', color: '#162660', fontWeight: 600 },
+    muted: { color: '#6b7280', textAlign: 'center' },
+  reviewsGrid: { display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit,minmax(240px,1fr))', gap: isMobile ? 12 : 18, marginTop: 18, alignItems: 'start' },
+  reviewCard: { background: '#07102a', color: '#f1eae0', padding: isMobile ? 12 : 18, borderRadius: 12, boxShadow: '0 8px 20px rgba(4,6,20,0.4)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: isMobile ? 120 : 160, transition: 'transform .22s ease,box-shadow .22s', wordBreak: 'break-word', overflowWrap: 'anywhere' },
+    author: { fontWeight: 800, color: '#fff', fontSize: isMobile ? 16 : 18 },
+    rating: { color: '#ffd54a', fontSize: isMobile ? 14 : 16 },
+  reviewBody: { marginTop: 10, color: '#e8f6ff', fontSize: isMobile ? 14 : 15, lineHeight: 1.5, flex: 1, whiteSpace: 'pre-wrap', wordBreak: 'break-word' },
+    reviewMeta: { marginTop: 12, color: '#cbd5e1', fontSize: isMobile ? 12 : 13 },
+  };
 
   return (
-    <div style={{
-      backgroundColor: "#d0e6fd",
-      minHeight: "100vh",
-      paddingBottom: "30px",
-    }}>
-      <TestimonialHeader />
-    
-      <div style={{
-        maxWidth: "900px",
-        width: "90%",
-        margin: "auto",
-        padding: "25px",
-        textAlign: "center",
-      }}>
-        <h2 style={{
-          color: "#162660",
-          fontSize: "26px",
-          fontWeight: "bold",
-          marginBottom: "20px",
-        }}>
-          What Our Customers Say
-        </h2>
-    
+    <div style={styles.testimonialsPage}>
+      <TestimonialsHeader />
+
+      <section style={styles.hero}>
+        <div style={styles.container}>
+          <h1 style={styles.h1}>What our customers say</h1>
+          <p style={styles.lead}>Real feedback from users who trusted our services. Honest. Verified. Helpful.</p>
+        </div>
+      </section>
+
+      <main style={styles.container}>
         {loading ? (
-          <p style={{
-            textAlign: "center",
-            fontSize: "18px",
-            color: "#162660",
-            fontWeight: "bold",
-            animation: "fadeIn 1s infinite alternate",
-          }}>
-            Loading reviews...
-          </p>
+          <div style={styles.loading}>Loading reviews…</div>
         ) : reviews.length === 0 ? (
-          <p style={{ textAlign: "center", color: "#333", fontSize: "16px" }}>
-            No reviews yet. Be the first to leave one!
-          </p>
+          <p style={styles.muted}>No reviews yet. Be the first to leave one!</p>
         ) : (
-          <div style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            gap: "15px",
-          }}>
+          <div style={styles.reviewsGrid}>
             {reviews.map((review) => (
-              <div key={review._id} style={{
-                backgroundColor: "#162660",
-                color: "#f1e4d1",
-                borderRadius: "10px",
-                padding: "20px",
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-                transition: "transform 0.3s ease-in-out",
-                maxWidth: "300px",
-                width: "100%",
-                minHeight: "180px", 
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                cursor: "pointer",
-              }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-                onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
-              >
-                <p style={{
-                  fontSize: "16px",
-                  fontStyle: "italic",
-                  lineHeight: "1.5",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 3, 
-                  WebkitBoxOrient: "vertical",
-                }}>
-                  "{review.reviewText}"
-                </p>
-    
-                <p style={{
-                  fontWeight: "bold",
-                  marginTop: "10px",
-                  color: "#d0e6fd",
-                  fontSize: "14px",
-                }}>
-                  - {review.userId?.username || "Anonymous"}
-                </p>
-    
-                <p style={{ fontStyle: "italic", fontSize: "14px", color: "#f8c471" }}>
-                  Service: {review.confirmationId?.serviceId?.name || "Unknown"}
-                </p>
-    
-                <div style={{
-                  fontSize: "20px",
-                  color: "#FFD700",
-                  marginTop: "5px",
-                }}>
-                  {"⭐".repeat(review.rating)}
+              <article key={review._id || Math.random()} style={styles.reviewCard}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}>
+                  <div style={styles.author}>{review.userId?.username || review.name || 'Anonymous'}</div>
+                  <div style={styles.rating}>{'⭐'.repeat(review.rating || 4)}</div>
                 </div>
-              </div>
+
+                <div style={styles.reviewBody}>“{review.reviewText || review.review}”</div>
+
+                <div style={styles.reviewMeta}>
+                  <div>{review.confirmationId?.serviceId?.name || review.service || 'Service'}</div>
+                </div>
+              </article>
             ))}
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 };

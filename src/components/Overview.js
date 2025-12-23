@@ -93,6 +93,9 @@ const Overview = ({ setActiveComponent }) => {
           ...c,
           type: 'Trade Confirmation',
           serviceName: c.serviceId?.name || 'N/A',
+          // prefer human-friendly transactionId when present, otherwise fall back
+          transactionId: c.transactionId || c.id || c._id,
+          id: c.transactionId || c.id || c._id,
         }));
 
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FaClipboard } from 'react-icons/fa';
 import html2canvas from 'html2canvas';
 import Alert from './Alert';
+import ResponsiveLogo from './ResponsiveLogo';
 import '../styles/ReceiptModal.css'; // Ensure this CSS file exists
 
 const ReceiptModal = ({ receiptData, onClose }) => {
@@ -102,7 +103,7 @@ const ReceiptModal = ({ receiptData, onClose }) => {
       <div className="receipt-modal">
         <div className="receipt-modal-content" id="receipt-content">
           <div className="receipt-header">
-            <img src={require('../assets/images/Exodollarium-01.png')} alt="Exdollarium Logo" className="company-logo" />
+            <ResponsiveLogo alt="Exdollarium" className="company-logo" />
             <h2>Exdollarium</h2>
             <p className="receipt-title">Official Transaction Receipt</p>
           </div>

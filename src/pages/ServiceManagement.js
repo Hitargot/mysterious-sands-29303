@@ -15,6 +15,7 @@ const ServiceManagement = () => {
     fees: "", // Add fees explanation
     minAmount: "", // Minimum transaction amount
     maxAmount: "", // Maximum transaction amount
+    isNew: false,
   });
   const [tags, setTags] = useState([]);
   const [selectedServiceId, setSelectedServiceId] = useState(null);
@@ -107,7 +108,13 @@ const ServiceManagement = () => {
 
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+    // support checkbox inputs
+    if (type === 'checkbox') {
+      setFormData({ ...formData, [name]: Boolean(checked) });
+      return;
+    }
+
     if (name.startsWith("exchangeRates")) {
       const currency = name.split(".")[1];
       setFormData({
@@ -153,7 +160,8 @@ const ServiceManagement = () => {
 
   const handleEdit = (service) => {
     setEditingService(service);
-    setFormData({ ...service, exchangeRates: service.exchangeRates });
+    // ensure isNew and exchangeRates are preserved when editing
+    setFormData({ ...service, exchangeRates: service.exchangeRates, isNew: Boolean(service.isNew) });
     setShowForm(true);
   };
 
@@ -298,6 +306,17 @@ const ServiceManagement = () => {
               <option value="invalid">Invalid</option>
             </select>
 
+            {/* New flag: mark service as NEW for UI highlights */}
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+              <input
+                type="checkbox"
+                name="isNew"
+                checked={formData.isNew}
+                onChange={handleInputChange}
+              />
+              <span>Mark as NEW (highlight in UI)</span>
+            </label>
+
             <button type="submit">
               {editingService ? "Update Service" : "Add Service"}
             </button>
@@ -314,10 +333,15 @@ const ServiceManagement = () => {
           loading={loading} // Show spinner when loading is true
           text="Loading services..."
         />
-        {!loading &&
+          {!loading &&
           services.map((service) => (
             <div key={service._id} className="service-card">
-              <h3>{service.name}</h3>
+              <h3>
+                {service.name}
+                {service.isNew ? (
+                  <span style={{ background: '#FF3B30', color: '#fff', padding: '2px 8px', borderRadius: 12, fontSize: 12, marginLeft: 8 }}>NEW</span>
+                ) : null}
+              </h3>
               <div className="exchange-rates">
                 <p>USD: {service.exchangeRates.usd}</p>
                 <p>EUR: {service.exchangeRates.eur}</p>

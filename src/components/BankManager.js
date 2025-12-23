@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import Alert from './Alert'; // replace with your actual alert component
+import Alert from './Alert';
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -142,10 +142,15 @@ const BankManager = () => {
       fetchUserBanks();
     } catch (err) {
       console.error('Add Bank Error:', err);
-      if (err.response && err.response.status === 400) {
-        showAlert({ message: 'This bank account is already added', type: 'error' });
+      const resp = err && err.response && err.response.data;
+      const status = err && err.response && err.response.status;
+      const msg = (resp && (resp.message || resp.error)) || '';
+
+      // Backend currently returns 409 for duplicates; older code looked for 400.
+      if (status === 409 || status === 400 || String(msg).toLowerCase().includes('already')) {
+        showAlert({ message: 'It is already added', type: 'error' });
       } else {
-        showAlert({ message: 'Failed to add bank', type: 'error' });
+        showAlert({ message: msg || 'Failed to add bank', type: 'error' });
       }
     } finally {
       setSubmitting(false);

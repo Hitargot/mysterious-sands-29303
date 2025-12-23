@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'; // React hooks
 import axios from 'axios'; // Axios for HTTP requests
-import { FaTimes, FaWhatsapp } from 'react-icons/fa'; // React icons
+import { FaTimes, FaTelegramPlane } from 'react-icons/fa'; // React icons
 import Alert from './Alert'; // Alert component
 import TradeDetails from './TradeDetails'; // TradeDetails component
 import '../styles/TradeCalculator.css'; // Import the CSS file
@@ -137,8 +137,8 @@ const TradeCalculator = () => {
       Exchange Rate: ${service.exchangeRates[selectedCurrency]} NGN per ${selectedCurrency.toUpperCase()}
       NGN Equivalent: ₦${ngnEquivalent}
     `;
-    const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappURL, '_blank');
+  const telegramURL = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(message)}`;
+  window.open(telegramURL, '_blank');
   };
 
   const handleCloseReceipt = () => {
@@ -225,7 +225,7 @@ const TradeCalculator = () => {
             <p><strong>Amount ({selectedCurrency.toUpperCase()}):</strong> {selectedAmount}</p>
             <p><strong>NGN Equivalent:</strong> ₦{ngnEquivalent.toLocaleString()}</p>
             <button onClick={handleViewTradeDetails}>Start Trade</button>
-            <button onClick={handleShareReceipt}>Share on WhatsApp</button>
+            <button onClick={handleShareReceipt}>Share on Telegram</button>
           </div>
         </div>
       )}
@@ -240,10 +240,11 @@ const TradeCalculator = () => {
       )}
 
       <button
-        className="whatsapp-support-btn"
-        onClick={() => window.open('https://wa.me/09123258507', '_blank')}
+        className="telegram-support-btn"
+        onClick={() => window.open('https://t.me/Exdollarium', '_blank')}
+        aria-label="Contact on Telegram @Exdollarium"
       >
-        <FaWhatsapp />
+        <FaTelegramPlane />
       </button>
     </div>
   );

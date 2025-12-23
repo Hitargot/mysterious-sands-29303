@@ -1,8 +1,7 @@
-import React from 'react'; // Add this import statement
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from "axios";
 import Alert from "../components/Alert"; // Your alert component
-import { jwtDecode } from 'jwt-decode'; // Ensure jwt-decode is installed
+import {jwtDecode } from 'jwt-decode';
 import '../styles/TradeTransactions.css';
 import FundConfirmationModal from "../components/FundConfirmationModal.js"; // Import the modal component
 
@@ -23,6 +22,16 @@ const TradeTransactions = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [confirmationId, setConfirmationId] = useState(null);
 
+    // Responsive: track viewport width to switch between mobile card view and desktop table view
+    const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+    const isDesktop = windowWidth >= 1024;
+
+    useEffect(() => {
+        const onResize = () => setWindowWidth(window.innerWidth);
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+    }, []);
+
 
     // Fetch transactions function
     const fetchTransactions = useCallback(async () => {
@@ -36,7 +45,7 @@ const TradeTransactions = () => {
             const headers = { Authorization: `Bearer ${token}` };
             const response = await axios.get(`${apiUrl}/api/admin/confirmations`, { headers });
 
-            const sortedTransactions = response.data.confirmations.sort((a, b) =>
+            const sortedTransactions = (response.data.confirmations || response.data.confirmations || []).sort((a, b) =>
                 new Date(b.createdAt) - new Date(a.createdAt)
             );
 
@@ -67,9 +76,10 @@ const TradeTransactions = () => {
         setSearchTerm(term);
 
         const filtered = transactions.filter((tx) =>
-            tx.transactionId.toLowerCase().includes(term) ||
-            tx.userId?.username.toLowerCase().includes(term) ||
-            tx.serviceId?.name.toLowerCase().includes(term)
+            (tx.transactionId || '').toString().toLowerCase().includes(term) ||
+            (tx.userId?.username || '').toString().toLowerCase().includes(term) ||
+            (tx.serviceId?.name || tx.serviceName || '').toString().toLowerCase().includes(term) ||
+            (tx.serviceTag || tx.serviceId?.tag || '').toString().toLowerCase().includes(term)
         );
         setFilteredTransactions(filtered);
     };
@@ -222,98 +232,165 @@ const TradeTransactions = () => {
                 />
             </div>
 
-            {/* Transaction Cards - Grid Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredTransactions.map((tx) => (
-                    <div
-                        key={tx._id}
-                        className={`transaction-card p-4 rounded-lg shadow-md border ${tx.status === "Approved" ? "border-green-500" : tx.status === "Rejected" ? "border-red-500" : "border-gray-300"}`}
-                    >
-                        <h3 className="text-lg font-bold">
-                            Transaction ID: {tx.transactionId}
-                        </h3>
-                        <p><strong>User:</strong> {tx.userId?.username || "N/A"}</p>
-                        <p><strong>Service:</strong> {tx.serviceId?.name || "N/A"}</p>
-                        <p><strong>Tag:</strong> {tx.serviceId?.tag || "N/A"}</p>
-
-                        <p>
-                            <strong>Status:</strong>{" "}
-                            <span className={`status-text font-semibold ${tx.status === "Approved" ? "text-green-600" : tx.status === "Rejected" ? "text-red-600" : "text-yellow-500"}`}>
-                                {tx.status}
-                            </span>
-                        </p>
-                        <p><strong>Approved/Rejected By:</strong> {tx.adminUsername || "N/A"}</p>
-
-                        {/* Show timestamps */}
-                        {
-                            tx.status === "Approved" && (
-                                <>
-                                    <p><strong>Approved At:</strong> {new Date(tx.approvedAt).toLocaleString()}</p>
-
-                                    {/* Display Funded At after successful funding */}
-                                    {tx.status === "Funded" && tx.fundedAt && (
-                                        <p><strong>Funded At:</strong> {new Date(tx.fundedAt).toLocaleString()}</p>
+            {/* Responsive view: Table on desktop, cards on mobile */}
+            {isDesktop ? (
+                /* Desktop table layout */
+                <div className="transactions-table-wrap">
+                    <table className="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>User</th>
+                                <th>Tag</th>
+                                <th>Service</th>
+                                <th>Amounts</th>
+                                <th>Status</th>
+                                <th>Files</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredTransactions.map((tx) => (
+                                <tr key={tx._id} className={`tx-row ${tx.status ? tx.status.toLowerCase() : ''}`}>
+                                    <td className="mono">{tx.transactionId}</td>
+                                    <td>{tx.userId?.username || 'N/A'}</td>
+                                    <td>{tx.serviceTag || tx.serviceId?.tag || '-'}</td>
+                                    <td>{tx.serviceId?.name || 'N/A'}</td>
+                                    <td>
+                                        {/* compact multi-line amounts */}
+                                        <div className="amounts-cell">
+                                            {tx.userAmountInForeignCurrency ?? tx.amountInForeignCurrency ?? tx.originalAmount ? (
+                                                <div className="amt user">User: {Number(tx.userAmountInForeignCurrency ?? tx.amountInForeignCurrency ?? tx.originalAmount).toLocaleString()}</div>
+                                            ) : null}
+                                            {tx.adminProvidedAmount ?? tx.adminAmount ?? tx.adminForeignAmount ? (
+                                                <div className="amt admin">Admin: {Number(tx.adminProvidedAmount ?? tx.adminAmount ?? tx.adminForeignAmount).toLocaleString()}</div>
+                                            ) : null}
+                                            {tx.amountInNaira ? (
+                                                <div className="amt funded">NGN: ₦{Number(tx.amountInNaira).toLocaleString()}</div>
+                                            ) : null}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span className={`status-badge ${tx.status ? tx.status.toLowerCase() : ''}`}>{tx.status}</span>
+                                    </td>
+                                    <td>
+                                        <div className="files-cell">
+                                            {Array.isArray(tx.fileUrls) && tx.fileUrls.length > 0 ? (
+                                                tx.fileUrls.map((f, i) => {
+                                                    const href = f.startsWith('/') ? `${apiUrl}${f}` : f;
+                                                    return (
+                                                        <div key={i}><a href={href} target="_blank" rel="noopener noreferrer">file {i+1}</a></div>
+                                                    );
+                                                })
+                                            ) : (
+                                                <div className="muted">No files</div>
+                                            )}
+                                            {/* timestamps */}
+                                            <div className="timestamps mt-2">
+                                                <div className="created">Created: {tx.createdAt ? new Date(tx.createdAt).toLocaleString() : '—'}</div>
+                                                {(() => {
+                                                    const actionTime = tx.approvedAt || tx.fundedAt || tx.rejectedAt || tx.updatedAt;
+                                                    const actionLabel = tx.approvedAt ? 'Approved' : tx.fundedAt ? 'Funded' : tx.rejectedAt ? 'Rejected' : (tx.updatedAt ? 'Updated' : null);
+                                                    return actionLabel ? <div className="action">{actionLabel} at: {actionTime ? new Date(actionTime).toLocaleString() : '—'}</div> : null;
+                                                })()}
+                                            </div>
+                                            <div className="actions-inline mt-2">
+                                                {tx.status === 'Pending' && (
+                                                    <>
+                                                        <button className="btn approve" onClick={() => handleApproveModal(tx)}>Approve</button>
+                                                        <button className="btn reject" onClick={() => handleRejectModal(tx)}>Reject</button>
+                                                    </>
+                                                )}
+                                                {tx.status === 'Approved' && (
+                                                    <button className="btn fund" onClick={() => handleOpenModal(tx._id)}>Fund</button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredTransactions.map((tx) => (
+                        <div
+                            key={tx._id}
+                            className={`transaction-card p-4 rounded-lg shadow-md border ${tx.status === "Approved" ? "border-green-500" : tx.status === "Rejected" ? "border-red-500" : "border-gray-300"}`}
+                        >
+                            <div className="card-row">
+                                <div className="card-left">
+                                    <h3 className="text-lg font-bold">{tx.transactionId}</h3>
+                                    <p className="muted">{tx.userId?.username || "N/A"} • {tx.serviceId?.name || "N/A"}</p>
+                                    <p className="muted">Tag: {tx.serviceTag || tx.serviceId?.tag || '-'}</p>
+                                    {Array.isArray(tx.fileUrls) && tx.fileUrls.length > 0 && (
+                                        <>
+                                            <div className="mt-2">
+                                                {tx.fileUrls.map((f, i) => {
+                                                    const href = f.startsWith('/') ? `${apiUrl}${f}` : f;
+                                                    return <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="file-link mr-2">file {i+1}</a>;
+                                                })}
+                                            </div>
+                                            <div className="timestamps mt-2">
+                                                <div className="created">Created: {tx.createdAt ? new Date(tx.createdAt).toLocaleString() : '—'}</div>
+                                                {(() => {
+                                                    const actionTime = tx.approvedAt || tx.fundedAt || tx.rejectedAt || tx.updatedAt;
+                                                    const actionLabel = tx.approvedAt ? 'Approved' : tx.fundedAt ? 'Funded' : tx.rejectedAt ? 'Rejected' : (tx.updatedAt ? 'Updated' : null);
+                                                    return actionLabel ? <div className="action">{actionLabel} at: {actionTime ? new Date(actionTime).toLocaleString() : '—'}</div> : null;
+                                                })()}
+                                            </div>
+                                            <div className="card-actions mt-2">
+                                                {tx.status === 'Pending' && (
+                                                    <>
+                                                        <button className="approve-btn px-3 py-1 bg-green-500 text-white rounded-md mr-2" onClick={() => handleApproveModal(tx)}>Approve</button>
+                                                        <button className="reject-btn px-3 py-1 bg-red-500 text-white rounded-md" onClick={() => handleRejectModal(tx)}>Reject</button>
+                                                    </>
+                                                )}
+                                                {tx.status === 'Approved' && (
+                                                    <button className="px-4 py-2 bg-blue-500 text-white rounded-lg" onClick={() => handleOpenModal(tx._id)}>Fund</button>
+                                                )}
+                                            </div>
+                                        </>
                                     )}
-
-                                    {/* ✅ New Funding Button (Only for Approved Transactions) */}
-                                    <button
-                                        onClick={() => handleOpenModal(tx._id)}  // Use tx here, not transaction
-                                        className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-                                    >
-                                        Fund
-                                    </button>
-                                </>
-                            )
-                        }
-
-
-                        {tx.status === "Rejected" && (
-                            <>
-                                <p><strong>Rejected At:</strong> {new Date(tx.rejectedAt).toLocaleString()}</p>
-                                <p><strong>Reason:</strong> {tx.rejectionReason}</p>
-                            </>
-                        )}
-
-                        {/* New Fields for Note and File URL */}
-                        {tx.note && (
-                            <p><strong>Note:</strong> {tx.note}</p>
-                        )}
-                        {tx.fileUrl && (
-                            <div className="file-url-section mt-3">
-                                <p><strong>File URL:</strong>
-                                    <a
-                                        href={tx.fileUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="file-url-button px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition duration-300"
-                                    >
-                                        View File
-                                    </a>
-                                </p>
+                                </div>
+                                <div className="card-right">
+                                    <span className={`status-badge ${tx.status ? tx.status.toLowerCase() : ''}`}>{tx.status}</span>
+                                </div>
                             </div>
-                        )}
-
-                        {/* Approve & Reject Buttons (Only if still pending) */}
-                        {tx.status === "Pending" && (
-                            <div className="mt-3">
-                                <button
-                                    className="approve-btn px-3 py-1 bg-green-500 text-white rounded-md mr-2"
-                                    onClick={() => handleApproveModal(tx)} // Open approve modal
-                                >
-                                    Approve
-                                </button>
-
-                                <button
-                                    className="reject-btn px-3 py-1 bg-red-500 text-white rounded-md"
-                                    onClick={() => handleRejectModal(tx)} // Open reject modal
-                                >
-                                    Reject
-                                </button>
+                            <div className="card-amounts mt-2">
+                                {(() => {
+                                    const fmtNumber = (v) => (v == null ? null : Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                                    const userAmount = tx.userAmountInForeignCurrency ?? tx.amountInForeignCurrency ?? tx.originalAmount ?? null;
+                                    const userCurrency = tx.userSelectedCurrency || tx.selectedCurrency || tx.currency || null;
+                                    const adminForeignCandidates = [tx.adminProvidedAmount, tx.adminAmount, tx.adminForeignAmount, tx.amountAdmin];
+                                    let adminForeign = adminForeignCandidates.find(v => typeof v === 'number');
+                                    let adminForeignDerived = false;
+                                    if (adminForeign == null && tx.amountInNaira != null && tx.exchangeRateUsed) {
+                                        adminForeign = Number(tx.amountInNaira) / Number(tx.exchangeRateUsed);
+                                        adminForeignDerived = true;
+                                    }
+                                    const adminCurrency = tx.adminSelectedCurrency || tx.adminCurrency || tx.selectedCurrency || tx.currency || null;
+                                    const fundedNgn = tx.amountInNaira != null ? Number(tx.amountInNaira) : null;
+                                    return (
+                                        <>
+                                            {userAmount != null && userCurrency && (
+                                                <div className="amt user"><strong>User:</strong> {fmtNumber(userAmount)} {userCurrency}</div>
+                                            )}
+                                            {adminForeign != null && adminCurrency && (
+                                                <div className="amt admin"><strong>Admin:</strong> {fmtNumber(adminForeign)} {adminCurrency}{adminForeignDerived ? <span className="derived"> (derived)</span> : null}</div>
+                                            )}
+                                            {(tx.status === 'Funded' || tx.fundedAt) && fundedNgn != null && (
+                                                <div className="amt funded"><strong>Total Funded (NGN):</strong> ₦{Number(fundedNgn).toLocaleString()}</div>
+                                            )}
+                                        </>
+                                    );
+                                })()}
                             </div>
-                        )}
-                    </div>
-                ))}
-            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {/* Reject Confirmation Modal */}
             {showRejectModal && (

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from 'react-router-dom';
 import Alert from "./Alert";
 import axios from "axios";
 import { FaClipboard } from 'react-icons/fa';  // Import the clipboard icon
@@ -41,23 +42,62 @@ const Profile = () => {
 
 
 
+  const navigate = useNavigate();
+  
+  const PROFILE_CACHE_KEY = 'profile_cache_v1';
+  const PROFILE_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+  const getCachedProfile = useCallback(() => {
+    try {
+      const raw = localStorage.getItem(PROFILE_CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !parsed.ts || !parsed.data) return null;
+      if ((Date.now() - parsed.ts) > PROFILE_CACHE_TTL) return null;
+      return parsed.data;
+    } catch (e) {
+      return null;
+    }
+  }, [PROFILE_CACHE_TTL, PROFILE_CACHE_KEY]);
+
+  const setCachedProfile = useCallback((data) => {
+    try {
+      localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+    } catch (e) {
+      // ignore
+    }
+  }, [PROFILE_CACHE_KEY]);
+
   useEffect(() => {
     if (!token) {
-      window.location.href = "/login";
+      navigate('/login');
       return;
     }
+
+    // Try cache first
+    const cached = getCachedProfile();
+    if (cached) {
+      setUserInfo(cached);
+      return; // skip network call while cache fresh
+    }
+
+    let cancelled = false;
     const fetchProfileData = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUserInfo(response.data);
+        if (!cancelled) {
+          setUserInfo(response.data);
+          setCachedProfile(response.data);
+        }
       } catch (error) {
-        setAlert({ message: "Error fetching profile data", type: "error", show: true });
+        if (!cancelled) setAlert({ message: "Error fetching profile data", type: "error", show: true });
       }
     };
     fetchProfileData();
-  }, [token, apiUrl]);
+    return () => { cancelled = true; };
+  }, [token, apiUrl, navigate, getCachedProfile, setCachedProfile]);
 
   const toggleWalletSummary = () => {
     setShowWalletSummary(prev => !prev);
@@ -79,7 +119,12 @@ const Profile = () => {
       );
 
       setAlert({ message: response.data.message, type: "success", show: true });
-      setUserInfo((prev) => ({ ...prev, payId: response.data.payId }));
+      const next = (prev) => ({ ...prev, payId: response.data.payId });
+      setUserInfo((prev) => {
+        const merged = next(prev);
+        try { setCachedProfile(merged); } catch (e) {}
+        return merged;
+      });
       setIsEditingPayId(false);
     } catch (error) {
       setAlert({
@@ -113,11 +158,9 @@ const Profile = () => {
 
       setAlert({ message: response.data.message, type: "success", show: true });
       setIsEditing(false);
-      setUserInfo((prev) => ({
-        ...prev,
-        firstName: newFirstName,
-        lastName: newLastName
-      }));
+      const merged = { ...userInfo, firstName: newFirstName, lastName: newLastName };
+      setUserInfo(merged);
+      try { setCachedProfile(merged); } catch (e) {}
     } catch (error) {
       setAlert({ message: "Failed to update profile", type: "error", show: true });
     }

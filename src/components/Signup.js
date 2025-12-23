@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Alert from "../components/Alert";
+import ResponsiveLogo from './ResponsiveLogo';
 import axios from "axios";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css"; // Import styles
@@ -44,6 +45,14 @@ const Signup = () => {
   const [termsAccepted, setTermsAccepted] = useState(
     localStorage.getItem("termsAccepted") === "true"
   );
+
+  // Responsive helper to adjust spacing on mobile
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("signupForm", JSON.stringify(formData));
@@ -210,6 +219,9 @@ const Signup = () => {
 
 
   // Styles
+  const logoTextMargin = isMobile ? "12px" : "24px";
+  const navMarginLeft = isMobile ? "8px" : "16px";
+
   const styles = {
     signup: {
       minHeight: "100vh", // 🔥 cover full page, even when scrolling
@@ -234,7 +246,6 @@ const Signup = () => {
       justifyContent: "space-between",
       alignItems: "center",
       marginBottom: "20px",
-      paddingTop: "50px",
     },
     logo: {
       display: "flex",
@@ -243,8 +254,10 @@ const Signup = () => {
       fontSize: "1.2rem",
       fontWeight: "bold",
     },
+    logoText: {
+      marginRight: logoTextMargin,
+    },
     logoImg: {
-      height: "40px",
       marginRight: "10px",
     },
     navLink: {
@@ -253,9 +266,16 @@ const Signup = () => {
       color: "#f1e4d1",
       transition: "color 0.3s ease-in-out",
     },
+    nav: {
+      marginLeft: navMarginLeft,
+    },
     heading: {
       color: "#f1e4d1",
       fontSize: "1.5rem",
+      padding: 0,
+    },
+    h2: {
+      padding: 0,
     },
     signupForm: {
       display: "flex",
@@ -306,14 +326,10 @@ const Signup = () => {
         {/* Header */}
         <div style={styles.signupHeader}>
           <div style={styles.logo}>
-            <img
-              src={require("../assets/images/Exodollarium-01.png")}
-              alt="Logo"
-              style={styles.logoImg}
-            />
-            <span>Exdollarium</span>
-          </div>
-          <nav>
+              <ResponsiveLogo alt="Exdollarium" style={styles.logoImg} />
+              <span style={styles.logoText}>Exdollarium</span>
+            </div>
+          <nav style={styles.nav}>
             <Link to="/" style={styles.navLink}>
               Home
             </Link>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ResponsiveLogo from './ResponsiveLogo';
 import axios from "axios";
 import Alert from "./Alert"; // Assuming you have this alert component
 import { Link } from "react-router-dom"; // Import Link for routing
@@ -43,7 +44,7 @@ const ForgotPassword = () => {
       <div style={styles.forgotContainer}>
         <header style={styles.forgotHeader}>
           <div style={styles.logo}>
-            <img src={require("../assets/images/Exodollarium-01.png")} alt="Exdollarium logo" style={styles.logoImg} />
+            <ResponsiveLogo alt="Exdollarium" style={styles.logoImg} />
             <span>EXDOLLARIUM</span>
           </div>
           <nav>
@@ -120,7 +121,6 @@ const styles = {
     fontWeight: "bold",
   },
   logoImg: {
-    height: "40px",
     marginRight: "10px",
   },
   navLink: {

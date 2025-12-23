@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import ResponsiveLogo from './ResponsiveLogo';
 
 const PayPalFeeCalculator = () => {
   const [amount, setAmount] = useState('');  // Amount user enters (either send or receive)
@@ -112,7 +113,7 @@ const PayPalFeeCalculator = () => {
     <div style={styles.container}>
       <div style={styles.header}>
         <div style={styles.logo}>
-          <img src={require('../assets/images/Exodollarium-01.png')} alt="Logo" style={styles.logoImg} />
+          <ResponsiveLogo alt="Exdollarium" style={styles.logoImg} />
           <span style={{ color: '#162660', fontWeight: 'bold' }}>Exdollarium</span>
         </div>
         <Link to="/" style={styles.homeButton}>

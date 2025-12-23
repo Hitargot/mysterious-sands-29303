@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import logo from '../assets/images/Exodollarium-01.png';
+import ResponsiveLogo from './ResponsiveLogo';
 import Alert from '../components/Alert';
 
 const ResendVerification = () => {
@@ -40,7 +40,7 @@ const ResendVerification = () => {
         {/* Header */}
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', color: '#f1e4d1', fontWeight: 'bold' }}>
-            <img src={logo} alt="Logo" style={{ height: '30px', marginRight: '10px' }} />
+            <ResponsiveLogo alt="Exdollarium" style={{ marginRight: '10px' }} />
             <span>Exdollarium</span>
           </div>
           <nav>

@@ -32,7 +32,7 @@
 
 /* Buttons */
 .fund-button, .withdraw-button, .see-more-button, .toggle-balance-button {
-  background: #ff8c00;
+  /* use app primary color for actionable buttons (show/hide, see more, etc.) */
   color: white;
   font-weight: bold;
   padding: 12px;
@@ -41,12 +41,12 @@
   cursor: pointer;
   display: block;
   text-align: center;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.18s ease-in-out;
 }
 
 .fund-button:hover, .withdraw-button:hover, .see-more-button:hover, .toggle-balance-button:hover {
-  background: #e67e00;
-  transform: scale(1.05);
+  background: var(--app-primary-dark);
+  transform: translateY(-1px) scale(1.02);
 }
 
 /* Inputs */

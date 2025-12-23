@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Alert from '../components/Alert';
-import logo from '../assets/images/Exodollarium-01.png'; // Import image
+import ResponsiveLogo from './ResponsiveLogo';
 
 const styles = {
   resetPassword: {
@@ -33,7 +33,6 @@ const styles = {
     fontWeight: 'bold',
   },
   logoImg: {
-    height: '30px',
     marginRight: '10px',
   },
   navLink: {
@@ -132,7 +131,7 @@ const ResetPassword = () => {
         {/* Header */}
         <header style={styles.loginHeader}>
           <div style={styles.logo}>
-            <img src={logo} alt="Logo" style={styles.logoImg} />
+            <ResponsiveLogo alt="Exdollarium" style={styles.logoImg} />
             <span>Exdollarium</span>
           </div>
           <nav>

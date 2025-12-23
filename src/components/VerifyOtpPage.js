@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
-import logo from '../assets/images/Exodollarium-01.png';
+import ResponsiveLogo from './ResponsiveLogo';
 import Alert from '../components/Alert';
 
 const VerifyOtpPage = () => {
@@ -80,7 +80,7 @@ const VerifyOtpPage = () => {
       >
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', color: '#f1e4d1', fontWeight: 'bold' }}>
-            <img src={logo} alt="Logo" style={{ height: '30px', marginRight: '10px' }} />
+            <ResponsiveLogo alt="Exdollarium" style={{ marginRight: '10px' }} />
             <span>Exdollarium</span>
           </div>
         </header>

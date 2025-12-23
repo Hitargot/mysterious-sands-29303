@@ -1,17 +1,15 @@
 import React from 'react';
-import '../styles/Spinner.css'; // Ensure this file exists for styling
-import logo from '../assets/images/Exodollarium-01.png'; // Adjust the path to your logo file
 
-const Spinner = ({ isLoading }) => {
-  if (!isLoading) return null;
+// Small presentational spinner. Accepts `size` (px) and optional className.
+export default function Spinner({ size = 14, className = '' }) {
+  const style = {
+    width: typeof size === 'number' ? `${size}px` : size,
+    height: typeof size === 'number' ? `${size}px` : size,
+    borderRadius: '50%',
+    boxSizing: 'border-box',
+    border: '2px solid rgba(0,0,0,0.08)',
+    borderTopColor: '#162660',
+  };
 
-  return (
-    <div className="spinner-overlay">
-      <div className="spinner-container">
-        <img src={logo} alt="Loading..." className="spinner-logo" />
-      </div>
-    </div>
-  );
-};
-
-export default Spinner;
+  return <div className={`spinner ${className}`} style={style} aria-hidden="true" />;
+}

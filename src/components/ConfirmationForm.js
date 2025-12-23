@@ -9,6 +9,8 @@ const ConfirmationForm = ({ selectedService }) => {
   const [selectedServiceId, setSelectedServiceId] = useState(selectedService || "");
   const [files, setFiles] = useState([]);  // use array to hold multiple files
   const [note, setNote] = useState("");
+  const [amount, setAmount] = useState("");
+  const [currency, setCurrency] = useState("USD");
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(false);
   const [transactionId, setTransactionId] = useState("");
@@ -68,8 +70,8 @@ const ConfirmationForm = ({ selectedService }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!selectedServiceId || !files || !note || !transactionId) {
-      showAlert("Please fill out all fields.", "error");
+    if (!selectedServiceId || !files || !note || !transactionId || !amount || !currency) {
+      showAlert("Please fill out all fields (amount and currency are required).", "error");
       return;
     }
 
@@ -87,6 +89,8 @@ const ConfirmationForm = ({ selectedService }) => {
     // Remove emoji from transactionId before storing
     const cleanTransactionId = transactionId.replace(/\p{Emoji}/gu, '').replace(/\s+$/g, '');
     formData.append("serviceId", selectedServiceId);
+  formData.append("amount", String(amount));
+  formData.append("currency", String(currency));
     formData.append("note", note);
     formData.append("userId", userId);
     formData.append("transactionId", cleanTransactionId);
@@ -108,15 +112,18 @@ const ConfirmationForm = ({ selectedService }) => {
       if (response.data.success) {
         showAlert("Confirmation submitted successfully!", "success");
         setSelectedServiceId("");
-        setFiles(null);
+        setFiles([]);
         setNote("");
         setTransactionId("");
+        setAmount("");
+        setCurrency("USD");
         setShowModal(false);
       } else {
         showAlert("Error submitting confirmation.", "error");
       }
     } catch (error) {
-      showAlert("An error occurred while submitting the confirmation.", "error");
+      const msg = error?.response?.data?.message || error?.message || 'An error occurred while submitting the confirmation.';
+      showAlert(msg, "error");
     } finally {
       setLoading(false);
     }
@@ -151,6 +158,30 @@ const ConfirmationForm = ({ selectedService }) => {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div style={{ ...styles.formGroup, display: 'flex', gap: 8, alignItems: 'center' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={styles.label}>Amount</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="Amount"
+                    style={styles.input}
+                  />
+                </div>
+
+                <div style={{ width: 140 }}>
+                  <label style={styles.label}>Currency</label>
+                  <select value={currency} onChange={(e) => setCurrency(e.target.value)} style={styles.input}>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                  </select>
+                </div>
               </div>
 
               <div style={styles.formGroup}>

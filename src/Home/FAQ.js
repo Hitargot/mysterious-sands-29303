@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
 const FAQ = () => {
@@ -6,7 +6,9 @@ const FAQ = () => {
   const [activeIndex, setActiveIndex] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
   const apiUrl = process.env.REACT_APP_API_URL;
+  const answerRefs = useRef([]);
 
   // Fetch FAQs from the backend
   useEffect(() => {
@@ -29,49 +31,83 @@ const FAQ = () => {
     setActiveIndex(activeIndex === index ? null : index);
   };
 
+  const handleKey = (e, index) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggleFAQ(index);
+    }
+  };
+
+  const filteredFaqs = faqs.filter((f) => {
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      (f.question || "").toLowerCase().includes(q) ||
+      (f.answer || "").toLowerCase().includes(q)
+    );
+  });
+
   return (
     <section id="faq" style={styles.faqSection}>
-      <h2 style={styles.title}>Frequently Asked Questions</h2>
+      <div style={styles.headerRow}>
+        <h2 style={styles.title}>Frequently Asked Questions</h2>
+        <div style={styles.searchWrap}>
+          <input
+            aria-label="Search FAQs"
+            placeholder="Search FAQs..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            style={styles.searchInput}
+          />
+          {query && (
+            <button style={styles.clearBtn} onClick={() => setQuery("")}>✕</button>
+          )}
+        </div>
+      </div>
 
       {loading && <p>Loading FAQs...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {!loading && !error && (
-        <div style={styles.faqList}>
-          {faqs.length > 0 ? (
-            faqs.map((faq, index) => (
-              <div key={faq._id} style={styles.faqItem}>
-                <div
-                  style={{
-                    ...styles.faqQuestion,
-                    background: activeIndex === index ? "#162660" : "#d0e6fd",
-                    color: activeIndex === index ? "#f1e4d1" : "#162660",
-                  }}
-                  onClick={() => toggleFAQ(index)}
-                >
-                  {faq.question}
-                  <span
+        <div style={styles.faqGrid}>
+          {filteredFaqs.length > 0 ? (
+            filteredFaqs.map((faq, idx) => {
+              // derive index in original array for refs / state
+              const index = faqs.indexOf(faq);
+              const isOpen = activeIndex === index;
+              return (
+                <div key={faq._id || index} style={styles.card}>
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => toggleFAQ(index)}
+                    onKeyDown={(e) => handleKey(e, index)}
                     style={{
-                      ...styles.arrow,
-                      transform: activeIndex === index ? "rotate(180deg)" : "rotate(0)",
+                      ...styles.question,
+                      background: isOpen ? "#162660" : "transparent",
+                      color: isOpen ? "#f1e4d1" : "#10223a",
+                    }}
+                    aria-expanded={isOpen}
+                  >
+                    <span style={styles.qText}>{faq.question}</span>
+                    <span style={{ ...styles.chev, transform: isOpen ? "rotate(180deg)" : "rotate(0)" }}>▾</span>
+                  </div>
+
+                  <div
+                    ref={(el) => (answerRefs.current[index] = el)}
+                    style={{
+                      ...styles.answer,
+                      maxHeight: isOpen ? "1000px" : "0px",
+                      opacity: isOpen ? 1 : 0,
                     }}
                   >
-                    ▼
-                  </span>
+                    {faq.answer}
+                  </div>
                 </div>
-                <div
-                  style={{
-                    ...styles.faqAnswer,
-                    maxHeight: activeIndex === index ? "150px" : "0px",
-                    opacity: activeIndex === index ? "1" : "0",
-                  }}
-                >
-                  {faq.answer}
-                </div>
-              </div>
-            ))
+              );
+            })
           ) : (
-            <p>No FAQs available.</p>
+            <p>No FAQs match your search.</p>
           )}
         </div>
       )}
@@ -82,51 +118,90 @@ const FAQ = () => {
 // Inline styles
 const styles = {
   faqSection: {
-    background: "linear-gradient(135deg, #162660, #d0e6fd, #f1e4d1)",
-    padding: "40px",
-    borderRadius: "10px",
-    maxWidth: "800px",
-    margin: "auto",
-    color: "#162660",
-    boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+    background: "linear-gradient(180deg, #f6f9ff 0%, #eaf3ff 100%)",
+    padding: "28px 20px",
+    borderRadius: "12px",
+    maxWidth: "1100px",
+    margin: "18px auto",
+    color: "#10223a",
+    boxShadow: "0 6px 20px rgba(16,24,40,0.06)",
+  },
+  headerRow: {
+    display: "flex",
+    gap: 12,
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 14,
   },
   title: {
-    textAlign: "center",
-    fontSize: "1.8rem",
-    marginBottom: "20px",
-    color: "#162660",
+    fontSize: "1.6rem",
+    fontWeight: 800,
+    margin: 0,
+    color: "#10223a",
   },
-  faqList: {
+  searchWrap: {
     display: "flex",
-    flexDirection: "column",
-    gap: "15px",
+    alignItems: "center",
+    gap: 8,
   },
-  faqItem: {
-    background: "#f1e4d1",
-    borderRadius: "8px",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+  searchInput: {
+    padding: "8px 12px",
+    borderRadius: 10,
+    border: "1px solid rgba(16,24,40,0.08)",
+    minWidth: 220,
+    fontSize: 14,
+  },
+  clearBtn: {
+    background: "transparent",
+    border: "none",
+    cursor: "pointer",
+    fontSize: 14,
+    color: "#334155",
+  },
+  faqGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr",
+    gap: 12,
+  },
+  card: {
+    background: "#ffffff",
+    borderRadius: 10,
+    boxShadow: "0 8px 24px rgba(16,24,40,0.04)",
     overflow: "hidden",
   },
-  faqQuestion: {
+  question: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    fontSize: "1.1rem",
-    fontWeight: "bold",
+    padding: "14px 16px",
+    fontSize: 15,
+    fontWeight: 700,
     cursor: "pointer",
-    padding: "15px",
-    transition: "background 0.3s ease, color 0.3s ease",
+    transition: "background 0.25s ease, color 0.25s ease",
   },
-  arrow: {
-    transition: "transform 0.3s ease",
+  qText: {
+    display: "block",
+    maxWidth: "calc(100% - 40px)",
   },
-  faqAnswer: {
-    padding: "12px 15px",
-    fontSize: "1rem",
-    borderTop: "1px solid rgba(0, 0, 0, 0.1)",
-    transition: "max-height 0.3s ease-in-out, opacity 0.3s ease-in-out",
+  chev: {
+    transition: "transform 0.25s ease",
+    marginLeft: 12,
+    color: "#334155",
+  },
+  answer: {
+    padding: "12px 16px",
+    fontSize: 14,
+    color: "#334155",
+    borderTop: "1px solid rgba(16,24,40,0.04)",
+    transition: "max-height 0.35s ease, opacity 0.25s ease",
     overflow: "hidden",
   },
+  // Responsive overrides (applied via JS style merging in render when appropriate)
+  '@media(minWidth:720px)': {
+    faqGrid: {
+      gridTemplateColumns: 'repeat(2, 1fr)'
+    }
+  }
 };
 
 export default FAQ;

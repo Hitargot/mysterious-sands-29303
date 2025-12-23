@@ -1,4 +1,5 @@
 import React, { useState, Suspense, lazy, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import DashboardHeader from '../components/DashboardHeader';
 import Sidebar from '../components/Sidebar';
 import { getJwtToken, clearJwtToken } from '../utils/auth';
@@ -11,8 +12,9 @@ const TransactionHistory = lazy(() => import('../components/TransactionHistory')
 const Profile = lazy(() => import('../components/Profile'));
 const TradeHistory = lazy(() => import('../components/TradeHistory'));
 const Wallet = lazy(() => import('../components/WalletPage'));
-const Chatbot = lazy(() => import('../components/Chatbot'));
 const TransferPage = lazy(() => import('../components/TransferPage'));
+const CreatePreSubmission = lazy(() => import('../pages/CreatePreSubmission'));
+const MyPreSubmissions = lazy(() => import('../pages/MyPreSubmissions'));
 
 
 const UserDashboard = () => {
@@ -32,6 +34,37 @@ const UserDashboard = () => {
   useEffect(() => {
     localStorage.setItem('activeComponent', activeComponent);
   }, [activeComponent]);
+
+  // If a ?panel=... query param is present, open that panel inside the dashboard
+  const location = useLocation();
+  useEffect(() => {
+    try {
+      const qp = new URLSearchParams(location.search);
+      const panel = qp.get('panel');
+      if (panel) setActiveComponent(panel);
+    } catch (e) {
+      // ignore
+    }
+  }, [location.search]);
+
+  // If the pathname includes a dashboard subpath (e.g. /dashboard/trade-history)
+  // map it to the corresponding panel so each sidebar item can have a unique URL.
+  useEffect(() => {
+    try {
+      const path = location.pathname || '';
+      // Match /dashboard/<panel> and capture the panel slug
+      const match = path.match(/^\/dashboard\/?([^/?]+)/);
+      if (match && match[1]) {
+        const panelFromPath = decodeURIComponent(match[1]);
+        // Only update if different to avoid overwriting manually set state
+        if (panelFromPath && panelFromPath !== activeComponent) {
+          setActiveComponent(panelFromPath);
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [location.pathname, activeComponent]);
 
   const fetchBankAccounts = useCallback(async () => {
     const token = getJwtToken();
@@ -56,16 +89,19 @@ const UserDashboard = () => {
         return <Overview setActiveComponent={setActiveComponent} />;
       case 'trade-calculator':
         return <TradeCalculator />;
-        case 'wallet':
-          return <Wallet setActiveComponent={setActiveComponent} />;        
+      case 'wallet':
+        return <Wallet setActiveComponent={setActiveComponent} />;
       case 'transaction-history':
         return <TransactionHistory />;
       case 'trade-history':
         return <TradeHistory />;
-      case 'chat-bot':
-        return <Chatbot />;
+      case 'create-presubmission':
+        return <CreatePreSubmission />;
+      case 'my-pre-submissions':
+        return <MyPreSubmissions />;
+      /* Chatbot disabled temporarily */
       case 'profile':
-        return <Profile />;
+        return <Profile setActiveComponent={setActiveComponent} />;
       case 'transfer':
         return <TransferPage />;
       default:
@@ -118,7 +154,11 @@ const UserDashboard = () => {
     <div style={styles.dashboard}>
       {/* Sticky Header */}
       <div style={styles.header}>
-        <DashboardHeader clearJwtToken={clearJwtToken} handleAlert={handleAlert} />
+        <DashboardHeader
+          clearJwtToken={clearJwtToken}
+          handleAlert={handleAlert}
+          setActiveComponent={setActiveComponent}
+        />
       </div>
 
       <div style={styles.dashboardMain}>

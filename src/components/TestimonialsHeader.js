@@ -1,110 +1,164 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+import logo from '../assets/images/IMG_940.PNG';
 
-const TestimonialsHeader = () => {
+const HeaderContainer = styled.header`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #162660;
+  padding: 0 20px 0 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1100;
+`;
+
+const Logo = styled.div`
+  display: flex;
+  align-items: center;
+
+  img {
+    height: 96px;
+    width: auto;
+    max-width: 100%;
+  }
+
+  span {
+    font-size: 20px;
+    color: #d0e6fd;
+    font-weight: bold;
+    margin-left: 12px;
+  }
+
+  @media (max-width: 768px) {
+    img { height: 64px; }
+    span { font-size: 16px; }
+  }
+`;
+
+const MenuIcon = styled.button`
+  display: none;
+  font-size: 1.6rem;
+  color: #f1e4d1;
+  cursor: pointer;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  line-height: 1;
+
+  @media (max-width: 768px) { display: block; }
+`;
+
+const CloseButton = styled.button`
+  position: fixed; /* ensure it floats above the overlay */
+  top: 14px;
+  right: 24px;
+  font-size: 28px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  z-index: 9999; /* very high so it isn't blocked */
+
+  @media (min-width: 769px) { display: none; }
+
+  &:focus { outline: 2px solid #d0e6fd; outline-offset: 2px; }
+`;
+
+// left close button removed — keep a single close button at top-right for mobile
+
+const Nav = styled.nav`
+  ul {
+    display: flex;
+    list-style: none;
+    align-items: center;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+
+    li { margin: 0; }
+
+    a {
+      color: #f1e4d1;
+      text-decoration: none;
+      padding: 8px 10px;
+      border-radius: 6px;
+      transition: all 0.18s ease-in-out;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    a:hover { color: #ffffff; transform: translateY(-1px); }
+  }
+
+  @media (max-width: 768px) {
+    ul {
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background-color: rgba(22, 38, 96, 0.98);
+      transform: translateY(-100%);
+      transition: transform 0.36s cubic-bezier(.2,.9,.3,1);
+      opacity: 0;
+      padding: 40px 20px;
+      z-index: 1100;
+    }
+
+    ul.open { transform: translateY(0); opacity: 1; }
+
+    li { margin: 14px 0; font-size: 22px; }
+  }
+`;
+
+export default function TestimonialsHeader() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const toggleMenu = () => {
+    setIsOpen(prev => !prev);
+    document.body.classList.toggle('no-scroll', !isOpen);
+  };
+
+  const headerHeight = isMobile ? '64px' : '96px';
+
   return (
-    <header
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "15px 20px",
-        backgroundColor: "#0A0A23",
-        color: "#fff",
-        position: "sticky",
-        top: 0,
-        zIndex: 1000,
-        boxShadow: "0px 4px 10px rgba(0, 255, 204, 0.2)",
-        flexWrap: "wrap" // Ensure items wrap on smaller screens
-      }}
-    >
-      {/* Logo Section */}
-      <div 
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          flexShrink: 0 // Prevents the logo from shrinking
-        }}
-      >
-        <img
-          src={require('../assets/images/Exodollarium-01.png')}
-          alt="Logo"
-          style={{
-            height: "50px",
-            width: "auto",
-            maxWidth: "100%", // Ensures responsiveness
-          }}
-        />
-        <span
-          style={{
-            fontSize: "20px", 
-            color: "#00ffcc", 
-            fontWeight: "bold",
-            whiteSpace: "nowrap" // Prevents text from wrapping
-          }}
-        >
-          Exdollarium
-        </span>
-      </div>
+    <>
+      <HeaderContainer style={{ height: headerHeight }}>
+        <Logo>
+          <img src={logo} alt="Exdollarium logo" />
+          <span>EXDOLLARIUM</span>
+        </Logo>
 
-      {/* Navigation */}
-      <nav 
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          fontWeight: 500,
-          flexWrap: "wrap", 
-          justifyContent: "center",
-          width: "auto",
-          marginTop: "10px"
-        }}
-      >
-        <Link 
-          to="/" 
-          style={{
-            color: "#fff",
-            textDecoration: "none",
-            fontSize: "14px",
-            padding: "8px 12px",
-            transition: "color 0.3s ease, transform 0.2s ease"
-          }}
-          onMouseEnter={(e) => e.target.style.color = "#00ffcc"}
-          onMouseLeave={(e) => e.target.style.color = "#fff"}
-        >
-          Home
-        </Link>
+        {/* show hamburger when menu is closed; when open we use the fixed close buttons */}
+        {!isOpen && (
+          <MenuIcon aria-controls="testimonial-navigation" aria-expanded={isOpen} onClick={toggleMenu} aria-label={'Open menu'}>
+            {'☰'}
+          </MenuIcon>
+        )}
 
-        {/* Login Button */}
-        <Link 
-          to="/login" 
-          style={{
-            padding: "8px 16px",
-            border: "2px solid #fff",
-            borderRadius: "50px",
-            backgroundColor: "transparent",
-            color: "#fff",
-            cursor: "pointer",
-            fontWeight: "bold",
-            transition: "background-color 0.3s, transform 0.2s ease",
-            textDecoration: "none",
-            fontSize: "14px"
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.backgroundColor = "orange";
-            e.target.style.transform = "scale(1.05)";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.backgroundColor = "transparent";
-            e.target.style.transform = "scale(1)";
-          }}
-        >
-          Login
-        </Link>
-      </nav>
-    </header>
+        <Nav>
+          <ul id="testimonial-navigation" className={isOpen ? 'open' : ''}>
+            <li><a href="/">Home</a></li>
+            <li><Link to="/login">Login</Link></li>
+          </ul>
+        </Nav>
+        {isMobile && isOpen && (
+          <CloseButton onClick={toggleMenu} aria-label="Close menu">✖</CloseButton>
+        )}
+      </HeaderContainer>
+      <div style={{ height: headerHeight }} aria-hidden="true" />
+    </>
   );
-};
-
-export default TestimonialsHeader;
+}

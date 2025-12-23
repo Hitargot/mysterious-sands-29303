@@ -10,6 +10,8 @@ const DashboardHeader = ({
   setSelectedBankAccount,
   setWalletBalance,
   handleAlert,
+  showProfileInHeader = true,
+   setActiveComponent
 }) => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -184,7 +186,9 @@ const DashboardHeader = ({
 
         {!isMobile && (
           <>
-            <FaUserCircle style={styles.icon} onClick={navigateToProfile} />
+            {showProfileInHeader ? (
+              <FaUserCircle style={styles.icon} onClick={navigateToProfile} />
+            ) : null}
             <button
               style={styles.logoutButton}
               onClick={handleLogout}
@@ -203,7 +207,7 @@ const DashboardHeader = ({
         <nav style={styles.navOverlay}>
           <FaTimes style={styles.closeButton} onClick={() => setMenuOpen(false)} />
           <ul>
-            <li onClick={navigateToProfile} style={{ padding: '15px', cursor: 'pointer' }}>
+            <li onClick={() => setActiveComponent('profile')}style={{ padding: '15px', cursor: 'pointer' }}>
               Profile
             </li>
             <li onClick={handleLogout} style={{ padding: '15px', cursor: 'pointer' }}>

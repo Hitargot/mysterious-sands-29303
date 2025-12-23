@@ -1,165 +1,114 @@
-/* General Styles */
+
+/* Redesigned Hero Styles */
 .hero-section {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 80vh; /* Full-height section */
-  background-color: #162660; /* Deep Navy Blue */
-  color: #f1e4d1; /* Soft Beige */
-  text-align: center;
-  padding: 20px;
-  box-sizing: border-box; /* Ensure consistent padding behavior */
-}
-
-/* Content Container */
-.hero-content {
-  max-width: 1200px; /* Limit the content width for better readability */
-  width: 100%; /* Take full width on small screens */
-  padding: 0 20px; /* Side padding for smaller screens */
-}
-
-
-/* Title */
-.hero-content h1 {
-  font-size: 2rem; /* Default size for larger screens */
-  margin-bottom: 20px;
-  font-weight: bold; /* Emphasize the title */
-  line-height: 1.2; /* Better spacing between lines */
-  color: #d0e6fd; /* Light Sky Blue */
-}
-
-/* Paragraph */
-.hero-content p {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
-  line-height: 1.6; /* Better readability */
-  color: #f1e4d1; /* Soft Beige */
-}
-
-/* Button */
-.btn {
-  background-color: #d0e6fd; /* Light Sky Blue */
-  color: #162660; /* Deep Navy Blue for contrast */
-  padding: 12px 25px;
-  border-radius: 8px; /* Rounded corners */
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: bold;
-  transition: background-color 0.3s, transform 0.2s ease-in-out;
-}
-
-/* Button Hover */
-.btn:hover {
-  background-color: #162660; /* Slightly darker sky blue */
-  transform: scale(1.05); /* Subtle hover effect */
-  color: d0e6fd;
-}
-
-/* Mobile Styles */
-@media (max-width: 768px) {
-  .hero-section {
-    height: auto; /* Allow section to grow as needed */
-    padding: 40px 10px; /* Adjust padding for smaller screens */
-  }
-
-  .hero-content h1 {
-    font-size: 2rem; /* Smaller title for mobile */
-    margin-bottom: 15px;
-  }
-
-  .hero-content p {
-    font-size: 1rem; /* Adjust text size */
-    margin-bottom: 15px;
-    line-height: 1.5rem;
-  }
-
-  .btn {
-    font-size: 0.9rem; /* Slightly smaller button text */
-    padding: 10px 20px;
-  }
-}
-
-/* Tablet Styles */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .hero-content h1 {
-    font-size: 2.5rem; /* Adjust title for tablets */
-  }
-
-  .hero-content p {
-    font-size: 1.1rem; /* Adjust text size */
-  }
-
-  .btn {
-    padding: 12px 30px; /* Adjust button padding for larger screens */
-  }
-}
-.hero-section {
-  display: flex;
+  gap: 20px;
   align-items: center;
   justify-content: space-between;
-  height: 80vh; /* Full viewport height */
-  padding: 0 5%;
-  overflow: hidden;
+  /* reduced vertical padding to tighten top/bottom spacing */
+  padding: 18px 3%;
+  background: linear-gradient(180deg, #f8fbff 0%, #eaf3ff 100%);
+  border-radius: 10px;
+  box-sizing: border-box;
 }
 
-.hero-content {
-  flex: 1;
-  max-width: 50%;
-  z-index: 2;
+.hero-left {
+  flex: 1 1 560px;
+  max-width: 720px;
 }
 
-.canvas-container {
-  flex: 1;
-  width: 50%;
-  height: 100%;
+.hero-right {
+  flex: 1 1 420px;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
 
-.hero-3d-model {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-/* General Styles */
 .hero-content {
+  animation: heroFade 0.9s ease-out forwards;
   opacity: 0;
-  transform: translateY(20px);
-  animation: fadeIn 1.5s ease-out forwards 0.5s; /* Delay text fade-in */
+  transform: translateY(12px);
 }
 
-/* Fade-In Animation */
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.hero-title {
+  font-size: 2rem;
+  color: #0f2348;
+  line-height: 1.08;
+  margin: 0 0 12px 0;
+  font-weight: 800;
 }
 
-@media (max-width: 768px) {
-  .hero-section {
-    flex-direction: column-reverse; /* 3D model below text */
-    align-items: center;
-    text-align: center;
-    height: auto;
-  }
-
-  .hero-content {
-    max-width: 90%;
-  }
-
-  .canvas-container {
-    width: 100%;
-    height: 50vh;
-  }
+.hero-sub {
+  color: #334155;
+  font-size: 1.05rem;
+  margin: 0 0 18px 0;
 }
 
-.canvas-container {
-  position: relative;
-  z-index: 1;
+.hero-cta {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.btn {
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.98rem;
+}
+
+.btn.primary {
+  background: linear-gradient(90deg,#162660,#1f3b7a);
+  color: #fff;
+  box-shadow: 0 8px 30px rgba(16,24,40,0.08);
+}
+
+.btn.ghost {
+  background: transparent;
+  color: #162660;
+  border: 1px solid rgba(16,24,40,0.06);
+}
+
+.hero-features {
+  display: flex;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.hero-features li {
+  background: rgba(16,24,40,0.03);
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+.canvas-container { width: 100%; height: 260px; }
+.hero-3d-model { width:100%; height:100%; display:block }
+.hero-graphic { display:flex; align-items:center; justify-content:center }
+
+@keyframes heroFade { to { opacity: 1; transform: translateY(0) } }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .hero-section { flex-direction: column; padding: 14px 14px; }
+  .hero-left { max-width: 100%; }
+  .hero-right { width: 100%; margin-bottom: 6px }
+  .canvas-container { height: 200px }
+}
+
+@media (max-width: 720px) {
+  /* Hide 3D canvas on small devices to reduce load */
+  .hero-right { display:flex; justify-content:center }
+  .canvas-container { display: none }
+  .hero-graphic { display:block }
+  /* tighten mobile spacing further */
+  .hero-title { font-size: 1.3rem }
+  .hero-sub { font-size: 0.95rem }
 }
 
 

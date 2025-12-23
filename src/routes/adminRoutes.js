@@ -13,6 +13,9 @@ import  BankAccountList from '../pages/BankAccountList';
 import AdminFAQ from '../pages/AdminFAQ';
 import AdminReviewPage from '../pages/AdminReviewPage';
 import SecondaryAdminWallet from '../pages/SecondaryAdminWallet';
+import AdminChats from '../pages/AdminChats';
+import AdminTickets from '../pages/AdminTickets';
+import AdminPreSubmissions from '../pages/AdminPreSubmissions';
 
 
 const adminRoutes = [
@@ -30,6 +33,9 @@ const adminRoutes = [
   { path: '/admin/Banks-list', component: BankAccountList, permissions: ['manage_contacts'] },
   { path: '/admin/Admin-faq', component:AdminFAQ, permissions: ['manage_contacts'] },
   { path: '/admin/Admin-reviews', component:AdminReviewPage, permissions: ['manage_contacts'] },
+  { path: '/admin/chats', component: AdminChats, permissions: ['view_chats'] },
+  { path: '/admin/tickets', component: AdminTickets, permissions: ['view_chats'] },
+  { path: '/admin/pre-submissions', component: AdminPreSubmissions, permissions: ['view_pre_submissions'] },
 
 ];
 

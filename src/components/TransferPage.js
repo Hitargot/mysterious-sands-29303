@@ -3,6 +3,7 @@ import axios from 'axios';
 import { getJwtToken } from '../utils/auth';
 import Alert from './Alert';
 
+// Card-based modern pattern: left = recipient, right = amount & CTA (stacks on small screens)
 const TransferPage = () => {
   const [recipientPayId, setRecipientPayId] = useState('');
   const [amount, setAmount] = useState('');
@@ -11,14 +12,23 @@ const TransferPage = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState('success');
-  const [isSubmitting, setIsSubmitting] = useState(false); // New state
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [recipientInfo, setRecipientInfo] = useState(null);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [hasTyped, setHasTyped] = useState(false); // Track if user typed
+  const [balance, setBalance] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [isMobile, setIsMobile] = useState(false);
 
   const apiUrl = process.env.REACT_APP_API_URL;
-  
-  const handleAlert = (message, type) => {
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 700);
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const handleAlert = (message, type = 'success') => {
     setAlertMessage(message);
     setAlertType(type);
     setShowAlert(true);
@@ -26,195 +36,163 @@ const TransferPage = () => {
 
   const handleCloseAlert = () => setShowAlert(false);
 
-  // 🔹 Verify Pay ID with debounce
   const verifyPayId = useCallback(async (payId) => {
-    if (!payId) {
-      setRecipientInfo(null);
-      return;
-    }
-
+    if (!payId) { setRecipientInfo(null); return; }
     setIsVerifying(true);
-    const token = getJwtToken();
-    if (!token) return;
-
     try {
-      const res = await axios.get(`${apiUrl}/api/users/verify/${payId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
+      const token = getJwtToken();
+      if (!token) throw new Error('auth');
+      const res = await axios.get(`${apiUrl}/api/users/verify/${payId}`, { headers: { Authorization: `Bearer ${token}` } });
       const user = res.data?.user || null;
-
-      if (user) {
-        console.log('Verified user:', user); // debug
-        setRecipientInfo({
-          ...user,
-          displayName: user.displayName || user.username, // fallback
-        });
-      } else {
-        setRecipientInfo(null);
-      }
-    } catch (err) {
-      console.error('Error verifying Pay ID:', err);
+      if (user) setRecipientInfo({ ...user, displayName: user.displayName || user.username });
+      else setRecipientInfo(null);
+    } catch (e) {
       setRecipientInfo(null);
     } finally {
       setIsVerifying(false);
     }
   }, [apiUrl]);
 
+  // Auto-verify Pay ID when user stops typing (500ms debounce)
   useEffect(() => {
     if (!recipientPayId) {
       setRecipientInfo(null);
-      setHasTyped(false);
       return;
     }
 
-    setHasTyped(true);
-
-    const timer = setTimeout(() => {
+    const t = setTimeout(() => {
       verifyPayId(recipientPayId);
-    }, 500); // 0.5s debounce
+    }, 500);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(t);
   }, [recipientPayId, verifyPayId]);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const token = getJwtToken();
+        if (!token) return;
+        const res = await axios.get(`${apiUrl}/api/wallet/data`, { headers: { Authorization: `Bearer ${token}` } });
+        setBalance(res.data?.balance ?? null);
+      } catch (e) {}
+    };
+    fetchBalance();
+  }, [apiUrl]);
 
   const handleTransfer = useCallback(async () => {
     const token = getJwtToken();
-    if (!token) {
-      handleAlert('You must be logged in to make a transfer.', 'error');
-      return;
-    }
+    if (!token) { handleAlert('You must be logged in to make a transfer.', 'error'); return; }
 
-    if (!recipientPayId || !amount || !transferPin) {
-      handleAlert('All fields are required.', 'error');
-      return;
-    }
-
-    if (!recipientInfo) {
-      handleAlert('Recipient Pay ID is invalid.', 'error');
-      return;
-    }
+    const errs = {};
+    if (!recipientPayId) errs.recipientPayId = 'Recipient Pay ID is required';
+    if (!amount || Number(amount) <= 0) errs.amount = 'Please enter a valid amount';
+    if (!transferPin) errs.transferPin = 'PIN is required';
+    if (!recipientInfo) errs.recipient = 'Recipient Pay ID is invalid';
+    if (balance !== null && Number(amount) > Number(balance)) errs.amount = 'Insufficient balance';
+    setErrors(errs);
+    if (Object.keys(errs).length) { handleAlert('Please fix validation errors before submitting.', 'error'); return; }
 
     setIsSubmitting(true);
+    // confirmation is handled by modal; proceed to submit
 
     try {
-      const response = await axios.post(
-        `${apiUrl}/api/wallet/transfer`,
-        { recipientPayId, amount: Number(amount), transferPin, note },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await axios.post(`${apiUrl}/api/wallet/transfer`, { recipientPayId, amount: Number(amount), transferPin, note }, { headers: { Authorization: `Bearer ${token}` } });
+      handleAlert(response.data.message || 'Transfer successful', 'success');
+      // reset
+      setRecipientPayId(''); setRecipientInfo(null); setAmount(''); setTransferPin(''); setNote('');
+      try { const r = await axios.get(`${apiUrl}/api/wallet/data`, { headers: { Authorization: `Bearer ${token}` } }); setBalance(r.data?.balance ?? null); } catch(e){}
+    } catch (e) {
+      handleAlert(e.response?.data?.message || 'Transfer failed.', 'error');
+    } finally { setIsSubmitting(false); }
+  }, [recipientPayId, amount, transferPin, note, apiUrl, recipientInfo, balance]);
 
-      handleAlert(response.data.message, 'success');
+  const amountNumber = Number(amount || 0);
+  const canSubmit = !isSubmitting && recipientInfo && amountNumber > 0 && transferPin && transferPin.length >= 4 && (balance === null || amountNumber <= Number(balance));
 
-      // Reset form
-      setRecipientPayId('');
-      setRecipientInfo(null);
-      setAmount('');
-      setTransferPin('');
-      setNote('');
-    } catch (error) {
-      console.error(error);
-      handleAlert(error.response?.data?.message || 'Transfer failed.', 'error');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [recipientPayId, amount, transferPin, note, apiUrl, recipientInfo]);
+  const [showConfirm, setShowConfirm] = useState(false);
 
+  // small helpers for visuals
+  const initials = recipientInfo ? (recipientInfo.displayName || recipientInfo.username || '').split(' ').map(s => s[0]).join('').slice(0,2).toUpperCase() : '';
+
+  const containerStyle = { display: 'flex', justifyContent: 'center', padding: 20 };
+  const cardStyle = { width: '100%', maxWidth: 980, borderRadius: 12, boxShadow: '0 8px 24px rgba(16,24,40,0.08)', background: 'var(--surface, #fff)', padding: 18 };
+  const gridStyle = isMobile ? { display: 'block' } : { display: 'flex', gap: 18 };
+  const leftStyle = { flex: 1, padding: 16, borderRadius: 10, background: 'linear-gradient(180deg, rgba(249,250,255,0.6), rgba(255,255,255,0.6))' };
+  const rightStyle = { width: isMobile ? '100%' : 320, padding: 16, borderRadius: 10, background: '#ffffff', border: '1px solid #eef2ff', display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'space-between' };
+
+  const inputStyle = { width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e6e6e6' };
+  const smallMuted = { fontSize: 13, color: '#6b7280' };
+  const overlayStyle = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 };
+  const modalStyle = { background: '#fff', padding: 18, borderRadius: 10, width: isMobile ? '90%' : 420, boxShadow: '0 10px 30px rgba(2,6,23,0.2)' };
+  const modalBtn = (primary) => ({ padding: '10px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', background: primary ? 'var(--app-primary, #162660)' : '#fff', color: primary ? '#fff' : '#162660', boxShadow: primary ? 'none' : 'inset 0 0 0 1px rgba(22,38,96,0.06)' });
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        padding: '20px',
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: '#ffffff',
-          borderRadius: '10px',
-          padding: '25px',
-          width: '100%',
-          maxWidth: '500px',
-          boxShadow: '0px 4px 12px rgba(0,0,0,0.1)',
-        }}
-      >
-        <h2 style={{ marginBottom: '15px', color: '#162660' }}>Transfer Funds</h2>
+    <div style={containerStyle}>
+      <div style={cardStyle}>
+        <h2 style={{ margin: 0, color: 'var(--app-primary, #162660)' }}>Transfer</h2>
+        <div style={{ marginTop: 6, marginBottom: 14, color: '#6b7280' }}>Send funds to another user — verify recipient before sending.</div>
 
-        {/* Info Note */}
-        <p style={{ fontSize: '14px', color: '#555', marginBottom: '20px' }}>
-          This is a <strong>user-to-user transfer</strong>. Please ensure the recipient Pay ID is correct.
-        </p>
+        <div style={gridStyle}>
+          <div style={leftStyle}>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 10 }}>
+              <div style={{ width: 56, height: 56, borderRadius: 12, background: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: 'var(--app-primary, #162660)' }}>{initials || '👤'}</div>
+              <div>
+                <div style={{ fontWeight: 700 }}>{recipientInfo ? (recipientInfo.displayName || recipientInfo.username) : 'Recipient'}</div>
+                <div style={{ color: '#9ca3af', fontSize: 13 }}>{recipientInfo ? recipientInfo.username : 'Enter Pay ID and verify'}</div>
+              </div>
+            </div>
 
-        <label>Recipient Pay ID</label>
-        <input
-          type="text"
-          value={recipientPayId}
-          onChange={(e) => setRecipientPayId(e.target.value)}
-          placeholder="Recipient Pay ID"
-          style={{ display: 'block', width: '100%', marginBottom: '15px', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-          disabled={isSubmitting}
-          autoComplete="off"
-        />
-        {isVerifying && <small style={{ color: 'blue' }}>Verifying...</small>}
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ display: 'block', marginBottom: 6, fontSize: 13 }}>Pay ID</label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input value={recipientPayId} onChange={e => setRecipientPayId(e.target.value.trim())} placeholder="e.g. user123" style={{ ...inputStyle, flex: 1 }} />
+                <button onClick={() => verifyPayId(recipientPayId)} disabled={!recipientPayId || isVerifying} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid var(--app-primary, #162660)', background: '#fff', color: 'var(--app-primary, #162660)', cursor: recipientPayId ? 'pointer' : 'not-allowed' }}>{isVerifying ? 'Verifying...' : 'Verify'}</button>
+              </div>
+              {!recipientInfo && recipientPayId && !isVerifying && <div style={{ marginTop: 8, color: '#dc2626', fontSize: 13 }}>Pay ID not found</div>}
+            </div>
 
-        {recipientInfo && (
-          <small style={{ color: 'green' }}>Recipient: {recipientInfo.displayName}</small>
-        )}
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ display: 'block', marginBottom: 6, fontSize: 13 }}>Note (optional)</label>
+              <input value={note} onChange={e => setNote(e.target.value)} placeholder="e.g. for rent" style={inputStyle} />
+            </div>
 
-        {!recipientInfo && recipientPayId && !isVerifying && hasTyped && (
-          <small style={{ color: 'red' }}>Pay ID not found</small>
-        )}
+            {showAlert && <div style={{ marginTop: 12 }}><Alert message={alertMessage} type={alertType} onClose={handleCloseAlert} /></div>}
+          </div>
 
-        <label>Amount (NGN)</label>
-        <input
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="Amount"
-          style={{ display: 'block', width: '100%', marginBottom: '15px', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-          disabled={isSubmitting}
-        />
+          <div style={rightStyle}>
+            <div>
+              <div style={{ marginBottom: 8, fontSize: 13, color: '#374151' }}>Amount</div>
+              <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="Amount (NGN)" style={inputStyle} />
+              {errors.amount && <div style={{ color: '#dc2626', marginTop: 6 }}>{errors.amount}</div>}
+              <div style={{ marginTop: 8, ...smallMuted }}>Available: ₦{balance !== null ? Number(balance).toLocaleString() : '—'}</div>
 
-        <label>Transfer PIN</label>
-        <input
-          type="password"
-          value={transferPin}
-          onChange={(e) => setTransferPin(e.target.value)}
-          placeholder="PIN"
-          style={{ display: 'block', width: '100%', marginBottom: '15px', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-          disabled={isSubmitting}
-          autoComplete="new-password"
-        />
+              <div style={{ marginTop: 12 }}>
+                <div style={{ marginBottom: 6, fontSize: 13 }}>Transfer PIN</div>
+                <input type="password" value={transferPin} onChange={e => setTransferPin(e.target.value)} placeholder="PIN" style={inputStyle} />
+                {errors.transferPin && <div style={{ color: '#dc2626', marginTop: 6 }}>{errors.transferPin}</div>}
+              </div>
+            </div>
 
-        <label>Note (optional)</label>
-        <input
-          type="text"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="Note"
-          style={{ display: 'block', width: '100%', marginBottom: '20px', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-          disabled={isSubmitting}
-        />
-
-        <button
-          onClick={handleTransfer}
-          style={{
-            backgroundColor: isSubmitting ? '#6c757d' : '#162660',
-            color: '#f1e4d1',
-            padding: '12px',
-            borderRadius: '5px',
-            width: '100%',
-            cursor: isSubmitting ? 'not-allowed' : 'pointer',
-            fontWeight: 'bold',
-            border: 'none',
-          }}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Submitting...' : 'Submit Transfer'}
-        </button>
-
-        {showAlert && <Alert message={alertMessage} type={alertType} onClose={handleCloseAlert} />}
+            <div>
+              <button disabled={!canSubmit} onClick={() => setShowConfirm(true)} style={{ width: '100%', padding: 14, borderRadius: 10, background: canSubmit ? 'var(--app-primary, #162660)' : '#9aa4b2', color: '#fff', fontWeight: 700, border: 'none', cursor: canSubmit ? 'pointer' : 'not-allowed' }}>{isSubmitting ? 'Sending...' : `Send ₦${Number(amount || 0).toLocaleString() || ''}`}</button>
+              <div style={{ marginTop: 8, fontSize: 12, color: '#6b7280' }}>You can cancel before confirming the final prompt.</div>
+            </div>
+          </div>
+        </div>
       </div>
+      {showConfirm && (
+        <div style={overlayStyle} onClick={() => setShowConfirm(false)}>
+          <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ margin: 0, marginBottom: 8 }}>Confirm transfer</h3>
+            <div style={{ color: '#6b7280', marginBottom: 12 }}>You are sending <strong>₦{Number(amount || 0).toLocaleString()}</strong> to <strong>{recipientInfo ? (recipientInfo.displayName || recipientInfo.username) : recipientPayId}</strong>.</div>
+            {note && <div style={{ marginBottom: 12, fontSize: 13 }}>Note: {note}</div>}
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button type="button" onClick={() => setShowConfirm(false)} style={modalBtn(false)}>Cancel</button>
+              <button type="button" onClick={async () => { setShowConfirm(false); await handleTransfer(); }} style={modalBtn(true)} disabled={isSubmitting}>{isSubmitting ? 'Sending...' : 'Confirm'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

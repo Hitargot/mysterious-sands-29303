@@ -151,33 +151,50 @@ const TradeHistory = () => {
       ],
     };
 
-    // ✅ Show "Amount in Naira" and "Amount in Selected Currency" if status is "Funded"
+    // ✅ Show user/admin foreign amounts, Amount in Naira and exchange rate if status is "Funded"
     if (confirmation.status === "Funded") {
       console.log("Transaction funded:");
-      console.log("Amount in Foreign Currency:", confirmation.amountInForeignCurrency);
-      console.log("Amount in Naira:", confirmation.amountInNaira);
+      console.log("Raw confirmation:", confirmation);
 
-      receiptData.fields.push(
-        {
-          label: `Amount in ${confirmation.selectedCurrency.toUpperCase()}`,
-          value: confirmation.amountInForeignCurrency
-            ? `${confirmation.amountInForeignCurrency.toLocaleString()} ${confirmation.selectedCurrency.toUpperCase()}`
-            : "N/A",
-        },
-        {
-          label: "Amount in Naira",
-          value: confirmation.amountInNaira
-            ? `₦${confirmation.amountInNaira.toLocaleString()}`
-            : "N/A",
-        }
-      );
+      const userAmount = confirmation.userAmountInForeignCurrency ?? null;
+      const userCurrency = (confirmation.userSelectedCurrency || confirmation.userCurrency || confirmation.selectedCurrency || confirmation.adminSelectedCurrency || "").toUpperCase();
+
+      const adminAmount = confirmation.adminForeignAmount ?? confirmation.amountInForeignCurrency ?? null; // legacy admin value might be in amountInForeignCurrency
+      const adminCurrency = (confirmation.adminSelectedCurrency || confirmation.adminCurrency || confirmation.selectedCurrency || "").toUpperCase();
+
+      const format = (val, curr) => {
+        if (val === null || val === undefined) return "N/A";
+        const num = typeof val === "number" ? val : parseFloat(val);
+        if (Number.isNaN(num)) return "N/A";
+        return `${num.toLocaleString()} ${curr || ""}`.trim();
+      };
+
+      if (userAmount) {
+        receiptData.fields.push({
+          label: `Amount input in ${userCurrency || "selected currency"}`,
+          value: format(userAmount, userCurrency),
+        });
+      }
+
+      if (adminAmount) {
+        receiptData.fields.push({
+          label: `Amount funded in ${adminCurrency || "selected currency"}`,
+          value: format(adminAmount, adminCurrency),
+        });
+      }
+
+      receiptData.fields.push({
+        label: "Amount in Naira",
+        value: confirmation.amountInNaira ? `₦${Number(confirmation.amountInNaira).toLocaleString()}` : "N/A",
+      });
 
       // Add the exchange rate (exchangeRateUsed) if available
       if (confirmation.exchangeRateUsed) {
         console.log("Exchange Rate Used:", confirmation.exchangeRateUsed);
+        const rateCurrency = adminCurrency || userCurrency || confirmation.selectedCurrency?.toUpperCase() || 'unit';
         receiptData.fields.push({
           label: "Exchange Rate",
-          value: `₦${confirmation.exchangeRateUsed.toLocaleString()} per ${confirmation.selectedCurrency?.toUpperCase() || 'unit'}`,
+          value: `₦${Number(confirmation.exchangeRateUsed).toLocaleString()} per ${rateCurrency}`,
         });
       }
     }

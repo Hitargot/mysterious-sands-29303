@@ -4,6 +4,7 @@ import Alert from '../components/Alert';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { requestFcmToken } from "../utils/requestFcmToken";
+import ResponsiveLogo from './ResponsiveLogo';
 
 
 const Login = ({ setUserRole }) => {
@@ -59,27 +60,36 @@ const Login = ({ setUserRole }) => {
   };
 
   const sendIfNewToken = async (newToken) => {
-    console.log("Checking FCM token with newToken:", newToken);
+    // Avoid logging raw tokens or JWT values. Only log non-sensitive diagnostics in dev.
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[Login] checking fcm token; hasJwt=', Boolean(newToken));
+    }
+
     const fcmToken = await requestFcmToken();
     const stored = localStorage.getItem("fcmToken");
-    console.log("Current stored FCM token:", stored);
 
     if (fcmToken && fcmToken !== stored) {
-      console.log("New FCM token found:", fcmToken);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[Login] new FCM token detected (value redacted)');
+      }
 
       if (newToken) {
-        // Use the fresh token passed from handleSubmit
+        // Use the fresh token passed from handleSubmit. Do not log token values.
         await axios.post(`${apiUrl}/api/auth/save-fcm-token`, { fcmToken }, {
           headers: { Authorization: `Bearer ${newToken}` },
         });
 
         localStorage.setItem("fcmToken", fcmToken);
-        console.log("FCM token saved:", fcmToken);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('[Login] FCM token saved for user (value redacted)');
+        }
       } else {
         console.error('No JWT token found.');
       }
     } else {
-      console.log("FCM token not changed, skipping save.");
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[Login] FCM token not changed, skipping save.');
+      }
     }
   };
 
@@ -92,7 +102,7 @@ const Login = ({ setUserRole }) => {
       <div style={styles.loginContainer}>
         <header style={styles.loginHeader}>
           <div style={styles.logo}>
-            <img src={require('../assets/images/Exodollarium-01.png')} alt="Logo" style={styles.logoImg} />
+            <ResponsiveLogo alt="Exdollarium" style={styles.logoImg} />
             <span>Exdollarium</span>
           </div>
           <nav>
@@ -166,7 +176,6 @@ const styles = {
     fontWeight: 'bold',
   },
   logoImg: {
-    height: '40px',
     marginRight: '10px',
   },
   navLink: {
@@ -177,6 +186,10 @@ const styles = {
   },
   heading: {
     color: '#f1e4d1', // Cream
+    padding: 0,
+  },
+  h2:{
+    padding: 0,
   },
   loginForm: {
     display: 'flex',

@@ -58,7 +58,13 @@
     "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "generate-icons": "node scripts/generate-icons.js"
+  },
+  "devDependencies": {
+    "jimp": "^0.16.1",
+    "png-to-ico": "^1.0.0"
+    ,"to-ico": "^1.0.0"
   },
   "eslintConfig": {
     "extends": [

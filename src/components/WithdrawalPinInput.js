@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 import Alert from '../components/Alert'; // Adjust the path if necessary
 
-const WithdrawalPinInput = ({ onPinSubmit }) => {
+const WithdrawalPinInput = ({ onPinSubmit, onCancel }) => {
   const [pin, setPin] = useState(['', '', '', '']);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,7 +33,7 @@ const WithdrawalPinInput = ({ onPinSubmit }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const pinValue = pin.join('');
 
@@ -50,17 +50,23 @@ const WithdrawalPinInput = ({ onPinSubmit }) => {
     setIsSubmitting(true);
     setAlert(null); // Clear previous alerts
 
-    setTimeout(() => {
-      onPinSubmit(pinValue); // Call the onPinSubmit function passed as prop
-      setIsSubmitting(false);
-      setAlert({ type: 'success', message: 'PIN submitted successfully!' });
+    try {
+      // Await the parent handler which should perform the withdrawal request
+      // and manage global alerts. The parent should return a boolean or
+      // resolve/reject depending on success.
+      if (onPinSubmit) {
+        await onPinSubmit(pinValue);
+      }
 
       // Clear input fields and reset form states after submission
       setPin(['', '', '', '']); // Reset PIN input
       setIsPasswordVisible(false); // Optionally reset password visibility
-      setIsSubmitting(false); // Reset submitting status
-      setAlert(null); // Reset alert state if necessary
-    }, 2000);
+    } catch (err) {
+      // Parent handler should have shown an alert; we simply keep it visible
+      console.warn('PIN submit handler threw an error', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -165,6 +171,25 @@ const WithdrawalPinInput = ({ onPinSubmit }) => {
         }}
       >
         {isSubmitting ? 'Submitting...' : 'Submit PIN'}
+      </button>
+
+      {/* Cancel Button to close modal */}
+      <button
+        type="button"
+        onClick={() => {
+          if (isSubmitting) return;
+          if (onCancel) onCancel();
+        }}
+        style={{
+          marginTop: '12px',
+          padding: '10px 20px',
+          background: '#e5e7eb',
+          border: 'none',
+          borderRadius: '6px',
+          cursor: isSubmitting ? 'not-allowed' : 'pointer',
+        }}
+      >
+        Cancel
       </button>
 
       {/* Reset PIN Link */}

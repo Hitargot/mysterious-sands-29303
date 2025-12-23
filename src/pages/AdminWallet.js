@@ -13,6 +13,18 @@ const AdminWallet = () => {
   const [alert, setAlert] = useState(null);
   const [showAllTransactions, setShowAllTransactions] = useState(false);
   const [showBalance, setShowBalance] = useState(true); // State to control the visibility of the balance
+  const [totalUserBalances, setTotalUserBalances] = useState(0);
+  const [totalFundedByCurrency, setTotalFundedByCurrency] = useState({});
+  const [totalFundedNaira, setTotalFundedNaira] = useState(0);
+  const [totalUserWithdrawals, setTotalUserWithdrawals] = useState(0);
+  const [totalForeignFunded, setTotalForeignFunded] = useState(0);
+  const [totalForeignWithdrawals, setTotalForeignWithdrawals] = useState(0);
+  const [lastResponse, setLastResponse] = useState(null);
+  const [showDebug, setShowDebug] = useState(false);
+  const [diagCount, setDiagCount] = useState(0);
+  const [diagSumAmount, setDiagSumAmount] = useState(0);
+  const [diagSumForeignCurrency, setDiagSumForeignCurrency] = useState(0);
+  const [diagFirstKeys, setDiagFirstKeys] = useState([]);
   const [filterType, setFilterType] = useState('all'); // Filter transactions by type
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [fundNote, setFundNote] = useState('');
@@ -40,8 +52,25 @@ const AdminWallet = () => {
         withCredentials: true,
       });
   
-      setAdminBalance(data.balance);
-      setTransactions(data.transactions);
+  setAdminBalance(data.balance);
+  setTransactions(data.transactions);
+  setLastResponse(data);
+  // debug logs to inspect server response shape
+  try { console.debug('API /api/wallet response:', data); console.debug('transactions[0]:', data.transactions && data.transactions[0]); } catch (e) { /* ignore */ }
+  setTotalUserBalances(data.totalUserBalances || 0);
+
+  // Prefer server-provided summary totals when available (more accurate)
+  if (typeof data.totalAdminFunding !== 'undefined') {
+    setTotalFundedNaira(Number(data.totalAdminFunding || 0));
+  }
+  if (typeof data.totalAdminWithdrawals !== 'undefined') {
+    setTotalUserWithdrawals(Number(data.totalAdminWithdrawals || 0));
+  }
+  // If backend exposes a total for foreign currency added, show it under a 'FOREIGN' bucket
+  if (typeof data.totalForeignCurrencyAdded !== 'undefined') {
+    setTotalFundedByCurrency({ FOREIGN: Number(data.totalForeignCurrencyAdded || 0) });
+    setTotalForeignFunded(Number(data.totalForeignCurrencyAdded || 0));
+  }
     } catch (error) {
       setAlert({
         type: "error",
@@ -67,6 +96,132 @@ const AdminWallet = () => {
 
     setDisplayedTransactions(showAllTransactions ? filtered : filtered.slice(0, 10));
   }, [transactions, showAllTransactions, filterType]);
+
+  // Compute aggregates: total funded per foreign currency (USD/GBP/EUR) and total funded in NGN, and total user withdrawals
+  useEffect(() => {
+    try {
+      const byCurrency = {};
+  let nairaTotal = 0;
+  let withdrawalsTotal = 0;
+  let foreignTotal = 0;
+  let foreignWithdrawalsTotal = 0;
+
+      const parseNum = (v) => {
+        if (v == null) return 0;
+        if (typeof v === 'number') return v;
+        if (typeof v === 'string') {
+          // remove commas and whitespace
+          const cleaned = v.replace(/[,\s]/g, '');
+          const n = parseFloat(cleaned);
+          return isNaN(n) ? 0 : n;
+        }
+        return 0;
+      };
+
+  transactions.forEach((tx) => {
+        const typeRaw = tx.type || tx.txType || tx.kind || '';
+        const type = String(typeRaw).toLowerCase();
+
+        // foreign amount candidates
+        const foreignAmountCandidates = [
+          tx.userAmountInForeignCurrency,
+          tx.amountInForeignCurrency,
+          tx.userAmount,
+          tx.originalAmount,
+          tx.adminProvidedAmount,
+          tx.adminAmount,
+          tx.adminForeignAmount,
+          tx.foreignAmount,
+        ];
+        let foreignAmount = 0;
+        for (const c of foreignAmountCandidates) {
+          const pv = parseNum(c);
+          if (pv) { foreignAmount = pv; break; }
+        }
+
+        // currency candidates
+        const currency = String(tx.userSelectedCurrency || tx.selectedCurrency || tx.currency || tx.adminSelectedCurrency || tx.adminCurrency || tx.foreignCurrency || '').toUpperCase();
+
+        // NGN amount candidates (server may use different fields)
+        const ngnAmount = parseNum(tx.amount ?? tx.ngnAmount ?? tx.nairaAmount ?? tx.amountInNgn ?? tx.amount_naira ?? null);
+
+        const isWithdrawal = (
+          type.includes('withdraw') ||
+          type.includes('debit') ||
+          (typeof tx.isWithdrawal !== 'undefined' && !!tx.isWithdrawal) ||
+          (ngnAmount < 0)
+        );
+
+        const isFunding = (
+          type.includes('fund') ||
+          type.includes('credit') ||
+          type.includes('topup') ||
+          (typeof tx.isFunding !== 'undefined' && !!tx.isFunding) ||
+          (ngnAmount > 0 && !isWithdrawal)
+        );
+
+        // accumulate foreign totals when present and transaction looks like funding
+        if (foreignAmount) {
+          foreignTotal += Math.abs(foreignAmount);
+          if (currency && isFunding) {
+            byCurrency[currency] = (byCurrency[currency] || 0) + foreignAmount;
+          }
+          // if this foreign transaction is a withdrawal, add to foreign withdrawals total
+          if (isWithdrawal) foreignWithdrawalsTotal += Math.abs(foreignAmount);
+        }
+
+        // accumulate NGN funded (use absolute values)
+        if (isFunding && !isNaN(ngnAmount) && ngnAmount) {
+          nairaTotal += Math.abs(ngnAmount);
+        }
+
+        // accumulate withdrawals (NGN)
+        if (isWithdrawal) {
+          if (!isNaN(ngnAmount) && ngnAmount) withdrawalsTotal += Math.abs(ngnAmount);
+        }
+      });
+
+  setTotalFundedByCurrency(byCurrency);
+  setTotalFundedNaira(nairaTotal);
+  setTotalUserWithdrawals(withdrawalsTotal);
+  setTotalForeignFunded(foreignTotal);
+  setTotalForeignWithdrawals(foreignWithdrawalsTotal);
+      // log computed aggregates for debugging
+      try { console.debug('Computed wallet aggregates', { byCurrency, nairaTotal, withdrawalsTotal }); } catch (e) { }
+    } catch (e) {
+      console.error('Failed to compute wallet aggregates', e);
+    }
+  }, [transactions]);
+
+  // diagnostic summary for quick visibility when totals appear zero
+  useEffect(() => {
+    try {
+      const parseNum = (v) => {
+        if (v == null) return 0;
+        if (typeof v === 'number') return v;
+        if (typeof v === 'string') {
+          const cleaned = v.replace(/[,\s]/g, '');
+          const n = parseFloat(cleaned);
+          return isNaN(n) ? 0 : n;
+        }
+        return 0;
+      };
+      const count = Array.isArray(transactions) ? transactions.length : 0;
+      let sumAmt = 0;
+      let sumForeign = 0;
+      if (count > 0) {
+        transactions.forEach((t) => {
+          sumAmt += Math.abs(parseNum(t.amount ?? t.ngnAmount ?? t.nairaAmount ?? 0));
+          sumForeign += Math.abs(parseNum(t.foreignCurrency ?? t.foreignAmount ?? t.fxAmount ?? 0));
+        });
+        setDiagFirstKeys(Object.keys(transactions[0] || {}));
+      } else setDiagFirstKeys([]);
+      setDiagCount(count);
+      setDiagSumAmount(sumAmt);
+      setDiagSumForeignCurrency(sumForeign);
+      try { console.debug('Diagnostic sums', { count, sumAmt, sumForeign, keys: Object.keys(transactions[0] || {}) }); } catch (e) {}
+    } catch (e) { /* ignore */ }
+  }, [transactions]);
 
   // Fund Admin Wallet
   const handleFundWallet = async () => {
@@ -161,6 +316,61 @@ const AdminWallet = () => {
           <p className="balance">₦{formatBalance(adminBalance)}</p>
         </div>
       )}
+      {/* Aggregate of all users' wallet balances (for admin visibility) */}
+      <div className="admin-card">
+        <h2 className="section-header">Total Users' Balances</h2>
+        <p className="balance">₦{formatBalance(totalUserBalances)}</p>
+      </div>
+      {/* Aggregated totals: funded by currency, funded in NGN, and user withdrawals */}
+      <div className="admin-card">
+        <h2 className="section-header">Wallet Totals</h2>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          {/* Show only common currencies and defaults */}
+          {['USD', 'GBP', 'EUR'].map((c) => (
+            <div key={c} style={{ minWidth: 140, padding: 8, borderRadius: 6, border: '1px solid #eee', background: '#fff', color: '#111' }}>
+              <div style={{ fontSize: 12, color: '#666' }}>Total Funded ({c})</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#111' }}>{c === 'USD' && '$'}{c === 'GBP' && '£'}{c === 'EUR' && '€'}{Number(totalFundedByCurrency[c] || 0).toLocaleString()}</div>
+            </div>
+          ))}
+
+          <div style={{ minWidth: 180, padding: 8, borderRadius: 6, border: '1px solid #eee', background: '#fff', color: '#111' }}>
+            <div style={{ fontSize: 12, color: '#666' }}>Total Funded (NGN)</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#111' }}>₦{Number(totalFundedNaira || 0).toLocaleString()}</div>
+          </div>
+
+          <div style={{ minWidth: 220, padding: 8, borderRadius: 6, border: '1px solid #eee', background: '#fff', color: '#111' }}>
+            <div style={{ fontSize: 12, color: '#666' }}>Total Users' Withdrawals (NGN)</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#111' }}>₦{Number(totalUserWithdrawals || 0).toLocaleString()}</div>
+          </div>
+
+          <div style={{ minWidth: 220, padding: 8, borderRadius: 6, border: '1px solid #eee', background: '#fff', color: '#111' }}>
+            <div style={{ fontSize: 12, color: '#666' }}>Total Foreign Funded (all currencies)</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#111' }}>{Number(totalForeignFunded || 0).toLocaleString()}</div>
+          </div>
+
+          <div style={{ minWidth: 220, padding: 8, borderRadius: 6, border: '1px solid #eee', background: '#fff', color: '#111' }}>
+            <div style={{ fontSize: 12, color: '#666' }}>Total Foreign Withdrawals (all currencies)</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#111' }}>{Number(totalForeignWithdrawals || 0).toLocaleString()}</div>
+          </div>
+        </div>
+      </div>
+      {/* Debug: show raw server response when requested */}
+      <div style={{ marginBottom: 12 }}>
+        <button onClick={() => setShowDebug(!showDebug)} className="toggle-balance-button" style={{ marginBottom: 8 }}>
+          {showDebug ? 'Hide' : 'Show'} Server Response
+        </button>
+        {showDebug && lastResponse && (
+          <>
+            <div style={{ marginBottom: 8, color: '#fff' }}>
+              <strong>Diagnostics:</strong> transactions: {diagCount}, sum NGN amounts: ₦{Number(diagSumAmount || 0).toLocaleString()}, sum foreign amounts: {Number(diagSumForeignCurrency || 0).toLocaleString()}
+              <div style={{ fontSize: 12, color: '#ddd' }}>First transaction keys: {diagFirstKeys.join(', ')}</div>
+            </div>
+            <pre style={{ whiteSpace: 'pre-wrap', background: 'rgba(0,0,0,0.6)', color: '#fff', padding: 12, borderRadius: 8, maxHeight: 320, overflow: 'auto' }}>
+              {JSON.stringify(lastResponse, null, 2)}
+            </pre>
+          </>
+        )}
+      </div>
       <div className="admin-card">
         <h2 className="section-header">Fund Admin Wallet</h2>
         <div className="input-group">

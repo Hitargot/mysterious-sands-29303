@@ -1,332 +1,237 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import Alert from '../components/Alert';
-import { jwtDecode } from 'jwt-decode'; // Ensure jwt-decode is installed
+import {jwtDecode} from 'jwt-decode'; // default import
 import '../styles/withdrawalRequests.css';
 import { useNavigate } from 'react-router-dom';
-import { DartsSpinnerOverlay } from 'react-spinner-overlay'; // Spinner for loading
 
+// Responsive admin withdrawal requests page (table on desktop, cards on mobile)
 const WithdrawalRequests = () => {
-  const [withdrawals, setWithdrawals] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredWithdrawals, setFilteredWithdrawals] = useState([]);
-  const [alerts, setAlerts] = useState([]); // Array to store multiple alerts
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [transactionIdToConfirm, setTransactionIdToConfirm] = useState(null);
-  const [modalAction, setModalAction] = useState('');
-  const navigate = useNavigate(); // Use navigate for routing
-  const token = localStorage.getItem('adminToken');
-  
   const apiUrl = process.env.REACT_APP_API_URL;
+  const navigate = useNavigate();
+  const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
 
-  // Function to check if the token is expired
-  const isTokenExpired = (token) => {
-    if (!token) return true;
-    const decoded = jwtDecode(token);
-    const currentTime = Date.now() / 1000; // Convert to seconds
-    return decoded.exp < currentTime;
+  const [withdrawals, setWithdrawals] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('all');
+  const [page, setPage] = useState(1);
+  const perPage = 20;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalAction, setModalAction] = useState('');
+  const [selectedTx, setSelectedTx] = useState(null);
+  const [providerChoice, setProviderChoice] = useState('manual');
+
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+  const isTokenExpired = (t) => {
+    if (!t) return true;
+    try {
+      const d = jwtDecode(t);
+      const now = Date.now() / 1000;
+      return d.exp && d.exp < now;
+    } catch (e) {
+      return true;
+    }
   };
 
   useEffect(() => {
     if (isTokenExpired(token)) {
-      // Redirect to login if token is expired
-      showAlert('Your session has expired. Please log in again.', 'error');
-      localStorage.removeItem('token');
+      setError('Session expired — please log in again');
+      localStorage.removeItem('adminToken');
       navigate('/login');
       return;
     }
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    // Fetch withdrawal requests if token is valid
-    axios
-      .get(`${apiUrl}/api/admin/withdrawal-requests`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        console.log('Fetched withdrawals:', response.data.withdrawals);
-        setWithdrawals(response.data.withdrawals);
-        setFilteredWithdrawals(response.data.withdrawals);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching withdrawal requests:', error.response?.data || error.message);
-        showAlert('Error fetching withdrawal requests', 'error');
-        setLoading(false);
-      });
-  }, [token, navigate, apiUrl]);
-
-  // Show an alert and add it to the alert array
-  const showAlert = (message, type) => {
-    setAlerts((prevAlerts) => [...prevAlerts, { message, type }]);
-  };
-
-  // Close an alert
-  const closeAlert = (index) => {
-    setAlerts((prevAlerts) => prevAlerts.filter((_, i) => i !== index));
-  };
-
-  // Handle modal actions (Approve/Reject/Complete)
-  const handleAction = () => {
-    const adminUsername = 'adminUsername'; // Replace this with actual admin's username from JWT
-    const actionTime = new Date().toISOString(); // Capture current timestamp
-
-    const url =
-      modalAction === 'approve'
-        ? `${apiUrl}/api/admin/withdrawal-request/approve/${transactionIdToConfirm}`
-        : modalAction === 'reject'
-          ? `${apiUrl}/api/admin/withdrawal-request/reject/${transactionIdToConfirm}`
-          : `${apiUrl}/api/admin/withdrawal-request/complete/${transactionIdToConfirm}`;
-
-    axios
-      .patch(url, { adminActionBy: adminUsername }, { headers: { Authorization: `Bearer ${token}` } })
-      .then(() => {
-        const successMessage =
-          modalAction === 'approve'
-            ? 'Withdrawal request approved'
-            : modalAction === 'reject'
-              ? 'Withdrawal request rejected'
-              : 'Withdrawal request completed';
-
-        showAlert(successMessage, 'success');
-
-        // ✅ Instantly update UI without waiting for reload
-        setWithdrawals((prev) =>
-          prev.map((transaction) =>
-            transaction.transactionId === transactionIdToConfirm
-              ? {
-                ...transaction,
-                status:
-                  modalAction === 'approve'
-                    ? 'approved'
-                    : modalAction === 'reject'
-                      ? 'rejected'
-                      : 'completed',
-                adminActionBy: adminUsername, // Update admin name instantly
-                actionTakenAt: actionTime, // Update action time instantly
-              }
-              : transaction
-          )
-        );
-
-        setFilteredWithdrawals((prev) =>
-          prev.map((transaction) =>
-            transaction.transactionId === transactionIdToConfirm
-              ? {
-                ...transaction,
-                status:
-                  modalAction === 'approve'
-                    ? 'approved'
-                    : modalAction === 'reject'
-                      ? 'rejected'
-                      : 'completed',
-                adminActionBy: adminUsername, // Update admin name instantly
-                actionTakenAt: actionTime, // Update action time instantly
-              }
-              : transaction
-          )
-        );
-
-        closeModal();
-      })
-      .catch((error) => {
-        console.error(`Error performing ${modalAction} action:`, error.response?.data || error.message);
-        showAlert(`Error performing ${modalAction} action`, 'error');
-        closeModal();
-      });
-  };
-
-  // Open modal for approve/reject or complete
-  const openModal = (transactionId, action) => {
-    setTransactionIdToConfirm(transactionId);
-    setModalAction(action);
-    setIsModalOpen(true);
-  };
-
-  // Close modal
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setTransactionIdToConfirm(null);
-    setModalAction('');
-  };
-
-  // Search filter
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
-    const filtered = withdrawals.filter((transaction) => {
-      return (
-        transaction.userId?.username?.toLowerCase().includes(query) ||
-        transaction.bankId?.accountName?.toLowerCase().includes(query) ||
-        transaction.transactionId?.toLowerCase().includes(query) ||
-        transaction.status?.toLowerCase().includes(query) ||
-        transaction.formattedDate?.toLowerCase().includes(query)
-      );
-    });
-    setFilteredWithdrawals(filtered);
-  };
-
-  // Get dynamic button label and action
-  const getButtonConfig = (transaction) => {
-    switch (transaction.status) {
-      case 'pending':
-        return { label: 'Approve / Reject', disabled: false, action: 'approveReject' };
-      case 'approved':
-        return { label: 'Complete', disabled: false, action: 'complete' };
-      case 'rejected':
-      case 'completed':
-        return { label: 'Action Taken', disabled: true, action: '' };
-      default:
-        return { label: 'Approve / Reject', disabled: false, action: 'approveReject' };
+  async function load() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.get(`${apiUrl}/api/admin/withdrawal-requests`, { headers });
+      const data = Array.isArray(res.data) ? res.data : (res.data.withdrawals || res.data.data || res.data);
+      setWithdrawals(data || []);
+      setFiltered(data || []);
+    } catch (err) {
+      console.error('fetch withdrawals error', err);
+      setError(err.response?.data?.message || err.message || 'Failed to load withdrawals');
+    } finally {
+      setLoading(false);
     }
-  };
+  }
+
+  // Filtering/searching
+  useEffect(() => {
+    let list = withdrawals.slice();
+    if (status !== 'all') list = list.filter(w => (w.status || '').toString().toLowerCase() === status.toLowerCase());
+    if (search && search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter(w => (
+        (w.transactionId || w._id || '').toString().toLowerCase().includes(q) ||
+        ((w.userId?.username || w.userId?.name || w.user?.username || w.username || '')).toString().toLowerCase().includes(q) ||
+        ((w.bankId?.bankName || w.bankId?.accountName || w.bankName || w.bank?.name || '')).toString().toLowerCase().includes(q) ||
+        String(w.amount || w.value || '').toLowerCase().includes(q)
+      ));
+    }
+    setFiltered(list);
+    setPage(1);
+  }, [withdrawals, status, search]);
+
+  const pages = useMemo(() => Math.max(1, Math.ceil((filtered.length || 0) / perPage)), [filtered.length]);
+  const pageItems = useMemo(() => {
+    const start = (page - 1) * perPage;
+    return filtered.slice(start, start + perPage);
+  }, [filtered, page]);
+
+  function openModal(tx, action) {
+    setSelectedTx(tx);
+    setModalAction(action);
+    setProviderChoice('manual');
+    setIsModalOpen(true);
+  }
+
+  function closeModal() {
+    setIsModalOpen(false);
+    setSelectedTx(null);
+    setModalAction('');
+  }
+
+  async function doAction() {
+    if (!selectedTx) return closeModal();
+    try {
+      const url = `${apiUrl}/api/admin/process/${selectedTx.transactionId || selectedTx._id}`;
+      const body = { action: modalAction === 'process' ? 'complete' : (modalAction === 'reject' ? 'reject' : modalAction), provider: providerChoice };
+      const resp = await axios.post(url, body, { headers });
+      // apply optimistic update
+      const updated = resp.data && resp.data.transaction ? resp.data.transaction : null;
+      setWithdrawals(prev => prev.map(w => (w._id === selectedTx._id || w.transactionId === selectedTx.transactionId) ? (updated ? { ...w, ...updated } : { ...w, status: body.action === 'complete' ? 'processing_admin' : (body.action === 'reject' ? 'rejected' : w.status) }) : w));
+      closeModal();
+    } catch (err) {
+      console.error('action error', err);
+      setError(err.response?.data?.message || 'Action failed');
+      closeModal();
+    }
+  }
 
   return (
-    <div className="withdrawal-requests">
-      <h2>Withdrawal Requests</h2>
+    <div className="withdrawal-requests-page p-4">
+      <h2 className="mb-4">Withdrawal Requests</h2>
+      {error && <Alert type="error" message={error} />}
 
-      <input
-        type="text"
-        placeholder="Search by username, bank, transaction ID, status, or date"
-        value={searchQuery}
-        onChange={handleSearch}
-        className="search-bar"
-      />
+      <div className="controls mb-4">
+        <input className="search-input" placeholder="Search id, user, bank, amount" value={search} onChange={e => setSearch(e.target.value)} />
+        <select value={status} onChange={e => setStatus(e.target.value)} className="status-select">
+          <option value="all">All</option>
+          <option value="pending">Pending</option>
+          <option value="processing_admin">Processing</option>
+          <option value="completed">Completed</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <button className="btn refresh" onClick={load} disabled={loading}>{loading ? 'Refreshing…' : 'Refresh'}</button>
+      </div>
 
-      {alerts.length > 0 &&
-        alerts.map((alert, index) => (
-          <Alert
-            key={index}
-            message={alert.message}
-            type={alert.type}
-            onClose={() => closeAlert(index)}
-          />
-        ))}
-
-      {loading ? (
-        <DartsSpinnerOverlay
-          active={true}
-          spinnerSize={50}
-          color="#36d7b7"
-          backgroundColor="rgba(0, 0, 0, 0.5)"
-        />
-      ) : (
-        <div className="withdrawal-cards">
-          {filteredWithdrawals.map((transaction) => {
-            const { disabled } = getButtonConfig(transaction);
-            return (
-              <div key={transaction.transactionId} className="withdrawal-card">
-                <h3>Transaction ID: {transaction.transactionId}</h3>
-                <p>
-                  <strong>Username:</strong> {transaction.userId?.username || 'Not available'}
-                </p>
-                <p>
-                  <strong>Bank:</strong>{' '}
-                  {transaction.bankId?.accountName
-                    ? `${transaction.bankId.accountName} - ${transaction.bankId.bankName} - ${transaction.bankId.accountNumber}`
-                    : 'Not available'}
-                </p>
-                <p>
-                  <strong>Amount:</strong> {transaction.amount ? `₦${transaction.amount.toLocaleString()}` : 'N/A'}
-                </p>
-
-                <p>
-                  <strong>Date:</strong> {transaction.formattedDate || 'Not available'}
-                </p>
-                <p>
-                  <strong>Status:</strong> {transaction.status}
-                </p>
-
-                {transaction.adminActionBy && (
-                  <>
-                    {transaction.status === 'approved' && (
-                      <p>
-                        <strong>Approved by:</strong> {transaction.adminActionBy} <br />
-                        <small>
-                          Action taken on: {transaction.adminActionAt ? new Date(transaction.adminActionAt).toLocaleString() : 'N/A'}
-                        </small>
-                      </p>
-                    )}
-
-                    {transaction.status === 'completed' && (
+      {/* Desktop table */}
+      <div className="table-wrap">
+        <table className="withdrawals-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>User</th>
+              <th>Amount</th>
+              <th>Bank</th>
+              <th>Status</th>
+              <th>Requested</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pageItems.map(w => (
+              <tr key={w._id || w.transactionId} className={`row ${w.status ? w.status.toLowerCase() : ''}`}>
+                <td className="mono">{w.transactionId || w._id}</td>
+                <td>{w.userId?.username || w.userId?.name || w.user?.username || w.username || '—'}</td>
+                <td>₦{Number(w.amount || w.value || 0).toLocaleString()}</td>
+                <td>
+                  <div>{w.bankId?.accountName || w.bankAccount?.accountName || '—'}</div>
+                  <div className="muted">{w.bankId?.accountNumber || w.bankAccount?.accountNumber || '—'}</div>
+                  <div className="muted">{w.bankId?.bankName || w.bankName || w.bank?.name || '—'}</div>
+                </td>
+                <td><span className={`status-badge ${w.status ? w.status.toLowerCase() : ''}`}>{w.status || 'pending'}</span></td>
+                <td>{w.createdAt ? new Date(w.createdAt).toLocaleString() : (w.requestedAt ? new Date(w.requestedAt).toLocaleString() : '—')}</td>
+                <td>
+                  <div className="actions">
+                    {w.status !== 'completed' && w.status !== 'paid' && (
                       <>
-                        <p>
-                          <strong>Completed by:</strong> {transaction.completedBy || 'N/A'} <br />
-                          <small>
-                            Action taken on: {transaction.completedAt ? new Date(transaction.completedAt).toLocaleString() : 'N/A'}
-                          </small>
-                        </p>
+                        <button className="btn small" onClick={() => openModal(w, 'process')}>Process</button>
+                        <button className="btn small danger" onClick={() => openModal(w, 'reject')}>Reject</button>
                       </>
                     )}
+                    {(w.status === 'processing_admin' || w.status === 'processing_provider') && <button disabled className="btn small">Processing</button>}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-                    {transaction.status === 'rejected' && (
-                      <p>
-                        <strong>Rejected by:</strong> {transaction.adminActionBy} <br />
-                        <small>
-                          Action taken on: {transaction.adminActionAt ? new Date(transaction.adminActionAt).toLocaleString() : 'N/A'}
-                        </small>
-                      </p>
-                    )}
+      {/* Cards for mobile */}
+      <div className="cards-wrap">
+        {pageItems.map(w => (
+          <div key={w._id || w.transactionId} className="withdrawal-card">
+            <div className="card-top">
+              <div className="mono">{w.transactionId || w._id}</div>
+              <div className={`status ${w.status ? w.status.toLowerCase() : ''}`}>{w.status || 'pending'}</div>
+            </div>
+            <div className="card-body">
+              <div><strong>User:</strong> {w.userId?.username || w.userId?.name || w.user?.username || w.username || '—'}</div>
+              <div><strong>Amount:</strong> ₦{Number(w.amount || w.value || 0).toLocaleString()}</div>
+              <div>
+                <strong>Bank:</strong>
+                <div>{w.bankId?.accountName || w.bankAccount?.accountName || '—'}</div>
+                <div className="muted">{w.bankId?.accountNumber || w.bankAccount?.accountNumber || '—'}</div>
+                <div className="muted">{w.bankId?.bankName || w.bankName || w.bank?.name || '—'}</div>
+              </div>
+              <div className="card-actions">
+                {w.status !== 'completed' && w.status !== 'paid' && (
+                  <>
+                    <button className="btn small" onClick={() => openModal(w, 'process')}>Process</button>
+                    <button className="btn small danger" onClick={() => openModal(w, 'reject')}>Reject</button>
                   </>
                 )}
-
-
-
-                <div className="actions">
-                  {transaction.status === 'pending' && (
-                    <>
-                      <button
-                        onClick={() => openModal(transaction.transactionId, 'approve')}
-                        disabled={disabled}
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => openModal(transaction.transactionId, 'reject')}
-                        disabled={disabled}
-                      >
-                        Reject
-                      </button>
-                    </>
-                  )}
-
-                  {transaction.status === 'approved' && (
-                    <button
-                      onClick={() => openModal(transaction.transactionId, 'complete')}
-                      disabled={disabled}
-                    >
-                      Complete
-                    </button>
-                  )}
-                </div>
               </div>
-            );
-          })}
-        </div>
-      )}
+            </div>
+          </div>
+        ))}
+      </div>
 
-      {isModalOpen && (
+      {/* Pagination */}
+      <div className="pagination">
+        <button className="btn" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1}>Prev</button>
+        <span>Page {page} of {pages}</span>
+        <button className="btn" onClick={() => setPage(p => Math.min(p + 1, pages))} disabled={page >= pages}>Next</button>
+      </div>
+
+      {/* Modal */}
+      {isModalOpen && selectedTx && (
         <div className="modal-overlay">
           <div className="modal">
-            <h3>
-              Are you sure you want to{' '}
-              {modalAction === 'approve'
-                ? 'approve'
-                : modalAction === 'reject'
-                  ? 'reject'
-                  : 'complete'}{' '}
-              this transaction?
-            </h3>
+            <h3>{modalAction === 'process' ? 'Process withdrawal' : modalAction === 'reject' ? 'Reject withdrawal' : 'Confirm action'}</h3>
+            {modalAction === 'process' && (
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ marginRight: 8 }}>Provider</label>
+                <select value={providerChoice} onChange={e => setProviderChoice(e.target.value)}>
+                  <option value="manual">Manual</option>
+                  <option value="flutterwave">Flutterwave</option>
+                </select>
+              </div>
+            )}
             <div className="modal-actions">
-              <button onClick={handleAction}>
-                {modalAction === 'approve'
-                  ? 'Approve'
-                  : modalAction === 'reject'
-                    ? 'Reject'
-                    : 'Complete'}
-              </button>
-              <button className="close-btn" onClick={closeModal}>
-                Cancel
-              </button>
+              <button className="btn" onClick={doAction}>{modalAction === 'reject' ? 'Confirm Reject' : (modalAction === 'process' ? 'Process' : 'Confirm')}</button>
+              <button className="btn close" onClick={closeModal}>Cancel</button>
             </div>
           </div>
         </div>

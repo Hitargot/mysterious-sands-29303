@@ -5,6 +5,7 @@ import { FaReceipt } from "react-icons/fa";
 import Spinner from "./Spinner";
 import html2canvas from "html2canvas";
 import Alert from "./Alert";
+import ResponsiveLogo from './ResponsiveLogo';
 
 const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
@@ -81,7 +82,8 @@ const TransactionHistory = () => {
         setTransactions(mapped);
       } catch (error) {
         console.error("Error fetching transactions:", error);
-        setAlertMessage("Failed to fetch transactions. Please try again later.");
+        const msg = error?.response?.data?.message || error?.message || 'Failed to fetch transactions. Please try again later.';
+        setAlertMessage(msg);
       } finally {
         setLoading(false);
       }
@@ -138,7 +140,8 @@ const TransactionHistory = () => {
       setReceipt(response.data);
     } catch (error) {
       console.error("Error fetching receipt:", error);
-      setAlertMessage("Failed to fetch receipt. Please try again.");
+      const msg = error?.response?.data?.message || error?.message || 'Failed to fetch receipt. Please try again.';
+      setAlertMessage(msg);
     } finally {
       setLoadingReceipt(false);
     }
@@ -213,6 +216,32 @@ const TransactionHistory = () => {
   // Close the receipt modal
   const onClose = () => {
     setReceipt(null); // Close the modal by setting receipt to null
+  };
+
+  // Helpers for receipt display
+  const formatCurrency = (amt, curr) => {
+    if (amt == null) return '';
+    try {
+      return new Intl.NumberFormat(undefined, { style: 'currency', currency: curr || receipt?.currency || 'NGN' }).format(Number(amt));
+    } catch (e) {
+      return String(amt);
+    }
+  };
+
+  const getFee = () => {
+    if (!receipt) return null;
+    return receipt.fee ?? receipt.fees ?? receipt.charge ?? receipt.withdrawalFee ?? receipt.feeAmount ?? null;
+  };
+
+  const getAccountDisplay = () => {
+    if (!receipt) return '';
+    if (receipt.account) return receipt.account;
+    if (receipt.accountName || receipt.accountNumber) {
+      return `${receipt.accountName || ''}${receipt.accountName && receipt.accountNumber ? ' - ' : ''}${receipt.accountNumber || ''}`.trim();
+    }
+    if (receipt.toAccount) return receipt.toAccount;
+    if (receipt.recipientAccount) return receipt.recipientAccount;
+    return '';
   };
 
   return (
@@ -312,11 +341,7 @@ const TransactionHistory = () => {
         <div className="receipt-modal">
           <div className="receipt-modal-content" id="receipt-content">
             <div className="receipt-header">
-              <img
-                src={require("../assets/images/Exodollarium-01.png")}
-                alt="Exdollarium Logo"
-                className="company-logo"
-              />
+              <ResponsiveLogo alt="Exdollarium" className="company-logo" />
               <h2>Exdollarium</h2>
               <p>Official Transaction Receipt</p>
             </div>
@@ -377,12 +402,32 @@ const TransactionHistory = () => {
                 <p className="value">{receipt.type}</p>
               </div>
 
-              {receipt.type === "withdrawal" && (
-                <div className="receipt-row">
-                  <p className="label">Bank:</p>
-                  <p className="value">{receipt.bankMeta || receipt.bankId}</p>
-                </div>
-              )}
+                {/* Account and Fee for withdrawals */}
+                {receipt.type === "withdrawal" && (
+                  <>
+                    {/* Account (bank account or wallet) */}
+                    {getAccountDisplay() && (
+                      <div className="receipt-row">
+                        <p className="label">Account:</p>
+                        <p className="value">{getAccountDisplay()}</p>
+                      </div>
+                    )}
+
+                    {/* Fee */}
+                    {getFee() != null && (
+                      <div className="receipt-row">
+                        <p className="label">Fee:</p>
+                        <p className="value">{formatCurrency(getFee(), receipt.currency || 'NGN')}</p>
+                      </div>
+                    )}
+
+                    {/* Bank metadata */}
+                    <div className="receipt-row">
+                      <p className="label">Bank:</p>
+                      <p className="value">{receipt.bankMeta || receipt.bankId}</p>
+                    </div>
+                  </>
+                )}
 
               {/* ✅ Conditional Sender/Receiver for receipt */}
               {receipt.type?.toLowerCase() === "transfer" && currentUserId && (

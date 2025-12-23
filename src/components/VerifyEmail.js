@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import logo from '../assets/images/Exodollarium-01.png';
+import ResponsiveLogo from './ResponsiveLogo';
 import Alert from '../components/Alert';
 
 const VerifyEmail = () => {
@@ -70,7 +70,7 @@ const VerifyEmail = () => {
       <div style={{ maxWidth: '400px', padding: '25px', backgroundColor: '#162660', borderRadius: '10px', boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)', textAlign: 'center' }}>
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', color: '#f1e4d1', fontWeight: 'bold' }}>
-            <img src={logo} alt="Logo" style={{ height: '30px', marginRight: '10px' }} />
+            <ResponsiveLogo alt="Exdollarium" style={{ marginRight: '10px' }} />
             <span>Exdollarium</span>
           </div>
           <nav>
