@@ -149,8 +149,11 @@ const WithdrawalRequests = () => {
             </tr>
           </thead>
           <tbody>
-            {pageItems.map(w => (
-              <tr key={w._id || w.transactionId} className={`row ${w.status ? w.status.toLowerCase() : ''}`}>
+            {pageItems.map(w => {
+              const st = ((w.status || '')).toString().toLowerCase();
+              const canAct = st !== 'completed' && st !== 'paid' && st !== 'rejected';
+              return (
+              <tr key={w._id || w.transactionId} className={`row ${st}`}>
                 <td className="mono">{w.transactionId || w._id}</td>
                 <td>{w.userId?.username || w.userId?.name || w.user?.username || w.username || '—'}</td>
                 <td>₦{Number(w.amount || w.value || 0).toLocaleString()}</td>
@@ -163,24 +166,27 @@ const WithdrawalRequests = () => {
                 <td>{w.createdAt ? new Date(w.createdAt).toLocaleString() : (w.requestedAt ? new Date(w.requestedAt).toLocaleString() : '—')}</td>
                 <td>
                   <div className="actions">
-                    {((w.status || '').toString().toLowerCase() !== 'completed') && ((w.status || '').toString().toLowerCase() !== 'paid') && ((w.status || '').toString().toLowerCase() !== 'rejected') && (
+                    {canAct && (
                       <>
                         <button className="btn small" onClick={() => openModal(w, 'process')}>Process</button>
                         <button className="btn small danger" onClick={() => openModal(w, 'reject')}>Reject</button>
                       </>
                     )}
-                    {(w.status === 'processing_admin' || w.status === 'processing_provider') && <button disabled className="btn small">Processing</button>}
+                    {(st === 'processing_admin' || st === 'processing_provider') && <button disabled className="btn small">Processing</button>}
                   </div>
                 </td>
               </tr>
-            ))}
+            )})}
           </tbody>
         </table>
       </div>
 
       {/* Cards for mobile */}
       <div className="cards-wrap">
-        {pageItems.map(w => (
+        {pageItems.map(w => {
+          const st = ((w.status || '')).toString().toLowerCase();
+          const canAct = st !== 'completed' && st !== 'paid' && st !== 'rejected';
+          return (
           <div key={w._id || w.transactionId} className="withdrawal-card">
             <div className="card-top">
               <div className="mono">{w.transactionId || w._id}</div>
@@ -196,7 +202,7 @@ const WithdrawalRequests = () => {
                 <div className="muted">{w.bankId?.bankName || w.bankName || w.bank?.name || '—'}</div>
               </div>
                 <div className="card-actions">
-                {((w.status || '').toString().toLowerCase() !== 'completed') && ((w.status || '').toString().toLowerCase() !== 'paid') && ((w.status || '').toString().toLowerCase() !== 'rejected') && (
+                {canAct && (
                   <>
                     <button className="btn small" onClick={() => openModal(w, 'process')}>Process</button>
                     <button className="btn small danger" onClick={() => openModal(w, 'reject')}>Reject</button>
@@ -205,7 +211,7 @@ const WithdrawalRequests = () => {
               </div>
             </div>
           </div>
-        ))}
+        )})}
       </div>
 
       {/* Pagination */}
