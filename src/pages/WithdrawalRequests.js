@@ -151,7 +151,7 @@ const WithdrawalRequests = () => {
           <tbody>
             {pageItems.map(w => {
               const st = ((w.status || '')).toString().toLowerCase();
-              const canAct = st !== 'completed' && st !== 'paid' && st !== 'rejected';
+              const canAct = st !== 'completed' && st !== 'paid' && st !== 'rejected' && st !== 'failed';
               return (
               <tr key={w._id || w.transactionId} className={`row ${st}`}>
                 <td className="mono">{w.transactionId || w._id}</td>
@@ -185,7 +185,7 @@ const WithdrawalRequests = () => {
       <div className="cards-wrap">
         {pageItems.map(w => {
           const st = ((w.status || '')).toString().toLowerCase();
-          const canAct = st !== 'completed' && st !== 'paid' && st !== 'rejected';
+          const canAct = st !== 'completed' && st !== 'paid' && st !== 'rejected' && st !== 'failed';
           return (
           <div key={w._id || w.transactionId} className="withdrawal-card">
             <div className="card-top">
