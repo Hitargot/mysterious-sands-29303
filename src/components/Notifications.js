@@ -1,226 +1,220 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { FaBell, FaEnvelope, FaTimes } from 'react-icons/fa';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { FaBell, FaEnvelope, FaCheckDouble } from 'react-icons/fa';
 import { useNotification } from '../context/NotificationContext';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(relativeTime);
 
-console.log('[Notifications] module loaded');
+const THEME = {
+  bg: '#f1e4d1',        // Soft beige
+  text: '#162660',      // Deep blue
+  unread: '#d0e6fd',    // Light blue highlight
+  accent: '#ff7a00',    // Orange action color
+  border: 'rgba(22, 38, 96, 0.15)',
+};
 
 const Notifications = () => {
-  console.log('[Notifications] component render start');
   const { notifications, markAsRead, markAllAsRead, unreadCount, fetchNotifications } = useNotification();
   const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef(null);
-  // lastFetch removed — unused state caused ESLint no-unused-vars warning
 
-  // Your color scheme
-  const COLORS = {
-    primary: '#f1e4d1', // Soft beige (background)
-    secondary: '#162660', // Deep blue (text, borders, hover effects)
-    accent: '#d0e6fd', // Light blue (unread notifications, highlights)
-  };
+  // Close handlers
+  const closeDropdown = useCallback(() => setIsOpen(false), []);
 
-  const toggleNotifications = () => {
-    console.log('[Notifications] bell clicked, current isOpen=', isOpen);
-    const next = !isOpen;
-    setIsOpen(next);
-    if (next) {
-      console.log('[Notifications] opening dropdown -> fetching notifications');
-      fetchNotifications()
-        .then(() => { console.log('[Notifications] fetchNotifications resolved on open'); })
-        .catch((err) => console.log('[Notifications] fetchNotifications failed on open', err));
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) closeDropdown();
+    };
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') closeDropdown();
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEsc);
     }
-  };
-
-  // Close on Escape
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') setIsOpen(false);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEsc);
     };
-    if (isOpen) document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [isOpen]);
+  }, [isOpen, closeDropdown]);
 
-  const handleMarkAll = () => {
-    console.log('[Notifications] markAll clicked');
-    markAllAsRead();
-    setIsOpen(false);
-  };
-
+  // Initial Fetch
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
+    const initFetch = async () => {
+      setIsLoading(true);
+      try { await fetchNotifications(); } 
+      finally { setIsLoading(false); }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-  console.log('[Notifications] fetchData: calling fetchNotifications');
-  await fetchNotifications();
-  console.log('[Notifications] fetchData: fetchNotifications resolved');
-      } catch (error) {
-        setError('Failed to load notifications');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    initFetch();
   }, [fetchNotifications]);
 
-  useEffect(() => {
-    console.log('[Notifications] notifications updated, count=', notifications && notifications.length, 'unreadCount=', unreadCount);
-  }, [notifications, unreadCount]);
-
-  const handleNotificationClick = (notification) => {
-    console.log('[Notifications] notification clicked', notification && (notification._id || notification.id));
-    markAsRead(notification._id);
+  const toggleDropdown = () => {
+    if (!isOpen) fetchNotifications();
+    setIsOpen(!isOpen);
   };
 
   return (
-    <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
-      {/* Notification Icon */}
-      <div
-        onClick={toggleNotifications}
+    <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block', fontFamily: 'Inter, sans-serif', marginLeft: '12px' }}>
+      
+      {/* --- TRIGGER BELL --- */}
+      <button
+        onClick={toggleDropdown}
         style={{
-          position: 'relative',
-          fontSize: '1.5rem',
+          background: 'none',
+          border: 'none',
           cursor: 'pointer',
-          transition: 'transform 0.2s ease-in-out',
-          color: COLORS.accent, // Deep blue for the icon
+          position: 'relative',
+          padding: '8px',
+          color: THEME.text,
+          transition: 'transform 0.2s',
         }}
-        onMouseEnter={(e) => (e.target.style.transform = 'scale(1.1)')}
-        onMouseLeave={(e) => (e.target.style.transform = 'scale(1)')}
       >
-        <FaBell />
+        <FaBell size={24} />
         {unreadCount > 0 && (
-          <span
-            style={{
-              position: 'absolute',
-              top: '-5px',
-              right: '-5px',
-              background: COLORS.accent, // Light blue background for unread count
-              color: COLORS.secondary,
-              fontSize: '0.8rem',
-              fontWeight: 'bold',
-              padding: '3px 6px',
-              borderRadius: '50%',
-            }}
-          >
-            {unreadCount}
+          <span style={{
+            position: 'absolute',
+            top: 4,
+            right: 4,
+            backgroundColor: THEME.accent,
+            color: 'white',
+            borderRadius: '50%',
+            width: '18px',
+            height: '18px',
+            fontSize: '11px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold',
+            border: `2px solid ${THEME.bg}`
+          }}>
+            {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
-      </div>
+      </button>
 
-      {/* Dropdown */}
+      {/* --- DROPDOWN PANEL --- */}
       {isOpen && (
-        <div
-          role="menu"
-          aria-label="Notifications"
-          style={{
-            position: 'absolute',
-            right: 0,
-            top: '40px',
-            width: '350px',
-            maxWidth: '90vw',
-            background: COLORS.primary, // Soft beige background
-            border: `1px solid ${COLORS.secondary}`, // Deep blue border
-            borderRadius: '8px',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
-            zIndex: 1200,
-            transition: 'opacity 0.2s ease-in-out, transform 0.18s ease-in-out',
-            transform: 'translateY(0)',
-            overflow: 'hidden',
-            fontFamily: 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
-          }}
-          onKeyDown={(e) => { if (e.key === 'Escape') setIsOpen(false); }}
-        >
+        <div style={{
+          position: 'absolute',
+          top: '90%',
+          right: 0,
+          width: '320px',
+          maxHeight: '500px',
+          backgroundColor: THEME.bg,
+          borderRadius: '12px',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+          border: `1px solid ${THEME.border}`,
+          zIndex: 1000,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          animation: 'fadeIn 0.2s ease-out'
+        }}>
+          
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderBottom: `1px solid ${COLORS.secondary}` }}>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <strong style={{ color: COLORS.secondary, fontSize: '0.95rem' }}>Notifications</strong>
-              <small style={{ color: COLORS.secondary, opacity: 0.8, fontSize: '0.78rem' }}>{unreadCount} unread</small>
-            </div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <button
-                onClick={markAllAsRead}
-                style={{ background: 'transparent', color: COLORS.secondary, border: 'none', cursor: 'pointer', fontSize: '0.85rem' }}
-                onMouseEnter={(e) => (e.target.style.color = COLORS.accent)}
-                onMouseLeave={(e) => (e.target.style.color = COLORS.secondary)}
-              >
-                Mark all
-              </button>
-              <button aria-label="Close notifications" onClick={() => setIsOpen(false)} style={{ background: 'transparent', border: 'none', color: COLORS.secondary, cursor: 'pointer' }}>
-                <FaTimes />
-              </button>
-            </div>
+          <div style={{
+            padding: '16px',
+            borderBottom: `1px solid ${THEME.border}`,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <h3 style={{ margin: 0, fontSize: '1.1rem', color: THEME.text }}>Notifications</h3>
+            <button 
+              onClick={markAllAsRead}
+              style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: THEME.text, 
+                fontSize: '0.8rem', 
+                cursor: 'pointer',
+                opacity: 0.7,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              <FaCheckDouble /> Mark all read
+            </button>
           </div>
 
-          {/* Notification List */}
-          <ul style={{ maxHeight: '420px', overflowY: 'auto', margin: 0, padding: 0, listStyle: 'none' }}>
-            {loading ? (
-              <div style={{ textAlign: 'center', padding: '18px', fontSize: '0.95rem', fontWeight: '600', color: COLORS.secondary }}>
-                Loading...
+          {/* List Area */}
+          <div style={{ overflowY: 'auto', flex: 1, backgroundColor: '#fff' }}>
+            {isLoading ? (
+              <div style={{ padding: '40px', textAlign: 'center', color: THEME.text }}>Loading...</div>
+            ) : notifications.length === 0 ? (
+              <div style={{ padding: '40px', textAlign: 'center', color: THEME.text, opacity: 0.5 }}>
+                <FaEnvelope size={32} style={{ marginBottom: '8px', display: 'block', margin: '0 auto' }} />
+                No new notifications
               </div>
-            ) : error ? (
-              <div style={{ textAlign: 'center', padding: '18px', fontSize: '0.95rem', color: COLORS.secondary }}>{error}</div>
-            ) : notifications.length > 0 ? (
-              notifications.map((notification) => (
-                <li
-                  key={notification._id}
-                  role="menuitem"
-                  tabIndex={0}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    padding: '12px',
-                    borderBottom: `1px solid ${COLORS.secondary}`,
-                    cursor: 'pointer',
-                    background: notification.read ? COLORS.primary : COLORS.accent,
-                    transition: 'background 0.15s ease',
-                  }}
-                  onClick={() => handleNotificationClick(notification)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleNotificationClick(notification); }}
-                >
-                  <div style={{ minWidth: '36px', minHeight: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', background: notification.read ? '#fff' : '#fff' }}>
-                    {!notification.read ? <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff7a00', display: 'inline-block' }} /> : <FaEnvelope style={{ color: COLORS.secondary }} />}
-                  </div>
-
-                  <div style={{ flex: 1, textAlign: 'left' }}>
-                    <div style={{ fontWeight: notification.read ? 500 : 700, color: COLORS.secondary }}>{notification.title || 'Notification'}</div>
-                    <div style={{ color: COLORS.secondary, opacity: 0.9, fontSize: '0.9rem', whiteSpace: 'normal', wordBreak: 'break-word' }}>{notification.message}</div>
-                  </div>
-
-                  <div style={{ marginLeft: '8px', textAlign: 'right' }}>
-                    <small style={{ fontSize: '0.75rem', color: COLORS.secondary }} title={notification.createdAt ? dayjs(notification.createdAt).toString() : ''}>
-                      {notification.createdAt ? `${dayjs(notification.createdAt).fromNow()} • ${dayjs(notification.createdAt).format('YYYY-MM-DD HH:mm')}` : 'No date'}
-                    </small>
-                  </div>
-                </li>
-              ))
             ) : (
-              <li style={{ textAlign: 'center', padding: '18px', fontSize: '0.95rem', color: COLORS.secondary }}>No notifications</li>
+              notifications.map((n) => (
+                <div
+                  key={n._id}
+                  onClick={() => markAsRead(n._id)}
+                  style={{
+                    padding: '14px 16px',
+                    borderBottom: `1px solid ${THEME.border}`,
+                    cursor: 'pointer',
+                    backgroundColor: n.read ? '#fff' : THEME.unread,
+                    display: 'flex',
+                    gap: '12px',
+                    transition: 'background 0.2s'
+                  }}
+                >
+                  <div style={{ marginTop: '4px' }}>
+                    {!n.read ? (
+                      <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: THEME.accent }} />
+                    ) : (
+                      <FaEnvelope opacity={0.3} />
+                    )}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: n.read ? 500 : 700, fontSize: '0.9rem', color: THEME.text, marginBottom: '2px' }}>
+                      {n.title}
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: THEME.text, opacity: 0.8, lineHeight: 1.4 }}>
+                      {n.message}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', marginTop: '6px', color: THEME.text, opacity: 0.5 }}>
+                      {dayjs(n.createdAt).fromNow()}
+                    </div>
+                  </div>
+                </div>
+              ))
             )}
-          </ul>
+          </div>
 
-          {/* Footer */}
-          <div style={{ padding: '10px 12px', borderTop: `1px solid ${COLORS.secondary}`, display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
-            <button onClick={handleMarkAll} style={{ background: '#ff7a00', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer' }}>Mark all</button>
+          {/* Footer Action */}
+          <div style={{ padding: '12px', textAlign: 'center', borderTop: `1px solid ${THEME.border}` }}>
+             <button 
+                onClick={closeDropdown}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  background: THEME.text,
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontWeight: 600
+                }}
+             >
+               Close
+             </button>
           </div>
         </div>
       )}
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 };

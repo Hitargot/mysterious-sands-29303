@@ -163,7 +163,7 @@ const WithdrawalRequests = () => {
                 <td>{w.createdAt ? new Date(w.createdAt).toLocaleString() : (w.requestedAt ? new Date(w.requestedAt).toLocaleString() : '—')}</td>
                 <td>
                   <div className="actions">
-                    {w.status !== 'completed' && w.status !== 'paid' && (
+                    {((w.status || '').toString().toLowerCase() !== 'completed') && ((w.status || '').toString().toLowerCase() !== 'paid') && ((w.status || '').toString().toLowerCase() !== 'rejected') && (
                       <>
                         <button className="btn small" onClick={() => openModal(w, 'process')}>Process</button>
                         <button className="btn small danger" onClick={() => openModal(w, 'reject')}>Reject</button>
@@ -195,8 +195,8 @@ const WithdrawalRequests = () => {
                 <div className="muted">{w.bankId?.accountNumber || w.bankAccount?.accountNumber || '—'}</div>
                 <div className="muted">{w.bankId?.bankName || w.bankName || w.bank?.name || '—'}</div>
               </div>
-              <div className="card-actions">
-                {w.status !== 'completed' && w.status !== 'paid' && (
+                <div className="card-actions">
+                {((w.status || '').toString().toLowerCase() !== 'completed') && ((w.status || '').toString().toLowerCase() !== 'paid') && ((w.status || '').toString().toLowerCase() !== 'rejected') && (
                   <>
                     <button className="btn small" onClick={() => openModal(w, 'process')}>Process</button>
                     <button className="btn small danger" onClick={() => openModal(w, 'reject')}>Reject</button>

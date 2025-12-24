@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Alert from "../components/Alert"; // Assuming you have an alert component
 import '../styles/FundConfirmationModal.css';
@@ -10,6 +10,19 @@ const FundConfirmationModal = ({ confirmationId, userId, onClose }) => {
     const [alert, setAlert] = useState(null);
 
     const apiUrl = process.env.REACT_APP_API_URL;
+
+    // When modal is open, add a class to body so floating elements (like telegram buttons)
+    // can be hidden via CSS. This prevents overlaps with the modal.
+    useEffect(() => {
+        try {
+            document.body.classList.add('modal-open');
+        } catch (e) {
+            // ignore on non-browser environments
+        }
+        return () => {
+            try { document.body.classList.remove('modal-open'); } catch (e) {}
+        };
+    }, []);
 
   
 

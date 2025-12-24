@@ -116,3 +116,8 @@
     margin-bottom: 1rem;
 }
 
+/* Hide floating telegram support button while modal is open */
+body.modal-open .telegram-support-btn {
+    display: none !important;
+}
+
