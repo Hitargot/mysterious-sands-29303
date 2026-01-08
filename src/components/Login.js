@@ -102,8 +102,8 @@ const Login = ({ setUserRole }) => {
       <div style={styles.loginContainer}>
         <header style={styles.loginHeader}>
           <div style={styles.logo}>
-            <ResponsiveLogo alt="Exdollarium" style={styles.logoImg} />
-            <span>Exdollarium</span>
+          <ResponsiveLogo alt="Exdollarium" style={{ ...styles.logoImg, height: '64px', width: '64px' }} />
+              <span style={{ ...styles.logoText, fontWeight: 900, color: '#f1e4d1' }}>Exdollarium</span>
           </div>
           <nav>
             <Link to="/" style={styles.navLink}>Home</Link>

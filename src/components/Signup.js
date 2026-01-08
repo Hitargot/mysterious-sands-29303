@@ -243,7 +243,7 @@ const Signup = () => {
     },
     signupContainer: {
       width: "90%",
-      maxWidth: "400px",
+      maxWidth: "450px",
       padding: "25px",
       backgroundColor: "#162660",
       borderRadius: "10px",
