@@ -20,15 +20,19 @@ export default function ResponsiveLogo({ alt = 'Exdollarium', style = {}, classN
   const chosen = sizes[variant] || sizes.large;
   const height = isMobile ? chosen.mobile : chosen.desktop;
 
-  // Prevent caller-provided height/width from overriding responsive sizing
-  const { height: _height, width: _width, ...restStyle } = style || {};
+  // Allow caller to override the responsive height/width by passing them in the `style` prop.
+  // If caller does not provide them, fall back to the responsive `height` computed above.
+  const { height: callerHeight, width: callerWidth, ...restStyle } = style || {};
+  const finalHeight = callerHeight || height;
+  const finalWidth = callerWidth || height; // default to square area unless caller specifies width
 
   return (
     <img
       src={require('../assets/images/IMG_940.PNG')}
       alt={alt}
       className={className}
-      style={{ height, width: 'auto', maxWidth: '100%', ...restStyle }}
+      // Reserve a square area (width == height) to avoid layout shift while image loads
+      style={{ height: finalHeight, width: finalWidth, maxWidth: '100%', objectFit: 'contain', ...restStyle }}
     />
   );
 }

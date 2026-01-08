@@ -562,7 +562,12 @@ body {
     cursor: pointer;
 }
 
-.modal-footer { display: none; }
+.modal-footer {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.95rem;
+    color: rgba(15,39,79,0.9);
+}
 
 /* Make the desktop signup action visually distinct (primary) */
 .signup-btn {

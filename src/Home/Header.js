@@ -74,7 +74,7 @@ export default function Header() {
           <div className={ 'menu-backdrop' + (open ? ' active' : '') } onClick={toggle}></div>
           <ul className={ 'cta-nav-list' + (open ? ' active' : '') }>
             {/* MOBILE LOGIN and SIGNUP first for prominence on small screens */}
-            <li className="mobile-only"><button className="mobile-login-btn" onClick={() => { setOpen(false); openSignup(); }}>LOGIN</button></li>
+            <li className="mobile-only"><Link to="/login" className="mobile-login-btn" onClick={() => setOpen(false)}>LOGIN</Link></li>
             <li className="mobile-only"><Link to="/signup" className="mobile-signup-btn" onClick={() => setOpen(false)}>CREATE AN ACCOUNT</Link></li>
             <li><a href="#home" onClick={() => setOpen(false)}>HOME</a></li>
             <li><a href="#about" onClick={() => setOpen(false)}>ABOUT US</a></li>
@@ -89,7 +89,6 @@ export default function Header() {
             <div className={ 'modal-backdrop' + (signupOpen ? ' active' : '') + (signupClosing ? ' closing' : '') } onClick={closeSignup}></div>
             <div className={ 'signup-modal' + (signupClosing ? ' closing' : '') } role="dialog" aria-modal="true" aria-labelledby="signup-title">
               <button className="modal-close" onClick={closeSignup} aria-label="Close">×</button>
-              <h2 id="signup-title">Create an account</h2>
               <div className="signup-form">
                 <Link to="/signup" className="action-btn signup-btn" onClick={closeSignup}>Create an account</Link>
               </div>
