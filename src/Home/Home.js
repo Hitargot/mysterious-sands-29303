@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import React from 'react'; // Add this import statement
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Header from "./Header";
 import Hero from "./Hero";
 import About from "./About";
 import Services from "./Services";
@@ -89,10 +88,7 @@ const fetchLatestReviews = async () => {
       {/* Decorative floating shapes */}
       <FloatingBackground />
 
-      {/* Header (solid) */}
-      <Header />
-
-      {/* Hero area */}
+      {/* Hero area (Header is rendered inside Hero for EXO full-bleed layout) */}
       <div style={styles.heroWrapper} id="home">
         <Hero />
       </div>
@@ -176,10 +172,9 @@ const fetchLatestReviews = async () => {
 const styles = {
   heroWrapper: {
     minHeight: '70vh',
-    display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '40px 20px',
+    padding: '0 0 20px 0',
     position: 'relative',
     zIndex: 10,
   },

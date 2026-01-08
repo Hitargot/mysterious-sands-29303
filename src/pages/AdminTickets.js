@@ -62,9 +62,60 @@ const AdminTickets = () => {
   const fileInputRef = useRef(null);
   const [statusFilter, setStatusFilter] = useState('open');
   const [lightboxSrc, setLightboxSrc] = useState(null);
+  const [signedUrls, setSignedUrls] = useState({});
+  const [failedImages, setFailedImages] = useState({});
 
   const openLightbox = (src) => { if (!src) return; setLightboxSrc(src); };
   const closeLightbox = () => setLightboxSrc(null);
+
+  const ensureSignedUrl = async (rawUrl) => {
+    if (!rawUrl) return rawUrl;
+    try {
+      // normalize
+      const url = String(rawUrl);
+      if (signedUrls[url]) return signedUrls[url];
+      // If not an uploads path, return as-is
+      if (!(url.startsWith('/uploads/') || url.includes('/uploads/'))) return url;
+      // extract filename
+      const parts = url.split('/');
+      const name = parts[parts.length - 1];
+      const tokenLocal = localStorage.getItem('adminToken');
+      const reqUrl = `${apiUrl.replace(/\/$/, '')}/api/uploads/${encodeURIComponent(name)}/signed`;
+      const res = await fetch(reqUrl, { headers: tokenLocal ? { Authorization: `Bearer ${tokenLocal}` } : {} }).catch(() => null);
+      if (res && res.ok) {
+        const j = await res.json().catch(() => null);
+        const signed = j && (j.url || j.signedUrl || j.data && j.data.url);
+        if (signed) {
+          setSignedUrls(s => ({ ...s, [url]: signed }));
+          return signed;
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+    return rawUrl;
+  };
+
+  // When a ticket is selected, proactively fetch signed URLs for any /uploads/* attachments
+  useEffect(() => {
+    if (!selectedTicket) return;
+    const all = [];
+    try {
+      if (selectedTicket.attachments && selectedTicket.attachments.length) all.push(...selectedTicket.attachments.map(a => resolveAttachmentUrl(a)).filter(Boolean));
+      if (selectedTicket.replies && selectedTicket.replies.length) {
+        selectedTicket.replies.forEach(r => {
+          if (r.attachments && r.attachments.length) all.push(...r.attachments.map(a => resolveAttachmentUrl(a)).filter(Boolean));
+        });
+      }
+    } catch (e) {}
+    // dedupe
+    const uniq = Array.from(new Set(all));
+    uniq.forEach(u => {
+      if (u && (u.startsWith('/uploads/') || u.includes('/uploads/')) && !signedUrls[u]) {
+        ensureSignedUrl(u).catch(() => {});
+      }
+    });
+  }, [selectedTicket]);
 
   const navigate = useNavigate();
   const token = localStorage.getItem('adminToken');
@@ -312,14 +363,34 @@ const AdminTickets = () => {
                     {selectedTicket.attachments && selectedTicket.attachments.length > 0 ? (
                       <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
                         {selectedTicket.attachments.map((a, i) => {
-                          const url = resolveAttachmentUrl(a);
+                          const raw = resolveAttachmentUrl(a);
+                          const isImage = (/\.(jpe?g|png|gif|webp|bmp)(\?.*)?$/i).test(String(raw || ''));
+                          const signed = signedUrls[raw] || null;
+                          const failed = failedImages[raw];
+                          const displayUrl = signed || raw;
                           return (
                             <div key={i} style={{ maxWidth: 220 }}>
-                                {(/\.(jpe?g|png|gif|webp|bmp)(\?.*)?$/i).test(String(url || '')) ? (
-                                <img onClick={() => openLightbox(url)} src={url} alt={`uatt-${i}`} style={{ width: 220, height: 140, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }} />
+                              {isImage && !failed ? (
+                                <img
+                                  onClick={() => openLightbox(displayUrl)}
+                                  src={displayUrl}
+                                  alt={`uatt-${i}`}
+                                  style={{ width: 220, height: 140, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }}
+                                  onError={async (e) => {
+                                    try {
+                                      const signedUrl = await ensureSignedUrl(raw);
+                                      if (signedUrl && signedUrl !== displayUrl) {
+                                        return;
+                                      }
+                                    } catch (err) {}
+                                    setFailedImages(s => ({ ...s, [raw]: true }));
+                                  }}
+                                />
                               ) : (
-                                <a href={url} target="_blank" rel="noreferrer" style={{ color: '#1565c0' }}>{String(url).split('/').pop() || url}</a>
+                                <a href={displayUrl} target="_blank" rel="noreferrer" style={{ color: '#1565c0' }}>{String(displayUrl).split('/').pop() || displayUrl}</a>
                               )}
+                              {/* If signed URL not yet fetched, trigger it proactively */}
+                              {!signed && (raw && (raw.startsWith('/uploads/') || raw.includes('/uploads/'))) ? (() => { ensureSignedUrl(raw); return null; })() : null}
                             </div>
                           );
                         })}
@@ -334,14 +405,31 @@ const AdminTickets = () => {
                       {r.attachments && r.attachments.length > 0 ? (
                         <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
                           {r.attachments.map((a, ai) => {
-                            const url = resolveAttachmentUrl(a);
+                            const raw = resolveAttachmentUrl(a);
+                            const isImage = (/\.(jpe?g|png|gif|webp|bmp)(\?.*)?$/i).test(String(raw || a));
+                            const signed = signedUrls[raw] || null;
+                            const failed = failedImages[raw];
+                            const displayUrl = signed || raw || a;
                             return (
                               <div key={ai} style={{ maxWidth: 220 }}>
-                                {(/\.(jpe?g|png|gif|webp|bmp)(\?.*)?$/i).test(String(url || a)) ? (
-                                  <img onClick={() => openLightbox(url || a)} src={url || a} alt={`ratt-${ai}`} style={{ width: 220, height: 140, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }} />
+                                {isImage && !failed ? (
+                                  <img
+                                    onClick={() => openLightbox(displayUrl)}
+                                    src={displayUrl}
+                                    alt={`ratt-${ai}`}
+                                    style={{ width: 220, height: 140, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }}
+                                    onError={async (e) => {
+                                      try {
+                                        const signedUrl = await ensureSignedUrl(raw);
+                                        if (signedUrl && signedUrl !== displayUrl) return;
+                                      } catch (err) {}
+                                      setFailedImages(s => ({ ...s, [raw]: true }));
+                                    }}
+                                  />
                                 ) : (
-                                  <a href={url || a} target="_blank" rel="noreferrer" style={{ color: '#1565c0' }}>{String(url || a).split('/').pop() || url || a}</a>
+                                  <a href={displayUrl} target="_blank" rel="noreferrer" style={{ color: '#1565c0' }}>{String(displayUrl).split('/').pop() || displayUrl}</a>
                                 )}
+                                {!signed && (raw && (raw.startsWith('/uploads/') || raw.includes('/uploads/'))) ? (() => { ensureSignedUrl(raw); return null; })() : null}
                               </div>
                             );
                           })}

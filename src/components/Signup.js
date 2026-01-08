@@ -29,6 +29,8 @@ const Signup = () => {
     return savedFormData
       ? JSON.parse(savedFormData)
       : {
+        firstName: "",
+        lastName: "",
         username: "",
         email: "",
         phone: "",
@@ -114,6 +116,10 @@ const Signup = () => {
     if (loading) return;
 
     // ✅ 1. Check empty fields
+    if (!formData.firstName || !formData.lastName) {
+      showAlert("Please enter your first name and last name.");
+      return;
+    }
     if (!formData.username || !formData.email || !formData.phone || !formData.password || !formData.confirmPassword) {
       showAlert("All fields are required.");
       return;
@@ -176,6 +182,8 @@ const Signup = () => {
     setLoading(true);
     try {
       const response = await axios.post(`${apiUrl}/api/auth/signup`, {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         username: formData.username,
         email: formData.email,
         phone: formData.phone,
@@ -193,6 +201,8 @@ const Signup = () => {
 
       // ✅ Reset form
       setFormData({
+        firstName: "",
+        lastName: "",
         username: "",
         email: "",
         phone: "",
@@ -352,6 +362,32 @@ const Signup = () => {
 
         {/* Signup Form */}
         <form onSubmit={handleSubmit} style={styles.signupForm}>
+          <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+            <div style={{ flex: 1 }}>
+              <label style={styles.label}>First Name:</label>
+              <input
+                type="text"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+                style={styles.input}
+                disabled={loading}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={styles.label}>Last Name:</label>
+              <input
+                type="text"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+                style={styles.input}
+                disabled={loading}
+              />
+            </div>
+          </div>
           <div style={styles.formGroup}>
             <label style={styles.label}>Username:</label>
             <input

@@ -14,6 +14,8 @@ import {
   FaBell, 
   FaAddressBook,
   FaTicketAlt
+  ,
+  FaBullhorn
 } from 'react-icons/fa'; // Icons for Admin Sidebar
 import ResponsiveLogo from './ResponsiveLogo';
 import '../styles/Sidebar.css'; // Ensure styles are correctly imported
@@ -123,6 +125,10 @@ const AdminSidebar = () => {
         <Link to="/admin/notifications">
           <FaBell className="sidebar-icon" />
           {isExpanded && <span>Notifications</span>}
+        </Link>
+        <Link to="/admin/flyer">
+          <FaBullhorn className="sidebar-icon" />
+          {isExpanded && <span>Flyer</span>}
         </Link>
         <Link to="/admin/manage-contacts">
           <FaAddressBook className="sidebar-icon" />  {/* Updated to FaAddressBook */}

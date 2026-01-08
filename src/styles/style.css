@@ -1,0 +1,594 @@
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Ensure the page and root element fill the viewport so hero backgrounds cover full area */
+html, body, #root {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    font-family: 'Inter', sans-serif, system-ui;
+    background-color: #0F274F;
+    overflow-x: hidden;
+}
+
+.hero-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    position: relative;
+    background: linear-gradient(90deg, #0F274F 50%, #FF6600 50%);
+    width: 100%;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.side {
+    padding: 20% 6%; /* increase top padding so left/right content sit lower */
+    display: flex;
+    flex-direction: column;
+    z-index: 5;
+}
+
+.header {
+    margin: 0; /* remove extra spacing so header sits at the top */
+    padding: 0 0 6px 0; /* remove top padding so header sits flush */
+    display: block;
+    position: relative;
+    z-index: 200;
+}
+
+/* When header is a direct child of .hero-section, span both columns so nav can sit over the right column */
+.hero-section > .header {
+    grid-column: 1 / -1;
+    /* place header into the hero grid so left content sits over the blue column and nav over the orange column */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center; /* center header row so logo and nav align on the same line */
+    position: absolute; /* pin header to the top of the hero area */
+    top: 6px;
+    left: 0;
+    right: 0;
+    z-index: 400;
+}
+
+.header-left { grid-column: 1; display: flex; align-items: center; }
+.header-right { grid-column: 2; display: flex; align-items: center; justify-content: flex-end; gap: 16px; }
+
+/* Make the logo visually sit to the left and nav to the right while the underlying hero gradient provides different backgrounds */
+.header-left .logo { margin-left: 4%; }
+.header-right { padding-right: 4%; height: 64px; }
+.logo {
+    display: flex;
+    align-items: center; 
+    gap: 8px; /* bring company name closer to logo */
+}
+
+.logo-img {
+    height: 64px; /* set logo height so nav can match */
+    max-width: 150px;
+    width: auto;
+    filter: brightness(0) invert(1);
+    display: block;
+}
+
+.company-name {
+    margin: 0;
+    color: #FFFFFF;
+    font-weight: 900;
+    font-size: 1.6rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    line-height: 1;
+}
+
+.content-limit-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* align content to top, do not center vertically */
+    max-width: 500px;
+    text-align: left;
+    z-index: 20;
+    padding-top: 40px; /* add space from the top before left content */
+}
+
+.main-title {
+    color: white;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 20px;
+
+}
+
+.hero-desc {
+    color: #FF6600;
+    font-weight: 500;
+    margin-bottom: 25px;
+    font-size: 1.1rem;
+}
+
+.milestone { display: flex; gap: 12px; }
+
+.rate {
+    background: #FF6600;
+    width: 90px;
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 6px;
+}
+
+/* Ensure heading and subtext are stacked and visually separated */
+.rateHeading {
+    color: white;
+    font-weight: 900;
+    font-size: 1.8rem;
+    margin: 0;
+    line-height: 1; /* tighten the heading leading */
+    text-align: center;
+    display: block;
+}
+.rateSub {
+    color: #0F274F;
+    font-size: 0.65rem;
+    font-weight: 800;
+    margin: 0; /* ensure no top/bottom margin */
+    padding: 0;
+    line-height: 1; /* match heading leading so they sit tightly */
+    text-align: center;
+    display: block;
+}
+
+.cta-nav-list {
+    list-style: none;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1.2rem;
+}
+
+.cta-nav-list a {
+    text-decoration: none;
+    color: #0F274F;
+    font-weight: 800;
+    font-size: 0.9rem;
+}
+
+/* Smooth hover color for nav links: change while hovered and smoothly revert when not hovered */
+.cta-nav-list a {
+    transition: color 180ms ease, background-color 180ms ease;
+}
+.cta-nav-list a:hover,
+.cta-nav-list a:focus {
+    color: #FFFFFF; /* on hover show white to contrast the orange hero column */
+}
+
+/* Desktop action button in header */
+.action-btn {
+    background: #FFFFFF;
+    color: #0F274F;
+    font-weight: 900;
+    font-size: 0.9rem;
+    text-decoration: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 12px;
+}
+
+/* Hide the desktop action button on small screens; login will be available in the mobile nav */
+@media (max-width: 900px) {
+    .action-btn { display: none; }
+    /* show LOGIN in mobile nav only */
+    .cta-nav-list .mobile-only { display: list-item; }
+}
+
+/* hide mobile-only nav items on desktop so the action button is the single login control */
+@media (min-width: 901px) {
+    .cta-nav-list .mobile-only { display: none; }
+}
+
+.content-limit-right {
+    flex: 1;
+    display: flex;
+    align-items: flex-start; /* align to top so steps align with left content */
+    justify-content: flex-end; 
+    padding-right: 8%;
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    position: relative;
+    max-width: 340px; 
+}
+
+.step-box {
+    background: #0F274F;
+    color: white;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* center horizontally */
+    text-align: center; /* fallback for non-flex contexts */
+    font-weight: 700; /* increased weight */
+    font-size: 1.5rem;
+    border-radius: 6px;
+}
+
+/* centered text block, left-aligned lines so wrapped lines align under the first line */
+.step-text {
+    text-align: left;
+    max-width: 80%; /* keep the block narrow so centering looks balanced */
+    line-height: 1.15;
+    word-break: normal;
+    overflow-wrap: anywhere;
+}
+
+.center-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 64px; /* larger clickable target */
+    height: 64px;
+    background: #0F274F;
+    border: 6px solid #FF6600; /* thicker border to match bigger size */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 300; /* bring the control above hero graphics */
+    box-shadow: 0 6px 18px rgba(15,39,79,0.35);
+}
+
+.inner-icon {
+    color: #FF6600;
+    font-size: 2.2rem; /* bigger icon */
+    font-weight: 900;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    line-height: 1;
+}
+
+.Hero-man {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%); 
+    height: 94vh;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* Menu Toggle Styles */
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    z-index: 100;
+    position: relative;
+}
+
+.hamburger {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: #FFFFFF; /* White to show on Blue bg */
+    position: relative;
+    transition: all 0.3s ease-in-out;
+}
+
+.hamburger::before,
+.hamburger::after {
+    content: '';
+    position: absolute;
+    width: 25px;
+    height: 3px;
+    background-color: #FFFFFF; /* White to show on Blue bg */
+    transition: all 0.3s ease-in-out;
+    left: 0;
+}
+
+.hamburger::before { transform: translateY(-8px); }
+.hamburger::after { transform: translateY(8px); }
+
+.menu-toggle.active .hamburger { background-color: transparent; }
+
+/* When active (X shape), make it Dark Blue to contrast with Orange Drawer */
+.menu-toggle.active .hamburger::before,
+.menu-toggle.active .hamburger::after {
+    background-color: #0F274F; 
+}
+
+.menu-toggle.active .hamburger::before { transform: rotate(45deg); }
+.menu-toggle.active .hamburger::after { transform: rotate(-45deg); }
+
+@media (max-width: 900px) {
+    .menu-toggle {
+        display: block;
+        position: relative; /* keep toggle inside header so it aligns with logo */
+        top: 0;
+        right: 0;
+        margin-right: 6%;
+    }
+
+    .hero-section { 
+        grid-template-columns: 1fr; 
+        background: #0F274F;
+        height: auto; 
+        min-height: 100vh;
+    }
+
+    /* Force both side panels to occupy full width and stack on mobile */
+    .hero-section > .side:first-of-type,
+    .hero-section > .cta.side { grid-column: 1 / -1 !important; }
+    
+    .Hero-man { display: none; }
+    
+    /* Stack the two side panels and make inner content full-width and centered on mobile */
+    .side { padding: 20px 5%; }
+    .content-limit-left, .content-limit-right { 
+        margin-top: 0; 
+        max-width: 100%; 
+        align-items: center; 
+        text-align: center; 
+        width: 100%;
+        padding-left: 0;
+        padding-right: 0;
+        box-sizing: border-box;
+    }
+    /* mobile: smaller top spacing for left content */
+    .content-limit-left { padding-top: 12px; }
+    
+    .header { display: flex; justify-content: center; }
+
+    /* scale the large header logo down on mobile */
+    .logo-img { width: 58px; height: auto; }
+    .company-name { font-size: 1.5rem; }
+
+    .cta { 
+        background: #FF6600; 
+        padding-top: 40px;
+        padding-bottom: 60px;
+        position: relative;
+    }
+    
+    .content-limit-right { 
+        justify-content: center; 
+        margin-top: 20px; 
+        width: 100%;
+    }
+    
+    .cta-nav-list { 
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 75%;
+        max-width: 300px;
+        height: 100vh;
+        background: #FF6600;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        z-index: 90;
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        margin: 0;
+        box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+    }
+
+    /* Style the mobile LOGIN item as a prominent button inside the drawer */
+    .cta-nav-list .mobile-login-btn {
+        background: #0F274F; /* dark blue brand color */
+        color: #FFFFFF;
+        font-weight: 900;
+        padding: 12px 38px;
+        border-radius: 10px;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        box-shadow: 0 6px 14px rgba(15,39,79,0.18);
+        transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+    }
+    .cta-nav-list .mobile-login-btn:hover,
+    .cta-nav-list .mobile-login-btn:focus {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(15,39,79,0.22);
+        background-color: #07203a; /* slightly darker on hover */
+    }
+
+    .cta-nav-list.active {
+        transform: translateX(0);
+    }
+    
+    .menu-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 39, 79, 0.6); /* Dark blue tint */
+        z-index: 80;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease-in-out, visibility 0.3s;
+        backdrop-filter: blur(2px);
+    }
+
+    .menu-backdrop.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .cta-nav-list a {
+        color: #0F274F;
+        font-size: 1.5rem;
+    }
+
+    /* Make steps grid adapt to full width on small screens */
+    .steps-grid { max-width: 100%; margin: 0 auto; }
+}
+
+@media (max-width: 480px) {
+    .main-title {
+        font-size: 1.8rem;
+        line-height: 1.05;
+        margin-top: 70px;
+    }
+
+    .milestone {
+        /* make milestone a horizontally scrollable row on very small screens */
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 8px;
+        margin-top: 12px;
+    }
+
+    .steps-grid {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    /* Swap the 3rd and 4th step boxes on mobile so approval appears before payout */
+    .steps-grid > :nth-child(3) { grid-row: 4; }
+    .steps-grid > :nth-child(4) { grid-row: 3; }
+
+    .step-box {
+        aspect-ratio: auto;
+        padding: 16px;
+        text-align: center;
+        justify-content: center;
+        min-height: 64px;
+        font-size: 1.1rem;
+    }
+
+    /* Make rate tiles fixed-size tappable cards on very small screens */
+    .rate {
+        height: 76px;
+        flex: 0 0 auto;
+        border-radius: 8px;
+    }
+
+    /* Optional: small scrollbar styling for the milestone row */
+    .milestone::-webkit-scrollbar { height: 6px; }
+    .milestone::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+
+    .rateHeading {
+        font-size: 1.4rem;
+    }
+
+
+    .center-circle {
+        display: none;
+    }
+}
+
+/* Ensure the left and right side panels sit in their intended grid columns */
+.hero-section > .side:first-of-type { grid-column: 1; }
+.hero-section > .cta.side { grid-column: 2; }
+
+/* Add small horizontal padding to the inner content containers so they sit nicely inside their columns */
+.content-limit-left { padding-left: 6%; }
+.content-limit-right { padding-right: 6%; }
+
+/* Signup modal shown like a label from the top (desktop only) */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 500;
+    opacity: 1;
+    transition: opacity 160ms ease-in-out;
+}
+
+/* top-attached label style: appears under the header as a compact panel */
+.signup-modal {
+    position: fixed;
+    left: 50%;
+    top: 72px; /* anchor just under header */
+    transform: translateX(-50%) translateY(-8px);
+    width: 420px;
+    max-width: calc(100% - 32px);
+    background: #FFFFFF;
+    color: #0F274F;
+    border-radius: 10px;
+    padding: 14px 18px;
+    z-index: 510;
+    box-shadow: 0 10px 26px rgba(15,39,79,0.18);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    animation: slideDown 220ms ease-out forwards;
+}
+
+.signup-modal h2 {
+    margin: 0;
+    color: #0F274F;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.signup-form { margin: 0; flex: 1; display: flex; gap: 8px; align-items: center; }
+.signup-form input {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(15,39,79,0.08);
+    font-size: 0.95rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    color: #0F274F;
+    cursor: pointer;
+}
+
+.modal-footer { display: none; }
+
+/* Make the desktop signup action visually distinct (primary) */
+.signup-btn {
+    background: #0F274F;
+    color: #FFFFFF;
+}
+.signup-btn:hover { background: #07203a; }
+
+@keyframes slideDown {
+    from { transform: translateX(-50%) translateY(-12px); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+/* Closing animation: slide up and fade out */
+.signup-modal.closing {
+    animation: slideUp 180ms ease-in forwards;
+}
+
+.modal-backdrop.closing { opacity: 0; transition: opacity 180ms ease-in; }
+
+@keyframes slideUp {
+    from { transform: translateX(-50%) translateY(0); opacity: 1; }
+    to { transform: translateX(-50%) translateY(-12px); opacity: 0; }
+}
+
+/* Hide modal on small screens; mobile uses drawer signup link */
+@media (max-width: 900px) {
+    .signup-modal, .modal-backdrop { display: none; }
+}
