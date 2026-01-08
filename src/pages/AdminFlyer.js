@@ -58,7 +58,7 @@ const AdminFlyer = () => {
     } catch (e) {
       // ignore JSON errors
     }
-  }, []);
+  }, [editExisting]);
 
   // Save draft on changes so returning to this page restores the state
   useEffect(() => {
@@ -107,7 +107,7 @@ const AdminFlyer = () => {
         setAlert({ type: 'error', message: 'Failed to load flyer' });
       } finally { setLoading(false); }
     })();
-  }, []);
+  }, [editExisting]);
 
   const save = async () => {
     setSaving(true);

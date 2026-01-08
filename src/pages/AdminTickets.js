@@ -68,7 +68,7 @@ const AdminTickets = () => {
   const openLightbox = (src) => { if (!src) return; setLightboxSrc(src); };
   const closeLightbox = () => setLightboxSrc(null);
 
-  const ensureSignedUrl = async (rawUrl) => {
+  const ensureSignedUrl = useCallback(async (rawUrl) => {
     if (!rawUrl) return rawUrl;
     try {
       // normalize
@@ -84,7 +84,7 @@ const AdminTickets = () => {
       const res = await fetch(reqUrl, { headers: tokenLocal ? { Authorization: `Bearer ${tokenLocal}` } : {} }).catch(() => null);
       if (res && res.ok) {
         const j = await res.json().catch(() => null);
-        const signed = j && (j.url || j.signedUrl || j.data && j.data.url);
+        const signed = j && (j.url || j.signedUrl || (j.data && j.data.url));
         if (signed) {
           setSignedUrls(s => ({ ...s, [url]: signed }));
           return signed;
@@ -94,7 +94,7 @@ const AdminTickets = () => {
       // ignore
     }
     return rawUrl;
-  };
+  }, [signedUrls]);
 
   // When a ticket is selected, proactively fetch signed URLs for any /uploads/* attachments
   useEffect(() => {
@@ -115,7 +115,7 @@ const AdminTickets = () => {
         ensureSignedUrl(u).catch(() => {});
       }
     });
-  }, [selectedTicket]);
+  }, [selectedTicket, ensureSignedUrl, signedUrls]);
 
   const navigate = useNavigate();
   const token = localStorage.getItem('adminToken');
@@ -312,7 +312,10 @@ const AdminTickets = () => {
             }).map((t) => (
               <div key={t._id} onClick={() => openTicket(t)} style={{ padding: 12, borderRadius: 8, marginBottom: 10, cursor: 'pointer', boxShadow: selectedTicket && (selectedTicket._id === t._id) ? '0 2px 8px rgba(0,0,0,0.08)' : 'none', border: selectedTicket && (selectedTicket._id === t._id) ? '1px solid #dfe6ff' : '1px solid #f2f2f2', background: '#fff' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ fontWeight: 700 }}>{t.subject || (t.message && t.message.slice(0, 60)) || `#${String(t.ticketId || t._id).slice(-6)}`}</div>
+                      {(() => {
+                        const displayTitle = t.subject ? t.subject : (t.message ? t.message.slice(0, 60) : `#${String(t.ticketId || t._id).slice(-6)}`);
+                        return <div style={{ fontWeight: 700 }}>{displayTitle}</div>;
+                      })()}
                       <div style={{ textAlign: 'right' }}>
                         {(() => {
                           // prefer last reply time when available
