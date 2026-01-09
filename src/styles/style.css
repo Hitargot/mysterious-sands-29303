@@ -239,7 +239,7 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-55%, -25%);
     width: 64px; /* larger clickable target */
     height: 64px;
     background: #0F274F;
@@ -250,6 +250,7 @@ body {
     align-items: center;
     z-index: 300; /* bring the control above hero graphics */
     box-shadow: 0 6px 18px rgba(15,39,79,0.35);
+    
 }
 
 .inner-icon {

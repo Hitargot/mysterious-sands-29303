@@ -152,6 +152,9 @@ body {
   border-radius: 6px;
 }
 
+/* Make each step-box a positioning context so .center-circle centers inside it */
+.step-box { position: relative; }
+
 .center-circle {
   position: absolute;
   top: 50%;
