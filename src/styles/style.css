@@ -508,7 +508,7 @@ body {
 
 /* Add small horizontal padding to the inner content containers so they sit nicely inside their columns */
 .content-limit-left { padding-left: 6%; }
-.content-limit-right { padding-right: 6%; }
+.content-limit-right { padding-right: 1%; }
 
 /* Signup modal shown like a label from the top (desktop only) */
 .modal-backdrop {
