@@ -109,19 +109,50 @@ const ReceiptModal = ({ receiptData, onClose }) => {
           </div>
 
           <div className="receipt-content">
-            {receiptData.fields.map(({ label, value, copyable }, index) => (
-              <div key={index} className="receipt-row">
-                <p className="label">{label}:</p>
-                <div className="value">
-                  <span>{value}</span>
-                  {copyable && (
-                    <span className="clipboard-icon" onClick={() => handleCopyText(value, index)}>
-                      {copiedFieldIndex === index ? "✅" : <FaClipboard />}
-                    </span>
-                  )}
+            {receiptData.fields.map(({ label, value, copyable }, index) => {
+              const isFileField = (label || '').toString().toLowerCase().includes('file') || (label || '').toString().toLowerCase().includes('files');
+
+              const resolveUrl = (p) => {
+                try {
+                  if (!p) return p;
+                  if (/^https?:\/\//i.test(p)) return p;
+                  const apiBase = process.env.REACT_APP_API_URL || '';
+                  const base = String(apiBase).replace(/\/$/, '');
+                  if (p.startsWith('/')) return `${base}${p}`;
+                  return `${base}/${p}`;
+                } catch (e) { return p; }
+              };
+
+              return (
+                <div key={index} className="receipt-row">
+                  <p className="label">{label}:</p>
+                  <div className="value">
+                    {isFileField && (Array.isArray(value) || typeof value === 'string') ? (
+                      <div className="file-list">
+                        {Array.isArray(value) ? value.map((v, i) => (
+                          <a key={i} className="file-link" href={resolveUrl(v)} target="_blank" rel="noopener noreferrer" download>
+                            📎 View File {i + 1}
+                          </a>
+                        )) : (
+                          <a className="file-link" href={resolveUrl(value)} target="_blank" rel="noopener noreferrer" download>
+                            📎 View File
+                          </a>
+                        )}
+                      </div>
+                    ) : (
+                      <>
+                        <span>{value}</span>
+                        {copyable && (
+                          <span className="clipboard-icon" onClick={() => handleCopyText(value, index)}>
+                            {copiedFieldIndex === index ? "✅" : <FaClipboard />}
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="receipt-footer">

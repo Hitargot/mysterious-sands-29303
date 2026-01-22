@@ -426,6 +426,16 @@ const TransactionHistory = () => {
                       <p className="label">Bank:</p>
                       <p className="value">{receipt.bankMeta || receipt.bankId}</p>
                     </div>
+
+                    {/* Admin-uploaded receipt file (if any) */}
+                    {(receipt.adminReceipts && receipt.adminReceipts.length > 0) && (
+                      <div className="receipt-row">
+                        <p className="label">Receipt File:</p>
+                        <p className="value">
+                          <a href={`${apiUrl.replace(/\/$/, '')}${receipt.adminReceipts[0]}`} target="_blank" rel="noopener noreferrer">Download Receipt</a>
+                        </p>
+                      </div>
+                    )}
                   </>
                 )}
 

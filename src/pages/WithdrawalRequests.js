@@ -23,6 +23,7 @@ const WithdrawalRequests = () => {
   const [modalAction, setModalAction] = useState('');
   const [selectedTx, setSelectedTx] = useState(null);
   const [providerChoice, setProviderChoice] = useState('manual');
+  const [receiptFile, setReceiptFile] = useState(null);
 
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -98,17 +99,33 @@ const WithdrawalRequests = () => {
     setIsModalOpen(false);
     setSelectedTx(null);
     setModalAction('');
+    setReceiptFile(null);
   }
 
   async function doAction() {
     if (!selectedTx) return closeModal();
     try {
       const url = `${apiUrl}/api/admin/process/${selectedTx.transactionId || selectedTx._id}`;
-      const body = { action: modalAction === 'process' ? 'complete' : (modalAction === 'reject' ? 'reject' : modalAction), provider: providerChoice };
-      const resp = await axios.post(url, body, { headers });
+      const actionBody = { action: modalAction === 'process' ? 'complete' : (modalAction === 'reject' ? 'reject' : modalAction), provider: providerChoice };
+
+      // If provider is manual, require a receiptFile (frontend validation)
+      if (providerChoice === 'manual' && actionBody.action === 'complete' && !receiptFile) {
+        setError('Please attach a receipt file before processing a manual withdrawal.');
+        return;
+      }
+
+      let resp;
+      if (receiptFile) {
+        const form = new FormData();
+        form.append('receipt', receiptFile);
+        Object.keys(actionBody).forEach(k => form.append(k, actionBody[k]));
+        resp = await axios.post(url, form, { headers: { ...headers, 'Content-Type': 'multipart/form-data' } });
+      } else {
+        resp = await axios.post(url, actionBody, { headers });
+      }
       // apply optimistic update
       const updated = resp.data && resp.data.transaction ? resp.data.transaction : null;
-      setWithdrawals(prev => prev.map(w => (w._id === selectedTx._id || w.transactionId === selectedTx.transactionId) ? (updated ? { ...w, ...updated } : { ...w, status: body.action === 'complete' ? 'processing_admin' : (body.action === 'reject' ? 'rejected' : w.status) }) : w));
+  setWithdrawals(prev => prev.map(w => (w._id === selectedTx._id || w.transactionId === selectedTx.transactionId) ? (updated ? { ...w, ...updated } : { ...w, status: actionBody.action === 'complete' ? 'processing_admin' : (actionBody.action === 'reject' ? 'rejected' : w.status) }) : w));
       closeModal();
     } catch (err) {
       console.error('action error', err);
@@ -233,6 +250,12 @@ const WithdrawalRequests = () => {
                   <option value="manual">Manual</option>
                   <option value="flutterwave">Flutterwave</option>
                 </select>
+              </div>
+            )}
+            {modalAction === 'process' && providerChoice === 'manual' && (
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: 'block', marginBottom: 6 }}>Upload receipt (required for manual processing)</label>
+                <input type="file" accept="image/*,application/pdf,video/*" onChange={(e) => setReceiptFile(e.target.files && e.target.files[0] ? e.target.files[0] : null)} />
               </div>
             )}
             <div className="modal-actions">
