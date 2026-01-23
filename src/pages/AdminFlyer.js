@@ -1,6 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-const apiUrl = process.env.REACT_APP_API_URL;
+const rawApiUrl = process.env.REACT_APP_API_URL;
+// Normalize configured API base. If not provided, use empty string so we
+// call relative endpoints (same origin). Avoid falling back to any
+// hard-coded production host which can cause accidental external requests.
+const API_BASE = (rawApiUrl || '').replace(/\/+$/, '');
+const apiEndpoint = (path) => {
+  if (!path) return '';
+  // path should start with '/'
+  const p = path.startsWith('/') ? path : `/${path}`;
+  return API_BASE ? `${API_BASE}${p}` : p; // relative to current origin when API_BASE is empty
+};
 
 const AdminFlyer = () => {
   const resolveMediaUrl = (raw) => {
@@ -18,9 +28,8 @@ const AdminFlyer = () => {
       }
       // uploads path returned by server usually starts with '/uploads/'
       if (s.startsWith('/uploads/')) {
-        const base = (apiUrl || '').replace(/\/$/, '');
-        // prefer configured API URL; if missing, use current origin
-        if (base) return `${base}${s}`;
+        // prefer configured API base; if missing, use current origin
+        if (API_BASE) return `${API_BASE}${s}`;
         const proto = (typeof window !== 'undefined' && window.location && window.location.protocol) ? window.location.protocol : 'http:';
         const host = (typeof window !== 'undefined' && window.location && window.location.host) ? window.location.host : 'localhost';
         return `${proto}//${host}${s}`;
@@ -34,10 +43,11 @@ const AdminFlyer = () => {
   // the saved flyer into the form for modifications.
   const [existingFlyers, setExistingFlyers] = useState([]);
   const [editingId, setEditingId] = useState(null);
-  const [flyer, setFlyer] = useState({ title: '', body: '', mediaUrl: '', mediaUrls: [], type: 'text', enabled: false, startAt: '', endAt: '' });
+  const [flyer, setFlyer] = useState({ title: '', body: '', mediaUrl: '', mediaUrls: [], mediaLinks: [], type: 'text', enabled: false, startAt: '', endAt: '' });
   const [mediaSource, setMediaSource] = useState('url'); // 'url' or 'upload'
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
+  const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [alert, setAlert] = useState(null);
@@ -58,7 +68,7 @@ const AdminFlyer = () => {
     } catch (e) {
       // ignore JSON errors
     }
-  }, [editExisting]);
+  }, []);
 
   // Save draft on changes so returning to this page restores the state
   useEffect(() => {
@@ -75,38 +85,53 @@ const AdminFlyer = () => {
       if (editingId) f = existingFlyers.find(x => x._id === editingId);
       if (!f && existingFlyers && existingFlyers.length) f = existingFlyers[0];
       if (f) {
-        setFlyer({ title: f.title || '', body: f.body || '', mediaUrl: f.mediaUrl || '', mediaUrls: f.mediaUrls || (f.mediaUrl ? [f.mediaUrl] : []), type: f.type || 'text', enabled: !!f.enabled, startAt: f.startAt ? new Date(f.startAt).toISOString().slice(0,16) : '', endAt: f.endAt ? new Date(f.endAt).toISOString().slice(0,16) : '' });
+        setFlyer({ title: f.title || '', body: f.body || '', mediaUrl: f.mediaUrl || '', mediaUrls: f.mediaUrls || (f.mediaUrl ? [f.mediaUrl] : []), mediaLinks: f.mediaLinks || [], type: f.type || 'text', enabled: !!f.enabled, startAt: f.startAt ? new Date(f.startAt).toISOString().slice(0,16) : '', endAt: f.endAt ? new Date(f.endAt).toISOString().slice(0,16) : '' });
         setEditingId(f._id);
       }
     } else {
       // reset form for new draft
-      setFlyer({ title: '', body: '', mediaUrl: '', mediaUrls: [], type: 'text', enabled: false, startAt: '', endAt: '' });
+      setFlyer({ title: '', body: '', mediaUrl: '', mediaUrls: [], mediaLinks: [], type: 'text', enabled: false, startAt: '', endAt: '' });
       setFiles([]);
       setPreviews([]);
       setEditingId(null);
     }
   }, [editExisting, existingFlyers, editingId]);
 
+  // Centralized fetch for flyers so multiple code-paths can refresh
+  // without duplicating logic or accidentally firing many concurrent
+  // requests. This avoids repeated failing GETs when the API base is
+  // misconfigured.
+  const fetchFlyers = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const url = apiEndpoint('/api/admin/flyers');
+      if (!url) return null;
+      if (typeof window !== 'undefined' && window.console) {
+        try { console.log('[AdminFlyer] fetching flyers from', url); } catch (e) {}
+      }
+      const res = await axios.get(url, { headers });
+      if (res && res.data && res.data.flyers) {
+        const list = res.data.flyers;
+        setExistingFlyers(list || []);
+        return list;
+      }
+      return null;
+    } catch (e) {
+      setAlert({ type: 'error', message: 'Failed to load flyer' });
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
+    // Fetch once on mount or when editExisting toggles. Guard against
+    // invalid API endpoint so we don't flood external hosts.
     (async () => {
-      try {
-        const token = localStorage.getItem('adminToken');
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        const res = await axios.get(`${apiUrl}/api/admin/flyers`, { headers });
-        if (res.data && res.data.flyers) {
-            const list = res.data.flyers;
-            setExistingFlyers(list || []);
-            // If admin chose to edit existing but no editingId provided, load the most recent
-            if (editExisting && list && list.length) {
-              const f = list[0];
-              setEditingId(f._id);
-              setFlyer({ title: f.title || '', body: f.body || '', mediaUrl: f.mediaUrl || '', mediaUrls: f.mediaUrls || (f.mediaUrl ? [f.mediaUrl] : []), type: f.type || 'text', enabled: !!f.enabled, startAt: f.startAt ? new Date(f.startAt).toISOString().slice(0,16) : '', endAt: f.endAt ? new Date(f.endAt).toISOString().slice(0,16) : '' });
-            }
-          }
-      } catch (e) {
-        setAlert({ type: 'error', message: 'Failed to load flyer' });
-      } finally { setLoading(false); }
+      await fetchFlyers();
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editExisting]);
 
   const save = async () => {
@@ -124,6 +149,8 @@ const AdminFlyer = () => {
         }
         // include any explicit mediaUrls added via URL mode
         if (flyer.mediaUrls && flyer.mediaUrls.length) form.append('mediaUrls', JSON.stringify(flyer.mediaUrls));
+        // include per-media click-through links
+        if (flyer.mediaLinks && flyer.mediaLinks.length) form.append('mediaLinks', JSON.stringify(flyer.mediaLinks));
         form.append('title', flyer.title || '');
         form.append('body', flyer.body || '');
         form.append('type', flyer.type || 'text');
@@ -133,17 +160,19 @@ const AdminFlyer = () => {
         // include editExisting flag so backend knows whether to update or create
         form.append('editExisting', editExisting ? '1' : '0');
         if (editingId) form.append('id', editingId);
-        // let axios set Content-Type for FormData
-        res = await axios.put(`${apiUrl}/api/admin/flyer`, form, { headers });
+  // let axios set Content-Type for FormData
+  res = await axios.put(apiEndpoint('/api/admin/flyer'), form, { headers });
       } else {
         const payload = { ...flyer };
         payload.editExisting = editExisting;
+        // include per-media click-through links when not uploading
+        if (flyer.mediaLinks && flyer.mediaLinks.length) payload.mediaLinks = flyer.mediaLinks;
         if (editingId) payload.id = editingId;
         // convert ISO local datetime back to Date strings
         if (!payload.startAt) delete payload.startAt;
         if (!payload.endAt) delete payload.endAt;
   // Use singular endpoint to match backend route
-  res = await axios.put(`${apiUrl}/api/admin/flyer`, payload, { headers });
+  res = await axios.put(apiEndpoint('/api/admin/flyer'), payload, { headers });
       }
       if (res.data && res.data.flyer) {
         // if server returned a mediaUrl (uploaded), update flyer
@@ -153,6 +182,7 @@ const AdminFlyer = () => {
           body: f.body || '',
           mediaUrl: f.mediaUrl || flyer.mediaUrl || '',
           mediaUrls: f.mediaUrls || (f.mediaUrl ? [f.mediaUrl] : []) || [],
+          mediaLinks: f.mediaLinks || flyer.mediaLinks || [],
           type: f.type || flyer.type || 'text',
           enabled: !!f.enabled,
           startAt: f.startAt ? new Date(f.startAt).toISOString().slice(0,16) : (flyer.startAt || ''),
@@ -160,11 +190,9 @@ const AdminFlyer = () => {
         });
         setAlert({ type: 'success', message: 'Flyer saved' });
         // refresh list
+        // refresh list (use centralized fetchFlyers when possible)
         (async () => {
-          const token = localStorage.getItem('adminToken');
-          const headers = token ? { Authorization: `Bearer ${token}` } : {};
-          const res2 = await axios.get(`${apiUrl}/api/admin/flyers`, { headers });
-          if (res2.data && res2.data.flyers) setExistingFlyers(res2.data.flyers);
+          await fetchFlyers();
         })();
       }
     } catch (e) {
@@ -183,6 +211,8 @@ const AdminFlyer = () => {
       body: f.body || '',
       mediaUrl: u || f.mediaUrl || '',
       mediaUrls: u ? [u] : (f.mediaUrls || (f.mediaUrl ? [f.mediaUrl] : [])),
+      // include any saved per-media links so admin can edit them in the form
+      mediaLinks: f.mediaLinks || (u ? [''] : []),
       type: f.type || 'text',
       enabled: !!f.enabled,
       startAt: f.startAt ? new Date(f.startAt).toISOString().slice(0,16) : '',
@@ -197,17 +227,18 @@ const AdminFlyer = () => {
     const ok = window.confirm('Remove this media from the flyer?');
     if (!ok) return;
     const newMedia = (flyer.mediaUrls || []).filter((_, i) => i !== idx);
-    setFlyer({ ...flyer, mediaUrls: newMedia });
+    // also remove corresponding mediaLinks entry
+    const newLinks = (flyer.mediaLinks || []).filter((_, i) => i !== idx);
+    setFlyer({ ...flyer, mediaUrls: newMedia, mediaLinks: newLinks });
     // If editing an existing saved flyer, persist removal immediately
     if (editExisting && editingId) {
       try {
         const token = localStorage.getItem('adminToken');
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        const payload = { editExisting: true, id: editingId, mediaUrls: newMedia, replaceMedia: true };
-        await axios.put(`${apiUrl}/api/admin/flyer`, payload, { headers });
-        // refresh list
-        const res2 = await axios.get(`${apiUrl}/api/admin/flyers`, { headers });
-        if (res2.data && res2.data.flyers) setExistingFlyers(res2.data.flyers);
+  const payload = { editExisting: true, id: editingId, mediaUrls: newMedia, mediaLinks: newLinks, replaceMedia: true };
+  await axios.put(apiEndpoint('/api/admin/flyer'), payload, { headers });
+  // refresh list
+  await fetchFlyers();
         setAlert({ type: 'success', message: 'Media removed' });
       } catch (e) {
         setAlert({ type: 'error', message: 'Failed to remove media' });
@@ -224,13 +255,14 @@ const AdminFlyer = () => {
       if (!f) return;
       const existing = f.mediaUrls || (f.mediaUrl ? [f.mediaUrl] : []);
       const newMedia = existing.filter((_, i) => i !== mediaIdx);
+      const existingLinks = f.mediaLinks || [];
+      const newLinks = existingLinks.filter((_, i) => i !== mediaIdx);
       const token = localStorage.getItem('adminToken');
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-  const payload = { editExisting: true, id: flyerId, mediaUrls: newMedia, replaceMedia: true };
-  await axios.put(`${apiUrl}/api/admin/flyer`, payload, { headers });
-      // refresh list
-      const res2 = await axios.get(`${apiUrl}/api/admin/flyers`, { headers });
-      if (res2.data && res2.data.flyers) setExistingFlyers(res2.data.flyers);
+  const payload = { editExisting: true, id: flyerId, mediaUrls: newMedia, mediaLinks: newLinks, replaceMedia: true };
+  await axios.put(apiEndpoint('/api/admin/flyer'), payload, { headers });
+    // refresh list
+    await fetchFlyers();
       setAlert({ type: 'success', message: 'Media removed' });
     } catch (e) {
       setAlert({ type: 'error', message: 'Failed to remove media' });
@@ -240,7 +272,17 @@ const AdminFlyer = () => {
   const handleEditFlyer = (f) => {
     setEditExisting(true);
     setEditingId(f._id);
-    setFlyer({ title: f.title || '', body: f.body || '', mediaUrl: f.mediaUrl || '', mediaUrls: f.mediaUrls || (f.mediaUrl ? [f.mediaUrl] : []), type: f.type || 'text', enabled: !!f.enabled, startAt: f.startAt ? new Date(f.startAt).toISOString().slice(0,16) : '', endAt: f.endAt ? new Date(f.endAt).toISOString().slice(0,16) : '' });
+    setFlyer({
+      title: f.title || '',
+      body: f.body || '',
+      mediaUrl: f.mediaUrl || '',
+      mediaUrls: f.mediaUrls || (f.mediaUrl ? [f.mediaUrl] : []),
+      mediaLinks: f.mediaLinks || [],
+      type: f.type || 'text',
+      enabled: !!f.enabled,
+      startAt: f.startAt ? new Date(f.startAt).toISOString().slice(0,16) : '',
+      endAt: f.endAt ? new Date(f.endAt).toISOString().slice(0,16) : ''
+    });
     setFiles([]);
     setPreviews([]);
   };
@@ -250,10 +292,9 @@ const AdminFlyer = () => {
       const token = localStorage.getItem('adminToken');
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const payload = { editExisting: true, id: flyerId, enabled: value };
-      await axios.put(`${apiUrl}/api/admin/flyer`, payload, { headers });
-      // refresh list
-      const res2 = await axios.get(`${apiUrl}/api/admin/flyers`, { headers });
-      if (res2.data && res2.data.flyers) setExistingFlyers(res2.data.flyers);
+  await axios.put(apiEndpoint('/api/admin/flyer'), payload, { headers });
+  // refresh list
+  await fetchFlyers();
     } catch (e) {
       setAlert({ type: 'error', message: 'Failed to update flyer' });
     }
@@ -289,7 +330,7 @@ const AdminFlyer = () => {
                     <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                       {(ef.mediaUrls || (ef.mediaUrl ? [ef.mediaUrl] : [])).map((u, i) => (
                         <div key={i} style={{ width: 220, position: 'relative', borderRadius: 6, overflow: 'hidden', background: '#f8f8f8' }}>
-                          <a href={resolveMediaUrl(u)} target="_blank" rel="noreferrer" style={{ display: 'block' }}>
+                          <a href={(ef.mediaLinks && ef.mediaLinks[i]) ? ef.mediaLinks[i] : resolveMediaUrl(u)} target="_blank" rel="noreferrer" style={{ display: 'block' }}>
                             {u.match(/\.(jpg|jpeg|png|gif)$/i) ? (
                               <img src={resolveMediaUrl(u)} alt={`media-${i}`} style={{ width: '100%', height: 160, objectFit: 'cover', display: 'block' }} />
                             ) : (
@@ -301,6 +342,7 @@ const AdminFlyer = () => {
                             <button onClick={() => handleRemoveMediaFromSaved(ef._id, i)} style={{ padding: '6px 8px', fontSize: 12 }}>Remove</button>
                           </div>
                           <div style={{ padding: 8, wordBreak: 'break-all', fontSize: 12, background: '#fff' }}>{u}</div>
+                          {(ef.mediaLinks && ef.mediaLinks[i]) ? <div style={{ padding: '6px 8px', fontSize: 12, background: '#fff' }}>Link: {ef.mediaLinks[i]}</div> : null}
                         </div>
                       ))}
                     </div>
@@ -351,26 +393,47 @@ const AdminFlyer = () => {
             ) : (
               <div style={{ marginTop: 8 }}>
                 <label>Upload file (image/video)</label>
-                    <input type="file" accept="image/*,video/*" multiple onChange={(e) => {
+                    <input ref={fileInputRef} type="file" accept="image/*,video/*" multiple onChange={(e) => {
                       const fl = e.target.files ? Array.from(e.target.files) : [];
-                      setFiles(fl);
+                      // Append new files to existing list so + add more works
+                      const newFiles = files.concat(fl);
+                      setFiles(newFiles);
                       // build previews
-                      const p = fl.map(f => {
-                        try { return URL.createObjectURL(f); } catch (_) { return ''; }
+                      const p = newFiles.map((f, idx) => {
+                        try { return idx < previews.length ? previews[idx] : URL.createObjectURL(f); } catch (_) { return ''; }
                       });
                       setPreviews(p);
+                      // ensure mediaLinks array has an entry for each media (preserve existing)
+                      const existingLinks = flyer.mediaLinks && flyer.mediaLinks.length ? [...flyer.mediaLinks] : [];
+                      for (let i = 0; i < fl.length; i++) existingLinks.push('');
+                      setFlyer({ ...flyer, mediaLinks: existingLinks });
+                      // clear native file input so selecting same file again works and UI shows + add more
+                      try { e.target.value = ''; } catch (_) {}
                     }} />
                     {previews && previews.length > 0 && (
-                      <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+                      <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                         {previews.map((pv, i) => (
-                          <div key={i}>
-                            {files[i] && files[i].type.startsWith('image') ? (
-                              <img src={pv} alt={`preview-${i}`} style={{ maxWidth: 160, maxHeight: 120 }} />
-                            ) : (
-                              <video src={pv} controls style={{ maxWidth: 200, maxHeight: 160 }} />
-                            )}
+                          <div key={i} style={{ position: 'relative' }}>
+                            <div style={{ width: 160, height: 120, overflow: 'hidden', borderRadius: 6, background: '#fafafa' }}>
+                              {files[i] && files[i].type && files[i].type.startsWith('image') ? (
+                                <img src={pv} alt={`preview-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                              ) : (
+                                <video src={pv} controls style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                              )}
+                            </div>
+                            <div style={{ marginTop: 6 }}>
+                              <input placeholder="Optional link (clicking opens)" value={(flyer.mediaLinks && flyer.mediaLinks[i]) || ''} onChange={(e) => {
+                                const links = flyer.mediaLinks ? [...flyer.mediaLinks] : [];
+                                links[i] = e.target.value;
+                                setFlyer({ ...flyer, mediaLinks: links });
+                              }} style={{ width: 160 }} />
+                            </div>
                           </div>
                         ))}
+                        {/* + add more tile */}
+                        <div style={{ width: 160, height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6, border: '1px dashed #ccc', cursor: 'pointer' }} onClick={() => { if (fileInputRef && fileInputRef.current) fileInputRef.current.click(); }}>
+                          <div style={{ fontSize: 36, lineHeight: '36px', color: '#666' }}>+</div>
+                        </div>
                       </div>
                     )}
               </div>
@@ -387,6 +450,15 @@ const AdminFlyer = () => {
                         <div>
                           <button onClick={() => handleEditMedia(u)} style={{ marginRight: 8 }}>Edit</button>
                           <button onClick={() => handleRemoveMedia(idx)}>Remove</button>
+                        </div>
+                        <div style={{ marginTop: 6 }}>
+                          <input placeholder="Optional link (clicking opens)" value={(flyer.mediaLinks && flyer.mediaLinks[idx]) || ''} onChange={(e) => {
+                            const links = flyer.mediaLinks ? [...flyer.mediaLinks] : [];
+                            // ensure array length aligns with mediaUrls
+                            while (links.length < (flyer.mediaUrls || []).length) links.push('');
+                            links[idx] = e.target.value;
+                            setFlyer({ ...flyer, mediaLinks: links });
+                          }} style={{ width: '100%', marginTop: 6 }} />
                         </div>
                       </div>
                     </div>
