@@ -156,11 +156,15 @@ const fetchLatestReviews = async () => {
 
 
       <AnimatedSection isDesktop={isDesktop}>
-        <FAQ />
-      </AnimatedSection>
-
-      <AnimatedSection isDesktop={isDesktop}>
-        <Contact />
+        {/* FAQ and Contact side-by-side on desktop, stacked on mobile */}
+  <div style={isDesktop ? { ...styles.faqContactRow, alignItems: 'stretch' } : styles.faqContactRowMobile}>
+          <div style={styles.faqContainer}>
+            <FAQ />
+          </div>
+          <div style={styles.contactContainer}>
+            <Contact />
+          </div>
+        </div>
       </AnimatedSection>
 
       <Footer />
@@ -297,6 +301,35 @@ const styles = {
     background: '#fff',
     textAlign: 'center',
     borderBottom: '1px solid rgba(16,24,40,0.04)',
+  },
+  faqContactRow: {
+    display: 'flex',
+    gap: 24,
+    maxWidth: 1100,
+    margin: '30px auto',
+    padding: '0 20px',
+    alignItems: 'flex-start',
+  },
+  faqContactRowMobile: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 18,
+    maxWidth: 720,
+    margin: '18px auto',
+    padding: '0 16px',
+    alignItems: 'stretch',
+  },
+  faqContainer: {
+    flex: '1 1 520px',
+    minWidth: 300,
+  },
+  contactContainer: {
+    width: 300,
+    minWidth: 220,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '10px 0',
   },
   partnersInner: {
     display: 'flex',

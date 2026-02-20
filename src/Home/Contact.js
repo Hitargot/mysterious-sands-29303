@@ -16,6 +16,8 @@ const Contact = () => {
   });
 
   const [isVisible, setIsVisible] = useState(false); // Animation state
+  const [emailHover, setEmailHover] = useState(false);
+  const [phoneHover, setPhoneHover] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setIsVisible(true), 200); // Delay to trigger animation
@@ -86,17 +88,35 @@ const Contact = () => {
   )}
 
   {/* Contact Details */}
-  <div style={styles.contactDetails}>
+    <div style={styles.contactDetails}>
     <p>
       Email:{" "}
-      <a href="mailto:exdollarium@gmail.com" style={styles.link}>
-      support@exdollarium.com
+      <a
+        href="mailto:exdollarium@gmail.com"
+        style={{
+          ...styles.link,
+          color: emailHover ? '#D35400' : styles.link.color,
+          textDecoration: emailHover ? 'underline' : 'none',
+        }}
+        onMouseEnter={() => setEmailHover(true)}
+        onMouseLeave={() => setEmailHover(false)}
+      >
+        support@exdollarium.com
       </a>
     </p>
     <p>
       Phone:{" "}
-      <a href="tel:+2349123258507" style={styles.link}>
-        + (234) 9123258507
+      <a
+        href="tel:+2348139935240"
+        style={{
+          ...styles.link,
+          color: phoneHover ? '#D35400' : styles.link.color,
+          textDecoration: phoneHover ? 'underline' : 'none',
+        }}
+        onMouseEnter={() => setPhoneHover(true)}
+        onMouseLeave={() => setPhoneHover(false)}
+      >
+        + (234) 8139935240
       </a>
     </p>
     <p>
@@ -163,25 +183,28 @@ const Contact = () => {
 const styles = {
   contactSection: {
     backgroundColor: "#d0e6fd", // Light blue background
-    padding: "40px",
+    padding: "20px 16px",
     borderRadius: "10px",
     textAlign: "center",
     color: "#162660", // Navy blue text
-    maxWidth: "600px",
-    margin: "50px auto", // Adds margin on top and bottom
+    maxWidth: "420px",
+    margin: "0 auto", // center horizontally; vertical spacing handled by parent
     transition: "opacity 0.6s ease-out, transform 0.6s ease-out",
     boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.1)", // Soft shadow effect
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
   },
   heading: {
-    fontSize: "1.8rem",
-    marginBottom: "20px",
+    fontSize: "1.4rem",
+    marginBottom: "14px",
   },
   contactDetails: {
     marginBottom: "20px",
     fontSize: "1rem",
   },
   link: {
-    color: "#162660",
+    color: "#FF6B00",
     textDecoration: "none",
     fontWeight: "bolder",
   },
