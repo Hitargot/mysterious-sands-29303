@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import paypalIcon   from '../assets/images/path_to_paypal_icon.png';
 import cryptoIcon   from '../assets/images/path_to_crypto_icon.png';
