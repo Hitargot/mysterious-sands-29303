@@ -1,139 +1,100 @@
-import React, { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
-import styled from "styled-components";
-import { FaBolt, FaShieldAlt, FaMoneyBillWave, FaUsers, FaEye } from "react-icons/fa";
+import React, { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { FaBolt, FaShieldAlt, FaMoneyBillWave, FaUsers, FaEye, FaCheckCircle } from 'react-icons/fa';
 
-// Styled Components
-const FlowchartContainer = styled.section`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 32px 16px;
-  background: linear-gradient(180deg, #0f2348 0%, #10223a 100%);
-  color: white;
-  border-radius: 12px;
-  width: 100%;
-`;
-
-const Title = styled.h2`
-  font-size: 1.65rem;
-  font-weight: 800;
-  margin-bottom: 12px;
-  color: #f1f9ff;
-  text-align: center;
-`;
-
-const Grid = styled.div`
-  width: 100%;
-  max-width: 1100px;
-  display: grid;
-  gap: 14px;
-  grid-template-columns: 1fr;
-
-  @media (min-width: 720px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (min-width: 1100px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-`;
-
-const Card = styled.div`
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-  padding: 16px;
-  border-radius: 10px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-  color: #e9f2ff;
-  transform: translateY(18px);
-  opacity: 0;
-  cursor: default;
-`;
-
-const IconCircle = styled.div`
-  min-width: 48px;
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.06);
-  border-radius: 999px;
-  font-size: 1.2rem;
-  color: #ffdca3;
-`;
-
-const CardBody = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const CardTitle = styled.div`
-  font-weight: 800;
-  font-size: 1.05rem;
-  color: #f4fbff;
-`;
-
-const CardDetails = styled.div`
-  margin-top: 6px;
-  font-size: 0.95rem;
-  color: #d0e6fd;
-  line-height: 1.35;
-`;
-
-// Benefits Data (no images, icon-only cards)
-const benefits = [
-  { text: "Fast Transactions", icon: <FaBolt />, details: "Transactions processed within minutes so you can get your funds quickly." },
-  { text: "Secure & Reliable", icon: <FaShieldAlt />, details: "State-of-the-art security and fraud protection to keep funds safe." },
-  { text: "Best Exchange Rates", icon: <FaMoneyBillWave />, details: "Competitive rates and transparent pricing — no surprises." },
-  { text: "Trusted by Thousands", icon: <FaUsers />, details: "A large base of satisfied users who trust our service every day." },
-  { text: "No Hidden Fees", icon: <FaEye />, details: "Clear fees and no hidden charges — what you see is what you get." },
+const features = [
+  { icon: <FaBolt />,         color: '#F5A623', title: 'Instant Settlement',    desc: 'Naira hits your bank within minutes of admin verification. No overnight waits.' },
+  { icon: <FaShieldAlt />,    color: '#3B82F6', title: 'Fraud Protected',       desc: 'Every trade is manually verified before funds are released. Zero chargebacks.' },
+  { icon: <FaMoneyBillWave />,color: '#22C55E', title: 'Best Rates',            desc: 'Admin-set live rates updated daily. No hidden fees — the spread is your rate.' },
+  { icon: <FaUsers />,        color: '#8B5CF6', title: 'Dedicated Support',     desc: 'Reach us via Telegram, live chat or email. Real humans, real fast responses.' },
+  { icon: <FaEye />,          color: '#F97316', title: 'Full Transparency',      desc: 'Track every step of your trade. Receipt generated automatically on completion.' },
+  { icon: <FaCheckCircle />,  color: '#06B6D4', title: 'KYC Verified Users',    desc: 'Every account is KYC-verified. No anonymous transactions — full accountability.' },
 ];
 
-export default function WhyChooseUsFlowchart() {
-  const cardRefs = useRef([]);
-  const [expandedIndex, setExpandedIndex] = useState(null);
+const WhyChooseUsTree = () => {
+  const cardsRef = useRef([]);
 
   useEffect(() => {
-    // fade-up animation for cards
-    if (cardRefs.current && cardRefs.current.length) {
-      gsap.to(cardRefs.current, {
+    if (cardsRef.current.length) {
+      gsap.to(cardsRef.current, {
         opacity: 1,
         y: 0,
-        stagger: 0.12,
-        duration: 0.7,
-        ease: "power2.out",
+        duration: 0.5,
+        stagger: 0.08,
+        ease: 'power2.out',
       });
     }
   }, []);
 
-  const toggleDetails = (index) => {
-    setExpandedIndex(expandedIndex === index ? null : index);
-  };
-
   return (
-    <FlowchartContainer>
-      <Title>Why Choose Us?</Title>
-      <Grid>
-        {benefits.map((benefit, index) => (
-          <Card
-            key={index}
-            ref={(el) => (cardRefs.current[index] = el)}
-            onClick={() => toggleDetails(index)}
-            role="button"
-            tabIndex={0}
-            aria-expanded={expandedIndex === index}
-          >
-            <IconCircle>{benefit.icon}</IconCircle>
-            <CardBody>
-              <CardTitle>{benefit.text}</CardTitle>
-              <CardDetails>{expandedIndex === index ? benefit.details : benefit.details}</CardDetails>
-            </CardBody>
-          </Card>
-        ))}
-      </Grid>
-    </FlowchartContainer>
+    <section style={s.section}>
+      <div style={s.inner}>
+        <div style={s.header}>
+          <span style={s.tag}>Why Choose Us</span>
+          <h2 style={s.heading}>Built different.<br />On purpose.</h2>
+          <p style={s.lead}>We made deliberate choices that other platforms skip — because trust is the product.</p>
+        </div>
+
+        <div style={s.grid}>
+          {features.map(({ icon, color, title, desc }, i) => (
+            <div
+              key={title}
+              ref={el => cardsRef.current[i] = el}
+              style={{ ...s.card, opacity: 0, transform: 'translateY(20px)' }}
+            >
+              <div style={{ ...s.iconCircle, background: `${color}18`, border: `1px solid ${color}30` }}>
+                <span style={{ color, fontSize: 20 }}>{icon}</span>
+              </div>
+              <div>
+                <h3 style={s.cardTitle}>{title}</h3>
+                <p style={s.cardDesc}>{desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
-}
+};
+
+const s = {
+  section: { padding: '88px 5%', background: 'var(--navy-2)' },
+  inner:  { maxWidth: 1100, margin: '0 auto' },
+  header: { textAlign: 'center', marginBottom: 48 },
+  tag: {
+    display: 'inline-block',
+    background: 'rgba(34,197,94,0.12)',
+    border: '1px solid rgba(34,197,94,0.3)',
+    color: '#4ADE80',
+    fontSize: 11, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
+    padding: '5px 14px', borderRadius: 100, marginBottom: 16,
+  },
+  heading: {
+    fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 800,
+    letterSpacing: -0.8, lineHeight: 1.15, color: '#fff', marginBottom: 12,
+  },
+  lead: { fontSize: '1.05rem', color: '#94A3B8', lineHeight: 1.7 },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+    gap: 20,
+  },
+  card: {
+    background: 'var(--navy-card)',
+    border: '1px solid var(--navy-border)',
+    borderRadius: 16,
+    padding: '24px 22px',
+    display: 'flex',
+    gap: 18,
+    alignItems: 'flex-start',
+  },
+  iconCircle: {
+    width: 48, height: 48, borderRadius: 12,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
+  },
+  cardTitle: { fontSize: '1rem', fontWeight: 700, color: '#fff', marginBottom: 6 },
+  cardDesc:  { fontSize: '0.875rem', color: '#64748B', lineHeight: 1.6 },
+};
+
+export default WhyChooseUsTree;

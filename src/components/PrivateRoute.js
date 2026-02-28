@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode'; // Ensure jwt-decode is installed
+import { getAdminToken, removeAdminToken } from '../utils/adminAuth';
 
 /**
  * PrivateRoute
@@ -14,7 +15,7 @@ import {jwtDecode} from 'jwt-decode'; // Ensure jwt-decode is installed
  */
 const PrivateRoute = ({ children, adminOnly = false }) => {
   const validateAdmin = () => {
-    const token = localStorage.getItem('adminToken');
+    const token = getAdminToken();
     if (!token) return false;
     try {
       const decoded = jwtDecode(token);
@@ -22,7 +23,7 @@ const PrivateRoute = ({ children, adminOnly = false }) => {
       const isTokenValid = !exp || Date.now() < exp * 1000;
       const isAdmin = role === 'admin';
       if (!isTokenValid) {
-        localStorage.removeItem('adminToken');
+        removeAdminToken();
         return false;
       }
       return isTokenValid && isAdmin;

@@ -74,7 +74,7 @@ const AdminHome = () => {
           if (typeof s.withdrawalsCount === 'number') setWithdrawalsCount(s.withdrawalsCount);
           if (typeof s.presubmissionsCount === 'number') setPresubmissionsCount(s.presubmissionsCount);
           if (typeof s.ticketsCount === 'number') setTicketsCount(s.ticketsCount);
-          // recentTransfers ignored — we use transactions/recentTransactions from the stats payload
+          // recentTransfers ignored N/A we use transactions/recentTransactions from the stats payload
           if (typeof s.confirmationsCount === 'number') setConfirmationsCount(s.confirmationsCount);
           // keep usersByDay in local state via users array mapping (the chart derives from users)
         } else {

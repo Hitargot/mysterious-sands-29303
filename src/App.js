@@ -17,14 +17,14 @@ import { NotificationProvider } from './context/NotificationContext';
 import Notifications from './components/Notifications';
 import WalletPage from './components/WalletPage';
 import Overview from './components/Overview';
-import adminRoutes from './routes/adminRoutes'; // Import adminRoutes
-import AdminLayout from './layouts/AdminLayout'; // Layout for admin pages
+// eslint-disable-next-line no-unused-vars
+import adminRoutes from './routes/adminRoutes'; // kept for external consumers that may import it
+import AdminPanel from './admin/AdminPanel'; // Self-contained admin panel (handles all /admin/* sub-routes)
 import PrivateRoute from './components/PrivateRoute'; // PrivateRoute component
 import VerifyAccount from './components/VerifyAccount';
 import VerifyRole from './components/VerifyRole';
 import AdminLogin from './components/AdminLogin';
 import AdminForgotPassword from './components/AdminForgotPassword';
-import AdminHome from './pages/AdminHome';
 import RoleLogin from './components/RoleLogin';
 import NoAccess from './components/NoAccess';
 import TradeHistory from './components/TradeHistory';
@@ -121,29 +121,15 @@ if ('serviceWorker' in navigator) {
           <Route path="/transfer" element={<PrivateRoute><TransferPage /></PrivateRoute>} />
           <Route path="/pre-submission" element={<PrivateRoute><Navigate to="/dashboard?panel=create-presubmission" replace /></PrivateRoute>} />
           <Route path="/my-pre-submissions" element={<PrivateRoute><Navigate to="/dashboard?panel=my-pre-submissions" replace /></PrivateRoute>} />
+          {/* Admin Panel N/A self-contained component handles all /admin/* sub-routes */}
           <Route
-            path="/admin"
+            path="/admin/*"
             element={
               <PrivateRoute adminOnly={true}>
-                <AdminLayout>
-                  <AdminHome />
-                </AdminLayout>
+                <AdminPanel />
               </PrivateRoute>
             }
           />
-          {adminRoutes.map(({ path, component }, index) => (
-            <Route
-              key={index}
-              path={path}
-              element={
-                <PrivateRoute adminOnly={true}>
-                  <AdminLayout>
-                    {React.createElement(component)}
-                  </AdminLayout>
-                </PrivateRoute>
-              }
-            />
-          ))}
 
           {/* Redirect for unknown routes */}
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { getAdminToken } from '../utils/adminAuth';
 import axios from 'axios';
 const rawApiUrl = process.env.REACT_APP_API_URL;
 // Normalize configured API base. If not provided, use empty string so we
@@ -103,7 +104,7 @@ const AdminFlyer = () => {
   // misconfigured.
   const fetchFlyers = async () => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = getAdminToken();
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const url = apiEndpoint('/api/admin/flyers');
       if (!url) return null;
@@ -137,7 +138,7 @@ const AdminFlyer = () => {
   const save = async () => {
     setSaving(true);
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = getAdminToken();
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       // If uploading a file, send multipart/form-data
       let res = null;
@@ -233,7 +234,7 @@ const AdminFlyer = () => {
     // If editing an existing saved flyer, persist removal immediately
     if (editExisting && editingId) {
       try {
-        const token = localStorage.getItem('adminToken');
+        const token = getAdminToken();
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const payload = { editExisting: true, id: editingId, mediaUrls: newMedia, mediaLinks: newLinks, replaceMedia: true };
   await axios.put(apiEndpoint('/api/admin/flyer'), payload, { headers });
@@ -257,7 +258,7 @@ const AdminFlyer = () => {
       const newMedia = existing.filter((_, i) => i !== mediaIdx);
       const existingLinks = f.mediaLinks || [];
       const newLinks = existingLinks.filter((_, i) => i !== mediaIdx);
-      const token = localStorage.getItem('adminToken');
+      const token = getAdminToken();
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const payload = { editExisting: true, id: flyerId, mediaUrls: newMedia, mediaLinks: newLinks, replaceMedia: true };
   await axios.put(apiEndpoint('/api/admin/flyer'), payload, { headers });
@@ -289,7 +290,7 @@ const AdminFlyer = () => {
 
   const toggleEnable = async (flyerId, value) => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = getAdminToken();
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const payload = { editExisting: true, id: flyerId, enabled: value };
   await axios.put(apiEndpoint('/api/admin/flyer'), payload, { headers });
@@ -483,3 +484,4 @@ const AdminFlyer = () => {
 };
 
 export default AdminFlyer;
+

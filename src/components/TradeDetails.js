@@ -2,7 +2,19 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Alert from "./Alert";
 import ConfirmationForm from "./ConfirmationForm";
-import { jwtDecode } from "jwt-decode"; // Correct the import to match the correct function name
+import { jwtDecode } from "jwt-decode";
+import {
+  FaInfoCircle, FaTag, FaRegCopy, FaCheckCircle,
+  FaSyncAlt, FaShieldAlt, FaBolt, FaExclamationTriangle,
+} from "react-icons/fa";
+
+const G = {
+  gold: '#F5A623', goldLight: '#FBBF24', goldFaint: 'rgba(245,166,35,0.08)',
+  goldBorder: 'rgba(245,166,35,0.25)', navy: '#0A0F1E', navy2: '#0F172A',
+  navy3: '#111827', navy4: '#1E293B', slate: '#94A3B8', slateD: '#64748B',
+  white: '#F1F5F9', green: '#34D399', red: '#F87171',
+  greenFaint: 'rgba(52,211,153,0.12)', redFaint: 'rgba(248,113,113,0.12)',
+};
 
 const TradeDetails = ({ selectedService }) => {
   const [serviceDetails, setServiceDetails] = useState(null);
@@ -12,8 +24,6 @@ const TradeDetails = ({ selectedService }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const validityCheckedRef = useRef(false);
-  const [showCopy, setShowCopy] = useState(false);
-  const [copiedTag, setCopiedTag] = useState("");
   const [generatedTag, setGeneratedTag] = useState(""); // Declare state for the generated tag
   // Add a state to track whether the tag has been generated or deleted
   const [hasGeneratedTag, setHasGeneratedTag] = useState(false); // Track if the tag has been generated
@@ -56,18 +66,11 @@ const TradeDetails = ({ selectedService }) => {
     const fetchServiceDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${apiUrl}/api/services/${selectedService}`);
-        const data = response.data;
+  const response1 = await axios.get(`${apiUrl}/api/services/${selectedService}`);
+  const data1 = response1.data;
 
-        if (data) {
-          setServiceDetails(data);
-
-          // Check if it's the special service
-          if (data._id === "678abb516cbaa411698e7fa0") {
-            setShowCopy(true);
-          } else {
-            setShowCopy(false); // optional fallback
-          }
+        if (data1) {
+          setServiceDetails(data1);
         } else {
           setServiceDetails(null);
           setAlertMessage("Service not found.");
@@ -161,85 +164,25 @@ const TradeDetails = ({ selectedService }) => {
   };
 
 
-  const truncateTag = (tag) => {
-    // Truncate tag for mobile view (e.g., exdollarium + exd)
-    if (isMobile && tag.length > 10) {
-      return `${tag.slice(0, 10)}...`; // Truncate after 10 characters for mobile view
-    }
-    return tag; // Return full tag for desktop view
-  };
-
-
-  const copyTag = async () => {
-    console.log("Copy Tag function triggered");
-
-    // Check if the user is logged in and available
-    if (!user || !user.id) {
-      console.error("User is not defined");
-      setAlertMessage("User is not defined. Please log in.");
-      setAlertType("error"); // Show error alert if user is not defined
-      return;
-    }
-
-    if (!generatedTag) {
-      console.error("No generated tag available");
-      setAlertMessage("No tag to copy.");
-      setAlertType("error"); // Show error if no tag is generated
-      return;
-    }
-
-    try {
-      console.log("Copying tag:", generatedTag);
-      await navigator.clipboard.writeText(generatedTag); // Copy the generated tag to clipboard
-      setCopiedTag(generatedTag); // Update state with copied tag
-      setIsCopied(true); // Set the button text to 'Copied'
-      console.log("Tag copied successfully");
-
-      // Show success alert for tag copied
-      setAlertMessage(`Copied: ${generatedTag}`);
-      setAlertType("success");
-
-      // Reset button text back to "Copy Tag" after 2 seconds
-      setTimeout(() => {
-        setIsCopied(false);
-      }, 2000); // You can change the time (in milliseconds) to control how long "Copied" stays
-
-    } catch (err) {
-      console.error("Copy failed:", err);
-      setAlertMessage("Failed to copy tag.");
-      setAlertType("error"); // Show error alert for failed copy
-    }
-  };
-
-
-
-
   const checkValidity = async () => {
     setRefreshing(true);
     try {
-      const response = await axios.get(`${apiUrl}/api/services/${selectedService}`);
-      const data = response.data;
-
-      if (data) {
-        setServiceDetails(data);
-        const valid = data.status === "valid";
+      const response2 = await axios.get(`${apiUrl}/api/services/${selectedService}`);
+      const data2 = response2.data;
+      if (data2) {
+        setServiceDetails(data2);
+        const valid = data2.status === "valid";
         setIsValid(valid);
-
         if (!valid) {
-          setAlertMessage(`${data.name} is currently not available.`);
+          setAlertMessage(`${data2.name} is currently not available.`);
           setAlertType("error");
-        } else {
-          setAlertMessage(`${data.name} is valid and available.`);
-          setAlertType("success");
         }
       } else {
         setServiceDetails(null);
+        setIsValid(false);
         setAlertMessage("Service not found.");
         setAlertType("error");
       }
-    } catch (error) {
-      setAlertMessage("Failed to refresh service details.");
-      setAlertType("error");
     } finally {
       setRefreshing(false);
       validityCheckedRef.current = true;
@@ -249,174 +192,262 @@ const TradeDetails = ({ selectedService }) => {
   if (!serviceDetails) return null;
 
   return (
-    <div style={{
-      maxWidth: "500px",
-      margin: "20px auto",
-      padding: "20px",
-      background: "#f1e4d1",
-      borderRadius: "10px",
-      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-      textAlign: "center"
-    }}>
-      <h3 style={{ color: "#162660", fontSize: "22px", fontWeight: "bold" }}>Service Details</h3>
+    <div style={{ maxWidth: 580, margin: '0 auto' }}>
 
-      {loading ? (
-        <p style={{ fontSize: "16px", color: "#333" }}>Loading...</p>
-      ) : (
-        <div
-          style={{
-            background: "#fdfdfd",
-            padding: "24px",
-            borderRadius: "12px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-            lineHeight: "1.7",
-            color: "#222",
-            maxWidth: "650px",
-            margin: "0 auto"
-          }}
-        >
-          <p><strong>Description:</strong> {serviceDetails.description}</p>
-          <p><strong>Note:</strong> {serviceDetails.note}</p>
-          <p><strong>Fees:</strong> {serviceDetails.fees}</p>
-          <p>
-            <strong>Minimum Amount:</strong> ${Number(serviceDetails.minAmount).toLocaleString()}
-          </p>
-          <small className="text-gray-500">
-            If you want to trade lower than this, please contact support.
-          </small>
+      {/* ── Card shell ── */}
+      <div style={{
+        background: 'rgba(15,23,42,0.92)', backdropFilter: 'blur(18px)',
+        border: `1px solid ${G.goldBorder}`, borderRadius: 18,
+        overflow: 'hidden',
+        boxShadow: '0 0 40px rgba(245,166,35,0.10)',
+      }}>
 
-          <p>
-            <strong>Maximum Amount:</strong> ${Number(serviceDetails.maxAmount).toLocaleString()}
-          </p>
-          <small className="text-gray-500">
-            If you want to trade higher than this, please contact support.
-          </small>
+        {/* Gold top bar */}
+        <div style={{
+          height: 4,
+          background: `linear-gradient(90deg,${G.gold},${G.goldLight})`,
+        }} />
 
-
-          {/* GENERATE TAG for specific service */}
-          {serviceDetails?._id === "678abb516cbaa411698e7fa0" && !hasGeneratedTag && (
-            <button
-              onClick={generateTag}
-              style={{
-                marginTop: "20px",
-                padding: "10px 24px",
-                backgroundColor: "#007bff",
-                color: "#fff",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontSize: "16px",
-              }}
-            >
-              Generate Tag
-            </button>
-          )}
-
-          {/* SHOW tag if not special service */}
-          {serviceDetails?._id !== "678abb516cbaa411698e7fa0" && (
-            <p><strong>Tag:</strong> {generatedTag || serviceDetails?.tag}</p>
-          )}
-
-          {/* USER TAG DISPLAY */}
-          {serviceDetails?.tags?.length > 0 && user?.id && (
-            <div style={{ marginTop: "16px" }}>
-              <strong>Your Tag:</strong>
-              {serviceDetails.tags
-                .filter((tagObj) => tagObj.userId.toString() === user.id)
-                .map((tagObj, index) => (
-                  <div key={index}>
-                    <span>{truncateTag(tagObj.tag)}</span>
-                  </div>
-                ))}
-            </div>
-          )}
-
-          {/* COPY TAG BUTTON */}
-          {serviceDetails?.tags?.length > 0 && showCopy && (
-            <>
-              <button
-                onClick={copyTag}
-                style={{
-                  marginTop: "20px",
-                  padding: "10px 24px",
-                  backgroundColor: "#ff8c00",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  fontSize: "16px",
-                }}
-              >
-                {isCopied ? "Copied" : "Copy Tag"}
-              </button>
-
-              {copiedTag && (
-                <p style={{ marginTop: "10px" }}>
-                  <strong>Copied Tag:</strong> {truncateTag(copiedTag)}
-                </p>
-              )}
-            </>
-          )}
-
-          {/* VALIDITY CHECK BUTTON */}
-          <button
-            onClick={checkValidity}
-            disabled={refreshing}
-            style={{
-              width: "100%",
-              padding: "14px",
-              marginTop: "24px",
-              backgroundColor: refreshing ? "#ccc" : "#162660",
-              color: "#fff",
-              border: "none",
-              borderRadius: "6px",
-              fontSize: "17px",
-              fontWeight: "500",
-              cursor: refreshing ? "not-allowed" : "pointer",
-              transition: "0.3s"
-            }}
-          >
-            {refreshing ? "Refreshing..." : "Check Validity"}
-          </button>
-
-          {/* VALIDITY STATUS */}
-          {!validityCheckedRef.current ? (
-            <p style={{ fontSize: "14px", color: "#666", marginTop: "10px" }}>
-              Click "Check Validity" to see if the details are still valid.
-            </p>
-          ) : isValid ? (
-            <p style={{ fontSize: "14px", color: "green", marginTop: "10px" }}>
-              The details are still valid.
-            </p>
-          ) : (
-            <p style={{ fontSize: "14px", color: "red", marginTop: "10px" }}>
-              The details have expired.
-            </p>
-          )}
-
-          {/* ALERT MESSAGE */}
-          {alertMessage && (
-            <div style={{ marginTop: "15px" }}>
-              <Alert message={alertMessage} type={alertType} />
-            </div>
-          )}
-
-          {/* CONFIRMATION FORM */}
+        {/* Header */}
+        <div style={{
+          padding: '20px 22px 14px',
+          borderBottom: `1px solid rgba(255,255,255,0.06)`,
+          display: 'flex', alignItems: 'center', gap: 12,
+        }}>
           <div style={{
-            marginTop: "20px",
-            padding: "15px",
-            background: "#d0e6fd",
-            borderRadius: "10px",
-            textAlign: "center"
+            width: 42, height: 42, borderRadius: 10,
+            background: `linear-gradient(135deg,${G.gold},${G.goldLight})`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 0 14px rgba(245,166,35,0.35)', flexShrink: 0,
           }}>
-            <h4 style={{ fontSize: "18px", color: "#162660", marginBottom: "10px" }}>
-              Submit Receipt for Confirmation
-            </h4>
-            <ConfirmationForm selectedService={selectedService} />
+            <FaInfoCircle style={{ color: G.navy, fontSize: 19 }} />
+          </div>
+          <div>
+            <div style={{ color: G.gold, fontWeight: 700, fontSize: 17 }}>Service Details</div>
+            <div style={{ color: G.slateD, fontSize: 12 }}>{serviceDetails.name}</div>
           </div>
         </div>
-      )}
 
+        {loading ? (
+          <div style={{ padding: 32, textAlign: 'center', color: G.slateD }}>Loading details...</div>
+        ) : (
+          <div style={{ padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+            {/* ── Info rows ── */}
+            {[
+              { label: 'Description', value: serviceDetails.description },
+              { label: 'Note', value: serviceDetails.note },
+              { label: 'Fees', value: serviceDetails.fees },
+            ].filter(r => r.value).map(({ label, value }) => (
+              <div key={label} style={{
+                background: 'rgba(255,255,255,0.03)', borderRadius: 10,
+                border: `1px solid rgba(255,255,255,0.06)`, padding: '11px 14px',
+              }}>
+                <div style={{ color: G.slateD, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 }}>
+                  {label}
+                </div>
+                <div style={{ color: G.white, fontSize: 14, lineHeight: 1.6 }}>{value}</div>
+              </div>
+            ))}
+
+            {/* ── Min / Max amount ── */}
+            <div style={{ display: 'flex', gap: 10 }}>
+              {[
+                { label: 'Minimum Amount', value: serviceDetails.minAmount, hint: 'Contact support to trade lower' },
+                { label: 'Maximum Amount', value: serviceDetails.maxAmount, hint: 'Contact support to trade higher' },
+              ].filter(r => r.value !== undefined && r.value !== null).map(({ label, value, hint }) => (
+                <div key={label} style={{
+                  flex: 1, background: G.goldFaint, borderRadius: 10,
+                  border: `1px solid ${G.goldBorder}`, padding: '11px 14px',
+                }}>
+                  <div style={{ color: G.slateD, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 }}>
+                    {label}
+                  </div>
+                  <div style={{ color: G.gold, fontWeight: 700, fontSize: 16 }}>
+                    ${Number(value).toLocaleString()}
+                  </div>
+                  <div style={{ color: G.slateD, fontSize: 11, marginTop: 4 }}>{hint}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* ── Tag section ── */}
+            {/* Non-special service tag */}
+            {serviceDetails?._id !== "678abb516cbaa411698e7fa0" && (serviceDetails?.tag || generatedTag) && (() => {
+              const tagVal = generatedTag || serviceDetails.tag;
+              return (
+                <div style={{
+                  background: 'rgba(255,255,255,0.03)', borderRadius: 10,
+                  border: `1px solid rgba(255,255,255,0.06)`, padding: '11px 14px',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                    <div>
+                      <div style={{ color: G.slateD, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 3 }}>
+                        Tag
+                      </div>
+                      <div style={{ color: G.white, fontWeight: 600, fontSize: 14 }}>
+                        {isMobile && tagVal.length > 10 ? `${tagVal.slice(0, 10)}…` : tagVal}
+                      </div>
+                    </div>
+                    <FaTag style={{ color: G.slateD, fontSize: 16 }} />
+                  </div>
+                  {/* Copy button */}
+                  <button
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(tagVal);
+                        setIsCopied(true);
+                        setTimeout(() => setIsCopied(false), 2000);
+                      } catch {}
+                    }}
+                    style={{
+                      marginTop: 10, width: '100%', padding: '9px', borderRadius: 8,
+                      border: `1px solid ${G.goldBorder}`,
+                      background: isCopied ? G.greenFaint : 'transparent',
+                      color: isCopied ? G.green : G.gold,
+                      fontWeight: 700, fontSize: 13, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                      transition: 'all 200ms ease',
+                    }}
+                  >
+                    {isCopied ? <><FaCheckCircle /> Copied!</> : <><FaRegCopy /> Copy Tag</>}
+                  </button>
+                </div>
+              );
+            })()}
+
+            {/* Special service: generate tag button */}
+            {serviceDetails?._id === "678abb516cbaa411698e7fa0" && !hasGeneratedTag && (
+              <button
+                onClick={generateTag}
+                style={{
+                  width: '100%', padding: '12px', borderRadius: 10, border: 'none',
+                  background: `linear-gradient(135deg,${G.gold},${G.goldLight})`,
+                  color: G.navy, fontWeight: 700, fontSize: 14, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  boxShadow: '0 4px 14px rgba(245,166,35,0.3)',
+                }}
+              >
+                <FaTag /> Generate Tag
+              </button>
+            )}
+
+            {/* User tag display (special service) */}
+            {serviceDetails?.tags?.length > 0 && user?.id && (() => {
+              const userTags = serviceDetails.tags.filter((t) => t.userId?.toString() === user.id);
+              if (!userTags.length) return null;
+              const tagVal = userTags[0].tag;
+              return (
+                <div style={{
+                  background: 'rgba(255,255,255,0.03)', borderRadius: 10,
+                  border: `1px solid rgba(255,255,255,0.06)`, padding: '11px 14px',
+                }}>
+                  <div style={{ color: G.slateD, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>
+                    Your Tag
+                  </div>
+                  {userTags.map((t, i) => (
+                    <div key={i} style={{ color: G.white, fontWeight: 600, fontSize: 14 }}>
+                      {isMobile && t.tag?.length > 10 ? `${t.tag.slice(0, 10)}…` : t.tag}
+                    </div>
+                  ))}
+                  {/* Inline copy button */}
+                  <button
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(tagVal);
+                        setIsCopied(true);
+                        setTimeout(() => setIsCopied(false), 2000);
+                      } catch {}
+                    }}
+                    style={{
+                      marginTop: 10, width: '100%', padding: '9px', borderRadius: 8,
+                      border: `1px solid ${G.goldBorder}`,
+                      background: isCopied ? G.greenFaint : 'transparent',
+                      color: isCopied ? G.green : G.gold,
+                      fontWeight: 700, fontSize: 13, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                      transition: 'all 200ms ease',
+                    }}
+                  >
+                    {isCopied ? <><FaCheckCircle /> Copied!</> : <><FaRegCopy /> Copy Tag</>}
+                  </button>
+                </div>
+              );
+            })()}
+
+            {/* ── Check Validity ── */}
+            <div>
+              <button
+                onClick={checkValidity}
+                disabled={refreshing}
+                style={{
+                  width: '100%', padding: '13px', borderRadius: 10, border: 'none',
+                  background: refreshing
+                    ? 'rgba(255,255,255,0.06)'
+                    : `linear-gradient(135deg,${G.gold},${G.goldLight})`,
+                  color: refreshing ? G.slateD : G.navy,
+                  fontWeight: 700, fontSize: 15, cursor: refreshing ? 'not-allowed' : 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  boxShadow: refreshing ? 'none' : '0 4px 16px rgba(245,166,35,0.3)',
+                  transition: 'all 200ms ease',
+                }}
+              >
+                <FaSyncAlt style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
+                {refreshing ? 'Refreshing…' : 'Check Validity'}
+              </button>
+
+              {/* Validity status */}
+              {!validityCheckedRef.current ? (
+                <div style={{ color: G.slateD, fontSize: 13, marginTop: 8, textAlign: 'center' }}>
+                  Click "Check Validity" to confirm current status.
+                </div>
+              ) : isValid ? (
+                <div style={{
+                  marginTop: 10, padding: '10px 14px', borderRadius: 10,
+                  background: G.greenFaint, border: `1px solid rgba(52,211,153,0.25)`,
+                  display: 'flex', alignItems: 'center', gap: 8,
+                }}>
+                  <FaShieldAlt style={{ color: G.green, fontSize: 15 }} />
+                  <span style={{ color: G.green, fontSize: 13, fontWeight: 600 }}>Service is valid and available.</span>
+                </div>
+              ) : (
+                <div style={{
+                  marginTop: 10, padding: '10px 14px', borderRadius: 10,
+                  background: G.redFaint, border: `1px solid rgba(248,113,113,0.25)`,
+                  display: 'flex', alignItems: 'center', gap: 8,
+                }}>
+                  <FaExclamationTriangle style={{ color: G.red, fontSize: 15 }} />
+                  <span style={{ color: G.red, fontSize: 13, fontWeight: 600 }}>Service is currently unavailable.</span>
+                </div>
+              )}
+            </div>
+
+            {/* ── Alert ── */}
+            {alertMessage && (
+              <Alert message={alertMessage} type={alertType} onClose={() => setAlertMessage('')} />
+            )}
+
+            {/* ── Confirmation Form ── */}
+            <div style={{
+              background: 'rgba(255,255,255,0.03)', borderRadius: 12,
+              border: `1px solid ${G.goldBorder}`, padding: '18px 16px',
+            }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14,
+                paddingBottom: 12, borderBottom: `1px solid rgba(255,255,255,0.06)`,
+              }}>
+                <FaBolt style={{ color: G.gold, fontSize: 15 }} />
+                <span style={{ color: G.gold, fontWeight: 700, fontSize: 15 }}>Submit Receipt for Confirmation</span>
+              </div>
+              <ConfirmationForm selectedService={selectedService} />
+            </div>
+
+          </div>
+        )}
+      </div>
+
+      {/* spin keyframe injected once */}
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 };

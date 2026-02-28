@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import React from 'react'; // Add this import statement
+import React from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Hero from "./Hero";
@@ -12,16 +12,11 @@ import Contact from "./Contact";
 import Footer from "./Footer";
 import FloatingBackground from "./FloatingBackground";
 import { useInView } from "react-intersection-observer";
-import oldReviews from "../data/oldReviews"; // Import old reviews
-
+import oldReviews from "../data/oldReviews";
 
 const AnimatedSection = ({ children, isDesktop = true }) => {
   const { ref, inView } = useInView({ triggerOnce: false, threshold: 0.2 });
-
-  // On mobile (isDesktop === false) avoid hiding content with animation so sections
-  // that rely on JS animations (or IntersectionObserver) still render visibly.
   const visible = !isDesktop || inView;
-
   return (
     <div
       ref={ref}
@@ -36,10 +31,7 @@ const AnimatedSection = ({ children, isDesktop = true }) => {
   );
 };
 
-
-
-const apiUrl = "https://exdollarium-6f0f5aab6a7d.herokuapp.com";
-//const apiUrl = "http://localhost:22222"; 
+const apiUrl = process.env.REACT_APP_API_URL || "https://exdollarium-6f0f5aab6a7d.herokuapp.com";
 
 const Home = () => {
   const [latestReviews, setLatestReviews] = useState([]);
@@ -54,42 +46,30 @@ const Home = () => {
 
   useEffect(() => {
     fetchLatestReviews();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  
-// Fetch the latest 5 approved reviews or fallback to old reviews
-const fetchLatestReviews = async () => {
-  try {
-    // Attempt to fetch approved reviews from the API
-    const response = await axios.get(`${apiUrl}/api/approved`);
-    
-    // Get the latest reviews from the API
-    let reviewsFromApi = response.data.slice(0, 5); // Get only the latest 5 reviews
-    
-    // If the API provides fewer than 5 reviews, fill the rest from oldReviews
-    if (reviewsFromApi.length < 5) {
-      const additionalReviewsNeeded = 5 - reviewsFromApi.length;
-      const additionalReviews = oldReviews.slice(0, additionalReviewsNeeded); // Get the required number of reviews from oldReviews
-      reviewsFromApi = [...reviewsFromApi, ...additionalReviews]; // Combine API reviews and old reviews to make up 5
+  const fetchLatestReviews = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/approved`);
+      let reviewsFromApi = response.data.slice(0, 5);
+      if (reviewsFromApi.length < 5) {
+        const needed = 5 - reviewsFromApi.length;
+        reviewsFromApi = [...reviewsFromApi, ...oldReviews.slice(0, needed)];
+      }
+      setLatestReviews(reviewsFromApi);
+    } catch (error) {
+      console.error("Error fetching latest reviews:", error);
+      setLatestReviews(oldReviews.slice(0, 5));
     }
-    
-    // Set the final list of reviews (up to 5)
-    setLatestReviews(reviewsFromApi);
-  } catch (error) {
-    // If the API call fails, fallback to using only oldReviews
-    console.error("Error fetching latest reviews from API:", error);
-    setLatestReviews(oldReviews.slice(0, 5)); // Use the first 5 reviews from oldReviews as a fallback
-  }
-};
-
+  };
 
   return (
-    <div style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(180deg, #fbfdff 0%, #f7fbff 40%, #f1f6ff 100%)' }}>
-      {/* Decorative floating shapes */}
+    <div style={{ position: 'relative', overflow: 'hidden', background: 'var(--navy)' }}>
       <FloatingBackground />
 
-      {/* Hero area (Header is rendered inside Hero for EXO full-bleed layout) */}
-      <div style={styles.heroWrapper} id="home">
+      {/* Hero */}
+      <div id="home">
         <Hero />
       </div>
 
@@ -105,66 +85,59 @@ const fetchLatestReviews = async () => {
         <WhyChooseUsTree />
       </AnimatedSection>
 
-            {/* Testimonials Preview Section */}
+      {/* Testimonials */}
       <AnimatedSection isDesktop={isDesktop}>
-        <div style={styles.testimonialsSection}>
-          <h2 style={styles.heading}>What Our Customers Say</h2>
+        <section style={s.testimonials}>
+          <div style={s.testimonialsHeader}>
+            <span style={s.tag}>TESTIMONIALS</span>
+            <h2 style={s.testimonialsHeading}>
+              What Our <span style={{ color: 'var(--gold)' }}>Customers Say</span>
+            </h2>
+            <p style={s.testimonialsSub}>Real experiences from traders across Nigeria.</p>
+          </div>
 
           {latestReviews.length === 0 ? (
-            <p style={styles.noReviews}>No reviews yet. Be the first to leave one!</p>
+            <p style={{ color: 'var(--muted)', textAlign: 'center' }}>No reviews yet. Be the first to leave one!</p>
           ) : (
-            <div style={styles.reviewsContainer}>
-              {latestReviews.map((review) => (
-                <div key={review._id} style={styles.reviewCard}>
-                  <p style={styles.reviewText}>"{review.reviewText}"</p>
-                  <p style={styles.reviewAuthor}>- {review.userId?.username || "Anonymous"}</p>
-                  <p style={styles.reviewText}>Service: {review.confirmationId?.serviceId?.name || "Unknown"}</p>
-                  <div style={styles.starRating}>{"⭐".repeat(review.rating)}</div>
+            <div style={s.reviewGrid}>
+              {latestReviews.map((review, i) => (
+                <div key={review._id || i} style={s.reviewCard}>
+                  <div style={s.stars}>{Array(review.rating || 5).fill('\u2B50').join('')}</div>
+                  <p style={s.reviewText}>&#8220;{review.reviewText}&#8221;</p>
+                  <div style={s.reviewFooter}>
+                    <div style={s.reviewAvatar}>
+                      {(review.userId?.username || 'A')[0].toUpperCase()}
+                    </div>
+                    <div>
+                      <div style={s.reviewAuthor}>{review.userId?.username || 'Anonymous'}</div>
+                      <div style={s.reviewService}>{review.confirmationId?.serviceId?.name || 'Exchange Service'}</div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           )}
 
-          {/* "See More" Button */}
-          <button style={styles.seeMoreButton} onClick={() => navigate("/testimonials")}>
-            See More Reviews
-          </button>
-        </div>
-  </AnimatedSection>
+          <div style={{ textAlign: 'center', marginTop: 36 }}>
+            <button style={s.seeMoreBtn} onClick={() => navigate('/testimonials')}>
+              See All Reviews &rarr;
+            </button>
+          </div>
+        </section>
+      </AnimatedSection>
+
+      {/* Calculator */}
+      <AnimatedSection isDesktop={isDesktop}>
+        <Calculator />
+      </AnimatedSection>
+
+      {/* FAQ + Contact stacked */}
+      <AnimatedSection isDesktop={isDesktop}>
+        <FAQ />
+      </AnimatedSection>
 
       <AnimatedSection isDesktop={isDesktop}>
-        {/* Use a responsive calc container: centered on desktop, stacked on mobile */}
-        <div style={isDesktop ? { ...styles.calcLayout, alignItems: 'center' } : styles.calcLayoutMobile}>
-          <div style={styles.calcMain}>
-            <Calculator />
-          </div>
-
-          {isDesktop && (
-            <aside style={styles.sidePanel} aria-hidden={!isDesktop}>
-              <h3 style={styles.sideHeading}>Quick tips</h3>
-              <ul style={styles.sideList}>
-                <li>Choose the service you want to exchange from the Services section.</li>
-                <li>Select your currency and enter the amount to see NGN estimate.</li>
-                <li>Transactions are processed quickly — typical payout within minutes.</li>
-              </ul>
-              <p style={styles.sideMore}><a href="#faq">See FAQs</a> or <a href="#contact">Contact us</a> for help.</p>
-            </aside>
-          )}
-        </div>
-  </AnimatedSection>
-
-
-
-      <AnimatedSection isDesktop={isDesktop}>
-        {/* FAQ and Contact side-by-side on desktop, stacked on mobile */}
-  <div style={isDesktop ? { ...styles.faqContactRow, alignItems: 'stretch' } : styles.faqContactRowMobile}>
-          <div style={styles.faqContainer}>
-            <FAQ />
-          </div>
-          <div style={styles.contactContainer}>
-            <Contact />
-          </div>
-        </div>
+        <Contact />
       </AnimatedSection>
 
       <Footer />
@@ -172,251 +145,113 @@ const fetchLatestReviews = async () => {
   );
 };
 
-// Styles
-const styles = {
-  heroWrapper: {
-    minHeight: '70vh',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '0 0 20px 0',
-    position: 'relative',
-    zIndex: 10,
+const s = {
+  testimonials: {
+    padding: '88px 5%',
+    background: 'var(--navy-3)',
   },
-  /* Hero card styles */
-  heroCard: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    background: 'linear-gradient(180deg, #ffffff, #f7fbff)',
-    borderRadius: 16,
-    padding: 28,
-    width: 'min(920px, 92%)',
-    boxShadow: '0 20px 60px rgba(10,20,40,0.18)',
-    zIndex: 20,
+  testimonialsHeader: {
     textAlign: 'center',
+    maxWidth: 580,
+    margin: '0 auto 52px',
   },
-  heroCardTitle: {
-    fontSize: 22,
-    fontWeight: 800,
-    color: '#162660',
-    marginBottom: 8,
-  },
-  heroCardSub: {
-    fontSize: 15,
-    color: '#334155',
+  tag: {
+    display: 'inline-block',
+    background: 'rgba(245,166,35,0.12)',
+    border: '1px solid rgba(245,166,35,0.3)',
+    color: 'var(--gold)',
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: '2px',
+    textTransform: 'uppercase',
+    padding: '5px 14px',
+    borderRadius: 100,
     marginBottom: 16,
   },
-  heroForm: {
-    display: 'flex',
-    gap: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  },
-  emailInput: {
-    padding: '12px 14px',
-    borderRadius: 10,
-    border: '1px solid rgba(22,38,96,0.08)',
-    width: 320,
-    fontSize: 14,
-  },
-  heroPrimaryBtn: {
-    background: '#162660',
+  testimonialsHeading: {
+    fontSize: 'clamp(1.8rem, 4vw, 2.6rem)',
+    fontWeight: 800,
     color: '#fff',
-    padding: '12px 20px',
-    borderRadius: 10,
-    border: 'none',
-    fontWeight: 700,
-    cursor: 'pointer',
+    letterSpacing: -0.8,
+    lineHeight: 1.2,
+    marginBottom: 10,
   },
-  heroActions: {
-    marginTop: 12,
-    display: 'flex',
-    gap: 12,
-    justifyContent: 'center',
+  testimonialsSub: {
+    fontSize: '1rem',
+    color: 'var(--muted-light)',
+    margin: 0,
   },
-  ghostBtn: {
-    background: 'transparent',
-    border: 'none',
-    color: '#162660',
-    fontWeight: 600,
-    cursor: 'pointer',
-  },
-  /* Calculator layout */
-  calcLayout: {
-    display: 'flex',
-    gap: 24,
+  reviewGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    gap: 20,
     maxWidth: 1100,
-    margin: '30px auto',
-    alignItems: 'center',
-    padding: '0 20px',
-  },
-  calcMain: {
-    flex: '1 1 560px',
-    minWidth: 320,
-  },
-  /* Mobile variant: stack and center */
-  calcLayoutMobile: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 18,
-    maxWidth: 720,
-    margin: '18px auto',
-    alignItems: 'center',
-    padding: '0 16px',
-  },
-  sidePanel: {
-    width: 320,
-    background: '#ffffff',
-    borderRadius: 12,
-    padding: 18,
-    boxShadow: '0 10px 30px rgba(16,24,40,0.06)',
-    color: '#162660',
-    lineHeight: 1.45,
-  },
-  sideHeading: {
-    marginTop: 0,
-    marginBottom: 8,
-    fontSize: 18,
-  },
-  sideList: {
-    paddingLeft: 18,
-    margin: '8px 0 12px 0',
-  },
-  sideMore: {
-    marginTop: 12,
-  },
-  secondarySmallBtn: {
-    background: 'transparent',
-    color: '#334155',
-    border: '1px solid rgba(22,38,96,0.08)',
-    padding: '8px 12px',
-    borderRadius: 8,
-    cursor: 'pointer',
-  },
-
-  partnersSection: {
-    padding: '18px 14px',
-    background: '#fff',
-    textAlign: 'center',
-    borderBottom: '1px solid rgba(16,24,40,0.04)',
-  },
-  faqContactRow: {
-    display: 'flex',
-    gap: 24,
-    maxWidth: 1100,
-    margin: '30px auto',
-    padding: '0 20px',
-    alignItems: 'flex-start',
-  },
-  faqContactRowMobile: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 18,
-    maxWidth: 720,
-    margin: '18px auto',
-    padding: '0 16px',
-    alignItems: 'stretch',
-  },
-  faqContainer: {
-    flex: '1 1 520px',
-    minWidth: 300,
-  },
-  contactContainer: {
-    width: 300,
-    minWidth: 220,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '10px 0',
-  },
-  partnersInner: {
-    display: 'flex',
-    gap: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    maxWidth: 1000,
     margin: '0 auto',
   },
-  partnerLogo: {
-    minWidth: 96,
-    padding: '8px 12px',
-    borderRadius: 8,
-    background: 'linear-gradient(180deg, rgba(22,38,96,0.03), rgba(22,38,96,0.01))',
-    color: '#162660',
-    fontWeight: 700,
-    fontSize: 13,
-    textAlign: 'center',
-  },
-  testimonialsSection: {
-    backgroundColor: "#d0e6fd",
-    padding: "40px 20px",
-    textAlign: "center",
-  },
-  heading: {
-    color: "#162660",
-    fontSize: "26px",
-    fontWeight: "bold",
-    marginBottom: "20px",
-  },
-  noReviews: {
-    fontSize: "16px",
-    color: "#333",
-  },
-  reviewsContainer: {
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: "15px",
-    marginBottom: "20px",
-  },
   reviewCard: {
-    backgroundColor: "#162660",
-    color: "#f1e4d1",
-    borderRadius: "10px",
-    padding: "20px",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-    maxWidth: "300px",
-    width: "100%",
-    minHeight: "180px",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
+    background: 'var(--navy-card)',
+    border: '1px solid var(--navy-border)',
+    borderRadius: 16,
+    padding: '24px 22px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 14,
+  },
+  stars: {
+    fontSize: 14,
+    letterSpacing: 2,
   },
   reviewText: {
-    fontSize: "16px",
-    fontStyle: "italic",
-    lineHeight: "1.5",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    display: "-webkit-box",
-    WebkitLineClamp: 3,
-    WebkitBoxOrient: "vertical",
-    color: "#f8c471",
+    fontSize: '0.9rem',
+    color: 'var(--muted-light)',
+    lineHeight: 1.7,
+    fontStyle: 'italic',
+    flex: 1,
+    margin: 0,
+    overflow: 'hidden',
+    display: '-webkit-box',
+    WebkitLineClamp: 4,
+    WebkitBoxOrient: 'vertical',
+  },
+  reviewFooter: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 4,
+  },
+  reviewAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: '50%',
+    background: 'rgba(245,166,35,0.15)',
+    border: '1px solid rgba(245,166,35,0.3)',
+    color: 'var(--gold)',
+    fontWeight: 800,
+    fontSize: 15,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
   },
   reviewAuthor: {
-    fontWeight: "bold",
-    marginTop: "10px",
-    color: "#d0e6fd",
-    fontSize: "14px",
+    fontSize: '0.875rem',
+    fontWeight: 700,
+    color: 'var(--text)',
   },
-  starRating: {
-    fontSize: "18px",
-    color: "#FFD700",
-    marginTop: "5px",
+  reviewService: {
+    fontSize: '0.75rem',
+    color: 'var(--muted)',
   },
-  seeMoreButton: {
-    backgroundColor: "#162660",
-    color: "#fff",
-    padding: "10px 20px",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-    fontSize: "16px",
-    fontWeight: "bold",
-    transition: "background 0.3s",
+  seeMoreBtn: {
+    background: 'transparent',
+    border: '1px solid var(--navy-border)',
+    color: 'var(--text)',
+    padding: '12px 28px',
+    borderRadius: 100,
+    fontWeight: 700,
+    fontSize: '0.9rem',
+    cursor: 'pointer',
+    transition: 'border-color 200ms, color 200ms',
   },
 };
 

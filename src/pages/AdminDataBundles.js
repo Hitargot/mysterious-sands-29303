@@ -16,10 +16,10 @@ const AdminDataBundles = () => {
   return (
     <div style={{ padding: 16 }}>
       <h2>Data Bundles (Admin)</h2>
-      <p>Use this page to view and upsert data bundles. UI wiring is a stub — implement a proper form to edit bundles.</p>
+      <p>Use this page to view and upsert data bundles. UI wiring is a stub N/A implement a proper form to edit bundles.</p>
       <ul>
         {bundles.map(b => (
-          <li key={b._id}>{b.name} — {b.price} {b.currency} — {b.provider}</li>
+          <li key={b._id}>{b.name} N/A {b.price} {b.currency} N/A {b.provider}</li>
         ))}
       </ul>
     </div>

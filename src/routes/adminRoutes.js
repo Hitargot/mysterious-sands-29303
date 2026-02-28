@@ -17,6 +17,7 @@ import AdminChats from '../pages/AdminChats';
 import AdminTickets from '../pages/AdminTickets';
 import AdminPreSubmissions from '../pages/AdminPreSubmissions';
 import AdminFlyer from '../pages/AdminFlyer';
+import AdminKYC from '../pages/AdminKYC';
 
 
 const adminRoutes = [
@@ -38,6 +39,7 @@ const adminRoutes = [
   { path: '/admin/tickets', component: AdminTickets, permissions: ['view_chats'] },
   { path: '/admin/pre-submissions', component: AdminPreSubmissions, permissions: ['view_pre_submissions'] },
   { path: '/admin/flyer', component: AdminFlyer, permissions: ['manage_content'] },
+  { path: '/admin/kyc', component: AdminKYC, permissions: ['manage_users'] },
 
 ];
 

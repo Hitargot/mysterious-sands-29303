@@ -1,164 +1,221 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
+import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/images/IMG_940.PNG';
-
-const HeaderContainer = styled.header`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #162660;
-  padding: 0 20px 0 20px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1100;
-`;
-
-const Logo = styled.div`
-  display: flex;
-  align-items: center;
-
-  img {
-    height: 96px;
-    width: auto;
-    max-width: 100%;
-  }
-
-  span {
-    font-size: 20px;
-    color: #d0e6fd;
-    font-weight: bold;
-    margin-left: 12px;
-  }
-
-  @media (max-width: 768px) {
-    img { height: 64px; }
-    span { font-size: 16px; }
-  }
-`;
-
-const MenuIcon = styled.button`
-  display: none;
-  font-size: 1.6rem;
-  color: #f1e4d1;
-  cursor: pointer;
-  padding: 8px 10px;
-  background: transparent;
-  border: none;
-  line-height: 1;
-
-  @media (max-width: 768px) { display: block; }
-`;
-
-const CloseButton = styled.button`
-  position: fixed; /* ensure it floats above the overlay */
-  top: 14px;
-  right: 24px;
-  font-size: 28px;
-  background: transparent;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  z-index: 9999; /* very high so it isn't blocked */
-
-  @media (min-width: 769px) { display: none; }
-
-  &:focus { outline: 2px solid #d0e6fd; outline-offset: 2px; }
-`;
-
-// left close button removed — keep a single close button at top-right for mobile
-
-const Nav = styled.nav`
-  ul {
-    display: flex;
-    list-style: none;
-    align-items: center;
-    gap: 18px;
-    margin: 0;
-    padding: 0;
-
-    li { margin: 0; }
-
-    a {
-      color: #f1e4d1;
-      text-decoration: none;
-      padding: 8px 10px;
-      border-radius: 6px;
-      transition: all 0.18s ease-in-out;
-      font-weight: 600;
-      font-size: 16px;
-    }
-
-    a:hover { color: #ffffff; transform: translateY(-1px); }
-  }
-
-  @media (max-width: 768px) {
-    ul {
-      flex-direction: column;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background-color: rgba(22, 38, 96, 0.98);
-      transform: translateY(-100%);
-      transition: transform 0.36s cubic-bezier(.2,.9,.3,1);
-      opacity: 0;
-      padding: 40px 20px;
-      z-index: 1100;
-    }
-
-    ul.open { transform: translateY(0); opacity: 1; }
-
-    li { margin: 14px 0; font-size: 22px; }
-  }
-`;
 
 export default function TestimonialsHeader() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+  const [scrolled, setScrolled] = useState(false);
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth <= 768 : false
+  );
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, []);
 
   const toggleMenu = () => {
-    setIsOpen(prev => !prev);
-    document.body.classList.toggle('no-scroll', !isOpen);
+    setIsOpen(prev => {
+      const next = !prev;
+      document.body.style.overflow = next ? 'hidden' : '';
+      return next;
+    });
   };
 
-  const headerHeight = isMobile ? '64px' : '96px';
+  const closeMenu = () => {
+    setIsOpen(false);
+    document.body.style.overflow = '';
+  };
+
+  const navLinks = [
+    { label: 'Home', to: '/' },
+    { label: 'About', to: '/#about' },
+    { label: 'Services', to: '/#services' },
+    { label: 'FAQ', to: '/#faq' },
+    { label: 'Contact', to: '/#contact' },
+  ];
+
+  const s = {
+    header: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 1100,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '0 2rem',
+      height: '70px',
+      background: scrolled ? 'rgba(10,15,30,0.95)' : 'rgba(10,15,30,0.85)',
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
+      borderBottom: '1px solid rgba(245,166,35,0.12)',
+      transition: 'all 0.3s ease',
+      boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.4)' : 'none',
+    },
+    logoWrap: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.6rem',
+      cursor: 'pointer',
+    },
+    logoImg: {
+      height: '44px',
+      width: 'auto',
+      objectFit: 'contain',
+    },
+    logoText: {
+      fontSize: '1.15rem',
+      fontWeight: 700,
+      letterSpacing: '0.06em',
+      color: '#F5A623',
+    },
+    desktopNav: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '1.8rem',
+    },
+    navLink: {
+      color: '#E2E8F0',
+      textDecoration: 'none',
+      fontSize: '0.9rem',
+      fontWeight: 500,
+      letterSpacing: '0.03em',
+      transition: 'color 0.2s',
+    },
+    loginBtn: {
+      background: 'linear-gradient(135deg, #F5A623, #FBBF24)',
+      color: '#0A0F1E',
+      border: 'none',
+      borderRadius: '50px',
+      padding: '0.45rem 1.2rem',
+      fontSize: '0.88rem',
+      fontWeight: 700,
+      cursor: 'pointer',
+      letterSpacing: '0.04em',
+      transition: 'opacity 0.2s',
+    },
+    overlay: {
+      position: 'fixed',
+      inset: 0,
+      zIndex: 1150,
+      background: 'rgba(10,15,30,0.97)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '2rem',
+    },
+    mobileLink: {
+      color: '#E2E8F0',
+      textDecoration: 'none',
+      fontSize: '1.4rem',
+      fontWeight: 600,
+      letterSpacing: '0.04em',
+    },
+    closeBtn: {
+      position: 'absolute',
+      top: '1.5rem',
+      right: '1.5rem',
+      background: 'none',
+      border: 'none',
+      color: '#F5A623',
+      fontSize: '1.8rem',
+      cursor: 'pointer',
+      lineHeight: 1,
+    },
+  };
 
   return (
     <>
-      <HeaderContainer style={{ height: headerHeight }}>
-        <Logo>
-          <img src={logo} alt="Exdollarium logo" />
-          <span>EXDOLLARIUM</span>
-        </Logo>
+      <header style={s.header}>
+        {/* Logo */}
+        <div style={s.logoWrap} onClick={() => navigate('/')}>
+          <img src={logo} alt="Exdollarium" style={s.logoImg} />
+          <span style={s.logoText}>EXDOLLARIUM</span>
+        </div>
 
-        {/* show hamburger when menu is closed; when open we use the fixed close buttons */}
-        {!isOpen && (
-          <MenuIcon aria-controls="testimonial-navigation" aria-expanded={isOpen} onClick={toggleMenu} aria-label={'Open menu'}>
-            {'☰'}
-          </MenuIcon>
-        )}
+        {/* Desktop nav */}
+        <nav style={{ ...s.desktopNav, display: isMobile ? 'none' : 'flex' }} className="desktop-only-nav">
+          {navLinks.map(l => (
+            <Link
+              key={l.label}
+              to={l.to}
+              style={s.navLink}
+              onMouseEnter={e => (e.target.style.color = '#F5A623')}
+              onMouseLeave={e => (e.target.style.color = '#E2E8F0')}
+            >
+              {l.label}
+            </Link>
+          ))}
+          <button
+            style={s.loginBtn}
+            onClick={() => navigate('/login')}
+            onMouseEnter={e => (e.target.style.opacity = '0.85')}
+            onMouseLeave={e => (e.target.style.opacity = '1')}
+          >
+            Login
+          </button>
+        </nav>
 
-        <Nav>
-          <ul id="testimonial-navigation" className={isOpen ? 'open' : ''}>
-            <li><a href="/">Home</a></li>
-            <li><Link to="/login">Login</Link></li>
-          </ul>
-        </Nav>
-        {isMobile && isOpen && (
-          <CloseButton onClick={toggleMenu} aria-label="Close menu">✖</CloseButton>
-        )}
-      </HeaderContainer>
-      <div style={{ height: headerHeight }} aria-hidden="true" />
+        {/* Hamburger (mobile only) */}
+        <button
+          className="mobile-hamburger"
+          onClick={toggleMenu}
+          aria-label="Open menu"
+          style={{
+            display: isMobile ? 'flex' : 'none',
+            flexDirection: 'column',
+            gap: '5px',
+            cursor: 'pointer',
+            background: 'none',
+            border: 'none',
+            padding: '4px',
+          }}
+        >
+          {[0, 1, 2].map(i => (
+            <span
+              key={i}
+              style={{
+                width: '24px',
+                height: '2px',
+                background: '#F5A623',
+                borderRadius: '2px',
+                display: 'block',
+              }}
+            />
+          ))}
+        </button>
+      </header>
+
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div style={s.overlay}>
+          <button style={s.closeBtn} onClick={closeMenu} aria-label="Close menu">✕</button>
+          {navLinks.map(l => (
+            <Link key={l.label} to={l.to} style={s.mobileLink} onClick={closeMenu}>
+              {l.label}
+            </Link>
+          ))}
+          <button
+            style={{ ...s.loginBtn, fontSize: '1rem', padding: '0.6rem 2rem' }}
+            onClick={() => { closeMenu(); navigate('/login'); }}
+          >
+            Login
+          </button>
+        </div>
+      )}
+
+      <div style={{ height: '70px' }} aria-hidden="true" />
     </>
   );
 }

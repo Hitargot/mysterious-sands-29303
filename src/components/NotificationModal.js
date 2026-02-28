@@ -28,7 +28,7 @@ const NotificationModal = ({ onAllow, onDeny }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 max-w-sm shadow-lg text-center">
         <h2 className="text-xl font-bold mb-4">Allow Push Notifications?</h2>
-        <p className="mb-4">We’d like to send you updates about your transactions.</p>
+        <p className="mb-4">We'd like to send you updates about your transactions.</p>
         <div className="flex justify-center space-x-4">
           <button onClick={handleAllow} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
             Allow

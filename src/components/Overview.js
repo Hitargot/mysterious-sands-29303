@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaArrowRight, FaDollarSign, FaMoneyCheckAlt, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaArrowRight, FaDollarSign, FaMoneyCheckAlt, FaEye, FaEyeSlash, FaChartLine, FaWallet, FaExchangeAlt } from 'react-icons/fa';
 import axios from 'axios';
 
 const Overview = ({ setActiveComponent }) => {
@@ -9,7 +9,7 @@ const Overview = ({ setActiveComponent }) => {
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isHovered, setIsHovered] = useState({});
-  const [isCardHovered, setIsCardHovered] = useState(false); // Wallet Balance Card hover state
+  const [hoveredBtn, setHoveredBtn] = useState(null);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -19,22 +19,20 @@ const Overview = ({ setActiveComponent }) => {
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
-
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Somewhere before mapping transactions
-        const token = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
+        const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
         let currentUserId = null;
 
         if (token) {
           try {
-            const base64Url = token.split(".")[1];
+            const base64Url = token.split('.')[1];
             const decoded = JSON.parse(atob(base64Url));
-            currentUserId = decoded.id || decoded._id; // depends on your JWT payload
+            currentUserId = decoded.id || decoded._id;
           } catch (err) {
-            console.error("Error decoding JWT:", err);
+            console.error('Error decoding JWT:', err);
           }
         }
 
@@ -50,300 +48,357 @@ const Overview = ({ setActiveComponent }) => {
         const transactionsRes = responses[1].status === 'fulfilled' ? responses[1].value.data : null;
         const confirmationsRes = responses[2].status === 'fulfilled' ? responses[2].value.data : null;
 
-        if (walletRes) {
-          setWalletBalance(walletRes.balance || 0);
-        }
+        if (walletRes) setWalletBalance(walletRes.balance || 0);
 
         const transactions = (transactionsRes?.transactions || []).map((t) => {
-          const senderIdStr =
-            typeof t.senderId === "object"
-              ? t.senderId._id?.toString()
-              : t.senderId?.toString();
-
-          const recipientIdStr =
-            typeof t.recipientId === "object"
-              ? t.recipientId._id?.toString()
-              : t.recipientId?.toString();
-
+          const senderIdStr = typeof t.senderId === 'object' ? t.senderId._id?.toString() : t.senderId?.toString();
           const isSender = senderIdStr === currentUserIdStr;
           const counterparty = isSender ? t.recipientId : t.senderId;
-
+          const isWithdrawal = t.type?.toLowerCase() === 'withdrawal';
+          const base = t.amount || t.ngnAmount || 0;
+          const fee = isWithdrawal ? Number(t.fee ?? t.fees ?? t.withdrawalFee ?? t.feeAmount ?? t.charge ?? 0) : 0;
           return {
             ...t,
-            type:
-              t.type?.toLowerCase() === "transfer"
-                ? isSender
-                  ? "Sent Transfer"
-                  : "Received Transfer"
-                : t.type,
-            counterparty:
-              counterparty?.payId ||
-              counterparty?.username ||
-              counterparty?._id ||
-              "Unknown",
-            amount: t.amount || t.ngnAmount || 0,
-            status: t.status || "N/A",
-            debug: { senderIdStr, recipientIdStr, currentUserIdStr, isSender },
+            type: t.type?.toLowerCase() === 'transfer' ? (isSender ? 'Sent Transfer' : 'Received Transfer') : t.type,
+            counterparty: counterparty?.payId || counterparty?.username || counterparty?._id || 'Unknown',
+            amount: base + fee,
+            status: t.status || 'N/A',
           };
         });
-
-        console.log("🟢 Transactions mapped:", transactions.slice(0, 5));
 
         const confirmations = (confirmationsRes?.confirmations || []).map((c) => ({
           ...c,
           type: 'Trade Confirmation',
           serviceName: c.serviceId?.name || 'N/A',
-          // prefer human-friendly transactionId when present, otherwise fall back
           transactionId: c.transactionId || c.id || c._id,
           id: c.transactionId || c.id || c._id,
         }));
 
-
         const fundingTransactions = (walletRes?.transactions || [])
-          .filter((f) => f.type === "Funding")
-          .map((f) => ({
-            ...f,
-            type: 'Funding',
-            amount: f.amount || 0,
-            status: f.status || 'Funded',
-          }));
+          .filter((f) => f.type === 'Funding')
+          .map((f) => ({ ...f, type: 'Funding', amount: f.amount || 0, status: f.status || 'Funded' }));
 
         const combinedActivities = [...transactions, ...confirmations, ...fundingTransactions]
-          .map((activity) => ({
-            ...activity,
-            time: new Date(activity.createdAt || activity.date).getTime(),
-          }))
+          .map((a) => ({ ...a, time: new Date(a.createdAt || a.date).getTime() }))
           .sort((a, b) => b.time - a.time);
 
-        setRecentActivities(combinedActivities.slice(0, 3));
-        setIsHovered(new Array(combinedActivities.length).fill(false)); // Initialize hover states
+        setRecentActivities(combinedActivities.slice(0, 5));
+        setIsHovered(new Array(combinedActivities.length).fill(false));
       } catch (error) {
         console.error('Error fetching wallet data:', error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, [apiUrl]);
 
+  const actionButtons = [
+    { label: 'Start Trade', icon: <FaArrowRight />, component: 'trade-calculator', color: '#F5A623' },
+    { label: 'Withdraw', icon: <FaMoneyCheckAlt />, component: 'wallet', color: '#34D399' },
+    { label: 'Fund Account', icon: <FaDollarSign />, component: 'wallet', color: '#60A5FA' },
+  ];
+
+  const getStatusColor = (status) => {
+    const s = status?.toLowerCase();
+    if (s === 'funded' || s === 'completed') return '#34D399';
+    if (s === 'pending') return '#FBBF24';
+    return '#F87171';
+  };
+
   return (
-    <div style={styles.overview}>
+    <div style={s.page}>
       {/* Wallet Balance Card */}
-      <div
-        style={{
-          ...styles.card,
-          ...styles.balanceCard,
-          ...(isCardHovered ? styles.balanceCardHover : {}),
-        }}
-        onMouseEnter={() => setIsCardHovered(true)}
-        onMouseLeave={() => setIsCardHovered(false)}
-      >
-        <h3 style={styles.walletBalanceHeading}>Wallet Balance</h3>
-        <p style={styles.balanceAmount}>
-          {isBalanceVisible ? `₦${walletBalance.toLocaleString()}` : '****'}
-        </p>
-        <span onClick={() => setBalanceVisible(!isBalanceVisible)} style={styles.eyeIcon}>
-          {isBalanceVisible ? <FaEyeSlash /> : <FaEye />}
-        </span>
+      <div style={s.balanceCard}>
+        <div style={s.balanceCardInner}>
+          <div>
+            <p style={s.balanceLabel}>💰 Total Balance</p>
+            <p style={{ ...s.balanceAmount, fontSize: isMobile ? '1.4rem' : '2.2rem' }}>
+              {isBalanceVisible ? `₦${walletBalance.toLocaleString()}` : '••••••••'}
+            </p>
+          </div>
+          <span onClick={() => setBalanceVisible(!isBalanceVisible)} style={s.eyeBtn} title="Toggle balance">
+            {isBalanceVisible ? <FaEyeSlash /> : <FaEye />}
+          </span>
+        </div>
+        <div style={s.balanceFooter}>
+          <FaWallet style={{ marginRight: 6, opacity: 0.6 }} />
+          <span style={{ opacity: 0.6, fontSize: '0.8rem' }}>Exdollarium Wallet</span>
+        </div>
       </div>
 
       {/* Action Buttons */}
-      <div style={styles.buttonContainer}>
-        {['trade-calculator', 'wallet', 'trade-calculator'].map((component, index) => (
+      <div style={{ ...s.actionRow, flexDirection: 'row', flexWrap: 'wrap' }}>
+        {actionButtons.map(({ label, icon, component, color }, i) => (
           <button
-            key={index}
-            style={styles.button}
+            key={i}
             onClick={() => setActiveComponent(component)}
-            onMouseEnter={(e) => (e.target.style = { ...styles.button, ...styles.buttonHover })}
-            onMouseLeave={(e) => (e.target.style = styles.button)}
+            onMouseEnter={() => setHoveredBtn(i)}
+            onMouseLeave={() => setHoveredBtn(null)}
+            style={{
+              ...s.actionBtn,
+              borderColor: color,
+              background: hoveredBtn === i ? color : 'rgba(15,23,42,0.85)',
+              color: hoveredBtn === i ? '#0A0F1E' : color,
+              flex: '1 1 0',
+              minWidth: isMobile ? '80px' : '100px',
+              padding: isMobile ? '0.6rem 0.5rem' : '0.7rem 1rem',
+              fontSize: isMobile ? '0.75rem' : '0.88rem',
+            }}
           >
-            {index === 0 && <FaArrowRight style={styles.icon} />}
-            {index === 1 && <FaMoneyCheckAlt style={styles.icon} />}
-            {index === 2 && <FaDollarSign style={styles.icon} />}
-            {index === 0 ? 'Start Trade' : index === 1 ? 'Withdraw' : 'Fund Account'}
+            <span style={{ fontSize: isMobile ? '0.9rem' : '1.1rem' }}>{icon}</span>
+            <span style={{ fontWeight: 700 }}>{label}</span>
           </button>
         ))}
       </div>
 
-      {/* Recent Activities Card */}
-      <div style={{ ...styles.card, ...styles.recentTransactionsCard }}>
-        <h3 style={styles.recentActivitiesHeading}>Recent Activities</h3>
+      {/* Quick Stats Row — always horizontal, shrinks on mobile */}
+      <div style={{ ...s.statsRow, flexDirection: 'row' }}>
+        {[
+          { label: 'Transactions', icon: <FaExchangeAlt />, component: 'transaction-history', accent: '#60A5FA' },
+          { label: 'Trade History', icon: <FaChartLine />, component: 'trade-history', accent: '#34D399' },
+          { label: 'Wallet', icon: <FaWallet />, component: 'wallet', accent: '#F5A623' },
+        ].map(({ label, icon, component, accent }, i) => (
+          <div
+            key={i}
+            onClick={() => setActiveComponent(component)}
+            style={{
+              ...s.statCard,
+              borderColor: `${accent}33`,
+              padding: isMobile ? '0.65rem 0.4rem' : '1rem',
+              gap: isMobile ? '4px' : '8px',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = accent; e.currentTarget.style.transform = 'translateY(-3px)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = `${accent}33`; e.currentTarget.style.transform = 'translateY(0)'; }}
+          >
+            <span style={{ color: accent, fontSize: isMobile ? '1.1rem' : '1.4rem' }}>{icon}</span>
+            <span style={{ color: '#94A3B8', fontSize: isMobile ? '0.68rem' : '0.85rem', fontWeight: 600, textAlign: 'center' }}>{label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Recent Activities */}
+      <div style={s.activityCard}>
+        <div style={s.activityHeader}>
+          <h3 style={{ ...s.activityTitle, fontSize: isMobile ? '0.82rem' : '1rem' }}>Recent Activities</h3>
+          <button
+            onClick={() => setActiveComponent('transaction-history')}
+            style={s.seeMoreBtn}
+          >
+            See All →
+          </button>
+        </div>
+
         {loading ? (
-          <p>Loading...</p>
+          <div style={s.loadingRow}>
+            <div style={s.spinner} />
+            <span style={{ color: '#64748B', fontSize: '0.9rem' }}>Loading activities…</span>
+          </div>
         ) : recentActivities.length > 0 ? (
           recentActivities.map((activity, index) => (
-            <div
-              key={activity.transactionId || `activity-${index}`}
-              style={{
-                ...styles.transactionCard,
-                ...(isHovered[index] ? styles.transactionCardHover : {}),
-                flexDirection: isMobile ? 'column' : 'row', // Dynamically adjust layout
-                alignItems: isMobile ? 'flex-start' : 'center',
-              }}
-              onMouseEnter={() =>
-                setIsHovered((prev) => prev.map((val, i) => (i === index ? true : val)))
-              }
-              onMouseLeave={() =>
-                setIsHovered((prev) => prev.map((val, i) => (i === index ? false : val)))
-              }
-            >
-              <div style={styles.transactionText}>
-                {activity.type}
-              </div>
-              <div style={styles.transactionText}>
-                {activity.type?.toLowerCase().includes("transfer")
-                  ? `${activity.counterparty} - ₦${activity.amount.toLocaleString()}`
-                  : ["withdrawal", "funding"].includes(activity.type?.toLowerCase())
-                    ? `₦${activity.amount ? activity.amount.toLocaleString() : "0"}`
-                    : activity.type?.toLowerCase() === "trade confirmation"
-                      ? activity.serviceName
-                      : "N/A"}
-              </div>
+            isMobile ? (
+              /* ── Mobile: compact 2-line card ── */
               <div
+                key={activity.transactionId || `activity-${index}`}
                 style={{
-                  ...styles.transactionText,
-                  color:
-                    activity.status?.toLowerCase() === "funded" ||
-                      activity.status?.toLowerCase() === "completed"
-                      ? "#28a745" // ✅ Green for success
-                      : activity.status?.toLowerCase() === "pending"
-                        ? "#ffc107" // 🟡 Yellow for pending
-                        : "#dc3545", // ❌ Red for failed/cancelled/others
+                  ...s.activityRow,
+                  ...(isHovered[index] ? s.activityRowHover : {}),
+                  flexDirection: 'column',
+                  gap: '4px',
+                  padding: '10px 12px',
                 }}
+                onMouseEnter={() => setIsHovered((prev) => prev.map((v, idx) => idx === index ? true : v))}
+                onMouseLeave={() => setIsHovered((prev) => prev.map((v, idx) => idx === index ? false : v))}
               >
-                {activity.status || "N/A"}
+                {/* Row 1: type badge + status pill */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{
+                    background: 'rgba(245,166,35,0.12)', border: '1px solid rgba(245,166,35,0.25)',
+                    color: '#F5A623', borderRadius: '50px', padding: '2px 8px', fontSize: '0.7rem', fontWeight: 700,
+                  }}>
+                    {activity.type}
+                  </span>
+                  <span style={{
+                    background: `${getStatusColor(activity.status)}18`,
+                    color: getStatusColor(activity.status),
+                    borderRadius: '50px', padding: '2px 8px', fontSize: '0.7rem', fontWeight: 700,
+                  }}>
+                    {activity.status || 'N/A'}
+                  </span>
+                </div>
+                {/* Row 2: detail + date */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#CBD5E1', fontSize: '0.78rem', fontWeight: 500 }}>
+                    {activity.type?.toLowerCase().includes('transfer')
+                      ? `${activity.counterparty} · ₦${activity.amount.toLocaleString()}`
+                      : ['withdrawal', 'funding'].includes(activity.type?.toLowerCase())
+                        ? `₦${activity.amount ? activity.amount.toLocaleString() : '0'}`
+                        : activity.type?.toLowerCase() === 'trade confirmation'
+                          ? activity.serviceName
+                          : 'N/A'}
+                  </span>
+                  <span style={{ color: '#475569', fontSize: '0.7rem' }}>
+                    {new Date(activity.createdAt || activity.date).toLocaleDateString('en-GB')}
+                  </span>
+                </div>
               </div>
-
-              <div style={styles.transactionText}>
-                {new Date(activity.createdAt || activity.date).toLocaleString('en-GB')}
+            ) : (
+              /* ── Desktop: 4-column row ── */
+              <div
+                key={activity.transactionId || `activity-${index}`}
+                style={{
+                  ...s.activityRow,
+                  ...(isHovered[index] ? s.activityRowHover : {}),
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+                onMouseEnter={() => setIsHovered((prev) => prev.map((v, idx) => idx === index ? true : v))}
+                onMouseLeave={() => setIsHovered((prev) => prev.map((v, idx) => idx === index ? false : v))}
+              >
+                <div style={{ ...s.activityCell, flex: 1.4 }}>
+                  <span style={{
+                    background: 'rgba(245,166,35,0.12)', border: '1px solid rgba(245,166,35,0.25)',
+                    color: '#F5A623', borderRadius: '50px', padding: '2px 10px', fontSize: '0.75rem', fontWeight: 700,
+                  }}>
+                    {activity.type}
+                  </span>
+                </div>
+                <div style={{ ...s.activityCell, flex: 2, color: '#CBD5E1' }}>
+                  {activity.type?.toLowerCase().includes('transfer')
+                    ? `${activity.counterparty} · ₦${activity.amount.toLocaleString()}`
+                    : ['withdrawal', 'funding'].includes(activity.type?.toLowerCase())
+                      ? `₦${activity.amount ? activity.amount.toLocaleString() : '0'}`
+                      : activity.type?.toLowerCase() === 'trade confirmation'
+                        ? activity.serviceName
+                        : 'N/A'}
+                </div>
+                <div style={{ ...s.activityCell, flex: 1 }}>
+                  <span style={{
+                    background: `${getStatusColor(activity.status)}18`,
+                    color: getStatusColor(activity.status),
+                    borderRadius: '50px', padding: '2px 10px', fontSize: '0.75rem', fontWeight: 700,
+                  }}>
+                    {activity.status || 'N/A'}
+                  </span>
+                </div>
+                <div style={{ ...s.activityCell, flex: 1.2, color: '#475569', fontSize: '0.78rem' }}>
+                  {new Date(activity.createdAt || activity.date).toLocaleString('en-GB')}
+                </div>
               </div>
-            </div>
+            )
           ))
         ) : (
-          <p>No recent activities</p>
+          <p style={{ color: '#475569', textAlign: 'center', padding: '2rem 0', fontSize: '0.9rem' }}>
+            No recent activities yet.
+          </p>
         )}
-
-        <button style={{ ...styles.button, ...styles.seeMoreButton }} onClick={() => setActiveComponent('transaction-history')}>
-          See More
-        </button>
       </div>
     </div>
   );
 };
 
-
-// Styles Object for Inline Styling
-const styles = {
-  overview: {
-    padding: '20px',
+// ─── Styles ──────────────────────────────────────────────────────────────────
+const s = {
+  page: {
+    padding: '4px 0',
     fontFamily: "'Poppins', sans-serif",
-    backgroundColor: '#f4f4f4',
-    overflow: 'hidden',
   },
-  card: {
-    background: 'rgba(255, 255, 255, 0.8)',
-    borderRadius: '12px',
-    boxShadow: '0 6px 15px rgba(0, 0, 0, 0.1)',
-    padding: '20px',
-    marginBottom: '20px',
-    transition: 'all 0.3s ease-in-out',
-  },
+  // Balance card
   balanceCard: {
-    textAlign: 'center',
-    border: '1px solid rgba(0, 0, 0, 0.1)',
-    transition: 'all 0.3s ease',
-    background: '#162660',
+    background: 'linear-gradient(135deg,rgba(245,166,35,0.18) 0%,rgba(15,23,42,0.95) 100%)',
+    border: '1px solid rgba(245,166,35,0.35)',
+    borderRadius: '18px',
+    padding: '1.8rem 2rem',
+    marginBottom: '20px',
+    backdropFilter: 'blur(12px)',
+    WebkitBackdropFilter: 'blur(12px)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
   },
-  balanceCardHover: {
-    transform: 'scale(1.01)',
-    boxShadow: '0 6px 15px rgba(0, 0, 0, 0.2)',
+  balanceCardInner: {
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+  },
+  balanceLabel: {
+    color: '#94A3B8', fontSize: '0.85rem', fontWeight: 600,
+    textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 0.4rem',
   },
   balanceAmount: {
-    fontSize: '26px',
-    fontWeight: '700',
-    color: '#f1e4d1',
+    fontSize: '2.2rem', fontWeight: 800, color: '#F5A623',
+    letterSpacing: '0.02em', margin: 0,
   },
-  eyeIcon: {
-    cursor: 'pointer',
-    fontSize: '20px',
-    marginTop: '12px',
-    color: '#d0e6fd',
-    transition: 'color 0.3s ease',
+  eyeBtn: {
+    cursor: 'pointer', fontSize: '1.4rem', color: '#94A3B8',
+    transition: 'color 0.2s', padding: '6px',
   },
-  buttonContainer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    gap: '12px',
+  balanceFooter: {
+    display: 'flex', alignItems: 'center', marginTop: '1rem',
+    color: '#64748B', fontSize: '0.82rem',
   },
-  button: {
-    padding: '12px 24px',
-    background: '#d0e6fd',  //#162660
-    color: '#162660',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontWeight: '600',
-    transition: 'all 0.3s ease',
-    with: '100%',
+  // Action buttons
+  actionRow: {
+    display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap',
   },
-  buttonHover: {
-    background: '#162660',
-    transform: 'scale(1.05)',
+  actionBtn: {
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+    padding: '0.7rem 1rem', borderRadius: '12px', border: '1px solid',
+    cursor: 'pointer', fontWeight: 700, fontSize: '0.88rem',
+    transition: 'all 0.2s ease', minWidth: '100px',
   },
-  icon: {
-    marginRight: '10px',
+  // Stats row
+  statsRow: {
+    display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap',
   },
-  recentTransactionsCard: {
-    display: 'flex',
-    flexDirection: 'column',
+  statCard: {
+    flex: 1, minWidth: '100px',
+    background: 'rgba(15,23,42,0.7)', border: '1px solid',
+    borderRadius: '12px', padding: '1rem',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
+    cursor: 'pointer', transition: 'all 0.2s ease',
+    backdropFilter: 'blur(8px)',
   },
-  transactionCard: {
-    display: 'flex',
-    flexWrap: 'wrap',  // Allow wrapping for smaller screens
-    justifyContent: 'space-between',
-    padding: '12px',
-    marginBottom: '12px',
-    background: '#162660',
-    borderRadius: '10px',
-    boxShadow: '0 3px 8px rgba(0, 0, 0, 0.1)',
-    transition: 'all 0.3s ease',
-    cursor: 'pointer',
-    flexDirection: window.innerWidth <= 768 ? 'column' : 'row', // Stack items on mobile
-    alignItems: window.innerWidth <= 768 ? 'flex-start' : 'center',
+  // Activity card
+  activityCard: {
+    background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(245,166,35,0.12)',
+    borderRadius: '18px', padding: '1.5rem',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
   },
-  transactionCardHover: {
-    transform: 'scale(1.02)',
-    boxShadow: '0 5px 12px #f1e4d1',
+  activityHeader: {
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    marginBottom: '1.2rem', paddingBottom: '0.8rem',
+    borderBottom: '1px solid rgba(245,166,35,0.1)',
   },
-  transactionText: {
-    flex: 1,
-    // textAlign: 'center',
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#d0e6fd',
+  activityTitle: {
+    color: '#F1F5F9', fontSize: '1rem', fontWeight: 800,
+    textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0,
   },
-  seeMoreButton: {
-    alignSelf: 'center',
-    marginTop: '15px',
+  seeMoreBtn: {
+    background: 'transparent', border: '1px solid rgba(245,166,35,0.35)',
+    color: '#F5A623', borderRadius: '50px', padding: '4px 14px',
+    fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer',
   },
-  recentActivitiesHeading: {
-    fontSize: '20px',
-    fontWeight: 'bold',
-    color: '#162660', // Vibrant blue
-    borderBottom: '2px solid #007bff', // Underline effect
-    paddingBottom: '5px',
-    marginBottom: '15px',
-    textTransform: 'uppercase', // Optional: Makes text uppercase
+  activityRow: {
+    display: 'flex', padding: '10px 12px', marginBottom: '8px',
+    background: 'rgba(30,41,59,0.6)', borderRadius: '10px',
+    transition: 'all 0.2s ease', cursor: 'pointer',
+    border: '1px solid transparent',
   },
-  walletBalanceHeading: {
-    fontSize: '20px',
-    fontWeight: 'bold',
-    color: '#d0e6fd', // Vibrant blue
-    paddingBottom: '5px',
-    marginBottom: '15px',
-    textTransform: 'uppercase', // Optional: Makes text uppercase
+  activityRowHover: {
+    background: 'rgba(30,41,59,0.95)', border: '1px solid rgba(245,166,35,0.2)',
+    transform: 'translateX(3px)',
+  },
+  activityCell: {
+    flex: 1, fontSize: '0.83rem', fontWeight: 500, color: '#94A3B8',
+    display: 'flex', alignItems: 'center',
+  },
+  loadingRow: {
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    gap: '12px', padding: '2rem 0',
+  },
+  spinner: {
+    width: '22px', height: '22px', borderRadius: '50%',
+    border: '3px solid rgba(245,166,35,0.15)',
+    borderTop: '3px solid #F5A623',
+    animation: 'spin 0.9s linear infinite',
   },
 };
 

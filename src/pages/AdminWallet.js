@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { getAdminToken } from '../utils/adminAuth';
 import axios from 'axios';
 import Alert from '../components/Alert';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import eye icons
@@ -41,7 +42,7 @@ const AdminWallet = () => {
   
   const fetchWalletData = useCallback(async () => {
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       if (!token) {
         setAlert({ type: "error", message: "Admin not authenticated" });
         return;
@@ -231,12 +232,12 @@ const AdminWallet = () => {
     }
   
     try {
-      const token = localStorage.getItem("adminToken"); // Get token from storage
+      const token = getAdminToken(); // Get token from storage
       const { data } = await axios.post(
         `${apiUrl}/api/wallet/fund`,
         { amount: parseFloat(fundAmount), note: fundNote },  
         {
-          headers: { Authorization: `Bearer ${token}` }, // ✅ Include Authorization header
+          headers: { Authorization: `Bearer ${token}` }, // �?Include Authorization header
           withCredentials: true,
         }
       );
@@ -257,10 +258,10 @@ const AdminWallet = () => {
     }
   
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       const { data } = await axios.post(
         `${apiUrl}/api/admin/wallet/withdraw`,
-        { amount: parseFloat(withdrawAmount), note: withdrawNote || "No note provided" }, // ✅ Default note
+        { amount: parseFloat(withdrawAmount), note: withdrawNote || "No note provided" }, // �?Default note
         {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
@@ -272,7 +273,7 @@ const AdminWallet = () => {
       setWithdrawNote('');
       fetchWalletData();
     } catch (error) {
-      console.error("❌ Withdraw Error:", error.response?.data);
+      console.error("�?Withdraw Error:", error.response?.data);
       setAlert({ type: 'error', message: error.response?.data?.message || 'Error withdrawing funds' });
     }
   };
@@ -329,7 +330,7 @@ const AdminWallet = () => {
           {['USD', 'GBP', 'EUR'].map((c) => (
             <div key={c} style={{ minWidth: 140, padding: 8, borderRadius: 6, border: '1px solid #eee', background: '#fff', color: '#111' }}>
               <div style={{ fontSize: 12, color: '#666' }}>Total Funded ({c})</div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#111' }}>{c === 'USD' && '$'}{c === 'GBP' && '£'}{c === 'EUR' && '€'}{Number(totalFundedByCurrency[c] || 0).toLocaleString()}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#111' }}>{c === 'USD' && '$'}{c === 'GBP' && '\u00A3'}{c === 'EUR' && '\u20AC'}{Number(totalFundedByCurrency[c] || 0).toLocaleString()}</div>
             </div>
           ))}
 
@@ -376,7 +377,7 @@ const AdminWallet = () => {
         <div className="input-group">
           <input
             type="number"
-            placeholder="Enter amount (₦)"
+            placeholder="Enter amount (�?"
             value={fundAmount}
             onChange={(e) => setFundAmount(e.target.value)}
             className="input-field"
@@ -399,7 +400,7 @@ const AdminWallet = () => {
         <div className="input-group">
           <input
             type="number"
-            placeholder="Enter withdrawal amount (₦)"
+            placeholder="Enter withdrawal amount (�?"
             value={withdrawAmount}
             onChange={(e) => setWithdrawAmount(e.target.value)}
             className="input-field"
@@ -447,7 +448,7 @@ const AdminWallet = () => {
               <p><strong>ID:</strong> {tx._id}</p>
               <p><strong>Type:</strong> {tx.type}</p>
               <p style={{ color: tx.type === 'Funding' ? 'green' : 'orangered' }}>
-                <strong>Amount:</strong> {tx.type === 'Funding' ? `+₦${tx.amount.toLocaleString()}` : `-₦${tx.amount.toLocaleString()}`}
+                <strong>Amount:</strong> {tx.type === 'Funding' ? `+�?{tx.amount.toLocaleString()}` : `-�?{tx.amount.toLocaleString()}`}
               </p>
               <p><strong>Note:</strong> {tx.note || 'N/A'}</p>
               <p><strong>Date:</strong> {new Date(tx.date).toLocaleDateString()} {new Date(tx.date).toLocaleTimeString()}</p>
@@ -471,7 +472,7 @@ const AdminWallet = () => {
                 <td>{tx._id}</td>
                 <td>{tx.type}</td>
                 <td style={{ color: tx.type === 'Funding' ? 'green' : 'orangered' }}>
-                  {tx.type === 'Funding' ? `+₦${tx.amount.toLocaleString()}` : `-₦${tx.amount.toLocaleString()}`}
+                  {tx.type === 'Funding' ? `+�?{tx.amount.toLocaleString()}` : `-�?{tx.amount.toLocaleString()}`}
                 </td>
                 <td>{tx.note || 'N/A'}</td>
                 <td>{new Date(tx.date).toLocaleDateString()} {new Date(tx.date).toLocaleTimeString()}</td>
@@ -493,3 +494,4 @@ const AdminWallet = () => {
 };
 
 export default AdminWallet;
+

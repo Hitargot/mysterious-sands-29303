@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getAdminToken } from '../utils/adminAuth';
 
 // Prefer explicit REACT_APP_API_URL; fallback to localhost:22222 which is
 // the backend port used during local development in this workspace.
@@ -13,19 +14,21 @@ if (!envUrl) {
 
 const api = axios.create({
   baseURL: apiUrl,
-  // you can set other defaults here
+  // Send cookies (httpOnly adminToken) on every cross-origin request.
+  // This is what makes httpOnly cookie auth work from the browser.
+  withCredentials: true,
 });
 
-// Attach Authorization header from localStorage for admin requests
+// Attach Authorization header using the central adminAuth utility
 api.interceptors.request.use((config) => {
   try {
-    const token = localStorage.getItem('adminToken');
+    const token = getAdminToken();
     if (token) {
       config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
     }
   } catch (e) {
-    // ignore (localStorage not available in some environments)
+    // ignore (storage not available in some environments)
   }
   // Log the full request URL for easier debugging
   try {

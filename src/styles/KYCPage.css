@@ -1,0 +1,398 @@
+/* ── KYCPage.css ─────────────────────────────────────────────────────────── */
+
+.kyc-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+  font-family: 'Inter', sans-serif;
+  color: #1e293b;
+}
+
+/* ── Loading ── */
+.kyc-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 0;
+  color: #64748b;
+}
+
+/* ── Header ── */
+.kyc-header {
+  margin-bottom: 24px;
+}
+.kyc-header h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #162660;
+  margin: 0 0 6px;
+}
+.kyc-header p {
+  color: #475569;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* ── Status cards ── */
+.kyc-status-card {
+  border-radius: 16px;
+  padding: 32px 28px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.kyc-status-card h2 {
+  margin: 12px 0 8px;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+.kyc-status-card p {
+  color: #475569;
+  font-size: 0.95rem;
+  margin: 0 0 8px;
+}
+.kyc-status-approved { background: #f0fdf4; border-color: #bbf7d0; }
+.kyc-status-approved h2 { color: #16a34a; }
+.kyc-status-pending  { background: #fffbeb; border-color: #fde68a; }
+.kyc-status-pending h2  { color: #d97706; }
+
+.kyc-status-icon {
+  font-size: 3rem;
+  margin-bottom: 4px;
+}
+.kyc-meta {
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+.kyc-badge {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.kyc-badge-approved { background: #dcfce7; color: #166534; }
+.kyc-badge-pending  { background: #fef9c3; color: #92400e; }
+
+/* ── Rejected banner ── */
+.kyc-rejected-banner {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #7f1d1d;
+}
+.kyc-rejected-banner span:first-child {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.kyc-rejected-banner p {
+  margin: 4px 0 0;
+  color: #b91c1c;
+}
+
+/* ── Progress bar ── */
+.kyc-progress-bar-wrap {
+  margin-bottom: 28px;
+}
+.kyc-progress-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.kyc-progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+.kyc-step-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 2px solid #e2e8f0;
+  transition: all 0.25s;
+}
+.kyc-progress-step.active .kyc-step-dot {
+  background: #162660;
+  color: #fff;
+  border-color: #162660;
+}
+.kyc-progress-step.done .kyc-step-dot {
+  background: #16a34a;
+  color: #fff;
+  border-color: #16a34a;
+}
+.kyc-step-label {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  text-align: center;
+}
+.kyc-progress-step.active .kyc-step-label { color: #162660; font-weight: 700; }
+.kyc-progress-step.done  .kyc-step-label  { color: #16a34a; }
+
+.kyc-progress-track {
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.kyc-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #162660, #2563eb);
+  border-radius: 2px;
+  transition: width 0.35s ease;
+}
+
+/* ── Step panels ── */
+.kyc-step-panel {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.kyc-step-panel h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #162660;
+  margin: 0 0 6px;
+}
+.kyc-step-desc {
+  font-size: 0.88rem;
+  color: #64748b;
+  margin: 0 0 18px;
+  line-height: 1.5;
+}
+
+/* ── ID type grid ── */
+.kyc-id-type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.kyc-id-type-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 2px solid #e2e8f0;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.kyc-id-type-btn strong {
+  font-size: 0.95rem;
+  color: #1e293b;
+}
+.kyc-id-type-btn span {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+.kyc-id-type-btn:hover {
+  border-color: #162660;
+  background: #eff6ff;
+}
+.kyc-id-type-btn.selected {
+  border-color: #162660;
+  background: #eff6ff;
+}
+.kyc-id-type-btn.selected strong { color: #162660; }
+
+/* ── Text input ── */
+.kyc-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  background: #fff;
+  color: #1e293b;
+}
+.kyc-input:focus { border-color: #162660; }
+.kyc-field-error {
+  font-size: 0.8rem;
+  color: #dc2626;
+  margin: 6px 0 0;
+}
+
+/* ── Upload zone ── */
+.kyc-upload-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: #fff;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+.kyc-upload-zone:hover, .kyc-upload-zone.has-file {
+  border-color: #162660;
+  background: #f0f7ff;
+}
+.kyc-upload-icon { font-size: 2rem; margin-bottom: 8px; }
+.kyc-upload-hint { font-size: 0.78rem; color: #94a3b8; margin-top: 4px; }
+.kyc-upload-replace { font-size: 0.8rem; color: #162660; margin-top: 8px; }
+
+.kyc-preview-img {
+  max-width: 200px;
+  max-height: 160px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin: 0 auto 8px;
+  display: block;
+  border: 2px solid #e2e8f0;
+}
+.kyc-preview-img.selfie {
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+}
+.kyc-pdf-placeholder {
+  font-size: 0.9rem;
+  color: #162660;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+/* ── Review table ── */
+.kyc-review-table {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: #fff;
+}
+.kyc-review-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.kyc-review-row:last-child { border-bottom: none; }
+.kyc-review-label {
+  width: 120px;
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.kyc-review-value {
+  font-size: 0.92rem;
+  color: #1e293b;
+  word-break: break-all;
+}
+.kyc-thumb {
+  width: 56px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+.kyc-thumb.selfie-thumb {
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+}
+
+.kyc-review-notice {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  color: #0369a1;
+  margin-bottom: 20px;
+}
+
+/* ── Buttons ── */
+.kyc-nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+.kyc-btn-back {
+  flex: 1;
+  padding: 12px 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #475569;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.kyc-btn-back:hover { border-color: #162660; color: #162660; }
+
+.kyc-btn-next {
+  flex: 2;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #162660;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.kyc-btn-next:hover:not(:disabled) { background: #1d3375; }
+.kyc-btn-next:disabled { background: #94a3b8; cursor: not-allowed; }
+
+.kyc-btn-submit {
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #16a34a;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+.kyc-btn-submit:hover:not(:disabled) { background: #15803d; }
+.kyc-btn-submit:disabled { background: #94a3b8; cursor: not-allowed; }
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .kyc-id-type-grid { grid-template-columns: 1fr; }
+  .kyc-step-panel { padding: 18px 14px; }
+  .kyc-review-label { width: 90px; }
+  .kyc-progress-step .kyc-step-label { display: none; }
+}

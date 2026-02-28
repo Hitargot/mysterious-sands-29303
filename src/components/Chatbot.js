@@ -147,7 +147,7 @@ const Chatbot = () => {
     if (choice === 'yes') {
       await requestAgentWeb(originalQuery || input);
     } else {
-      setMessages((prev) => [{ sender: 'bot', text: 'No problem — you can try our FAQs for self-help.' }, ...prev]);
+      setMessages((prev) => [{ sender: 'bot', text: 'No problem N/A you can try our FAQs for self-help.' }, ...prev]);
     }
   };
 
@@ -244,7 +244,7 @@ const Chatbot = () => {
         });
 
         s.on('chat:created', (payload) => {
-          // when user creates chat we may receive confirmation — refresh history
+          // when user creates chat we may receive confirmation N/A refresh history
           try {
             if (payload && payload.chat && payload.chat._id && window && window.localStorage) {
               try { localStorage.setItem('lastChatId', payload.chat._id); } catch (e) {}
@@ -323,7 +323,7 @@ const Chatbot = () => {
           {/* Quick Questions */}
           <div className="quick-questions">
             {[
-              { text: "💹 Exchange Rate", query: "What’s the exchange rate?" },
+              { text: "💹 Exchange Rate", query: "What's the exchange rate?" },
               { text: "💰 Fund Wallet", query: "How do I fund my wallet?" },
               { text: "🏦 Withdraw Funds", query: "How do I withdraw?" },
             ].map((btn, idx) => (

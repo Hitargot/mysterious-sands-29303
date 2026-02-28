@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/adminPreSubmissions.css';
+import { getAdminToken } from '../utils/adminAuth';
 
 const AdminPreSubmissions = () => {
   const [items, setItems] = useState([]);
@@ -9,7 +10,7 @@ const AdminPreSubmissions = () => {
   const [search, setSearch] = useState('');
 
   const apiUrl = process.env.REACT_APP_API_URL;
-  const token = localStorage.getItem('adminToken');
+  const token = getAdminToken();
 
   useEffect(() => {
     const fetchList = async () => {
@@ -47,7 +48,7 @@ const AdminPreSubmissions = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      <h2>Admin — Pre-submissions</h2>
+      <h2>Admin N/A Pre-submissions</h2>
       <p>Lists all pre-submissions. Use the search box to filter.</p>
 
       <div style={{ margin: '12px 0' }}>
@@ -60,15 +61,15 @@ const AdminPreSubmissions = () => {
         />
       </div>
 
-      {loading && <div>Loading…</div>}
+      {loading && <div>Loading...</div>}
       {error && <div style={{ color: 'crimson' }}>{error}</div>}
 
       {!loading && !error && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
           {filtered.map((p) => (
             <div key={p._id} style={{ border: '1px solid #eee', padding: 12, borderRadius: 6, background: '#fff' }}>
-              <div style={{ fontWeight: 700 }}>{p.username || '—'}</div>
-              <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>{p.serviceTag || p.serviceId?.name || '—'}</div>
+              <div style={{ fontWeight: 700 }}>{p.username || 'N/A'}</div>
+              <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>{p.serviceTag || p.serviceId?.name || 'N/A'}</div>
               <div style={{ marginBottom: 6 }}>
                 <strong>Status:</strong> {p.status || 'Pending'}
               </div>
@@ -144,7 +145,7 @@ const AdminPreSubmissions = () => {
                 )}
               </div>
               <div style={{ marginBottom: 6 }}>
-                <strong>User:</strong> {p.userId?.username || p.userId || '—'}
+                <strong>User:</strong> {p.userId?.username || p.userId || 'N/A'}
               </div>
               <div style={{ fontSize: 12, color: '#444' }}>
                 <small>Created: {new Date(p.createdAt || Date.now()).toLocaleString()}</small>

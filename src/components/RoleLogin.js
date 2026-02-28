@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode'; // Corrected import
+import { getAdminToken } from '../utils/adminAuth';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ const Login = () => {
       setMessage(response.data.message);
 
       // Store the token in local storage
-      const token = localStorage.getItem('adminToken');
+      const token = getAdminToken();
 
 
       // Decode the JWT to get user info (optional, if needed)

@@ -4,6 +4,23 @@ import axios from 'axios';
 import ResponsiveLogo from './ResponsiveLogo';
 import Alert from '../components/Alert';
 
+const s = {
+  page: { minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'linear-gradient(135deg,#0A0F1E 0%,#0F172A 60%,#111827 100%)', padding:'1.5rem', position:'relative', overflow:'hidden' },
+  glowA: { position:'absolute', top:'-100px', left:'-100px', width:'400px', height:'400px', borderRadius:'50%', background:'radial-gradient(circle,rgba(245,166,35,0.1) 0%,transparent 70%)', pointerEvents:'none' },
+  glowB: { position:'absolute', bottom:'-80px', right:'-80px', width:'300px', height:'300px', borderRadius:'50%', background:'radial-gradient(circle,rgba(245,166,35,0.07) 0%,transparent 70%)', pointerEvents:'none' },
+  card: { position:'relative', width:'100%', maxWidth:'420px', background:'rgba(15,23,42,0.85)', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', border:'1px solid rgba(245,166,35,0.15)', borderRadius:'20px', padding:'2.5rem 2rem', boxShadow:'0 24px 64px rgba(0,0,0,0.5)', textAlign:'center' },
+  logoRow: { display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'2rem' },
+  logoInner: { display:'flex', alignItems:'center', gap:'0.6rem' },
+  logoText: { color:'#F5A623', fontWeight:700, fontSize:'1rem', letterSpacing:'0.06em' },
+  navRow: { display:'flex', gap:'1.2rem' },
+  navLink: { color:'#94A3B8', textDecoration:'none', fontSize:'0.85rem', fontWeight:500 },
+  badge: { display:'inline-block', background:'rgba(245,166,35,0.12)', border:'1px solid rgba(245,166,35,0.3)', color:'#F5A623', borderRadius:'50px', padding:'0.3rem 0.9rem', fontSize:'0.72rem', fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:'0.8rem' },
+  heading: { color:'#E2E8F0', fontSize:'1.6rem', fontWeight:800, margin:'0 0 1.4rem' },
+  verifyText: { color:'#94A3B8', fontSize:'0.9rem', marginBottom:'1.2rem' },
+  btn: { display:'inline-block', padding:'0.75rem 2rem', background:'linear-gradient(135deg,#F5A623,#FBBF24)', color:'#0A0F1E', border:'none', borderRadius:'50px', fontWeight:800, fontSize:'0.95rem', cursor:'pointer', letterSpacing:'0.04em', textDecoration:'none', marginTop:'0.8rem' },
+  btnDisabled: { display:'inline-block', padding:'0.75rem 2rem', background:'rgba(245,166,35,0.3)', color:'rgba(0,0,0,0.4)', border:'none', borderRadius:'50px', fontWeight:800, fontSize:'0.95rem', cursor:'not-allowed', letterSpacing:'0.04em', marginTop:'0.8rem' },
+};
+
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
@@ -11,86 +28,75 @@ const VerifyEmail = () => {
   const [loading, setLoading] = useState(true);
   const [isResendDisabled, setIsResendDisabled] = useState(false);
   const navigate = useNavigate();
-  
   const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     if (!token) {
       setAlert({ message: 'Invalid verification link.', type: 'error' });
-      setLoading(false); // Stop loading if token is invalid
+      setLoading(false);
       return;
     }
-
     const verifyEmail = async () => {
       try {
         await axios.get(`${apiUrl}/api/auth/verify-email?token=${token}`);
-        setAlert({ message: 'Email verified successfully! Redirecting to login...', type: 'success' });
-
+        setAlert({ message: 'Email verified successfully! Redirecting to login…', type: 'success' });
         setTimeout(() => navigate('/login'), 3000);
       } catch (error) {
         setAlert({ message: error.response?.data?.message || 'Email verification failed.', type: 'error' });
       }
       setLoading(false);
     };
-
     verifyEmail();
   }, [token, navigate, apiUrl]);
 
   const handleResendVerification = async () => {
-    console.log("Resend button clicked");
     setIsResendDisabled(true);
-
     try {
       const email = searchParams.get('email');
-      console.log("Email from URL:", email);
-
       if (!email) {
         setAlert({ message: 'Email not provided. Please sign up again.', type: 'error' });
         setIsResendDisabled(false);
         return;
       }
-
       await axios.post(`${apiUrl}/api/auth/resend-verification`, { email });
-
       setAlert({ message: 'Verification email resent. Check your inbox.', type: 'success' });
-
-      setTimeout(() => {
-        setIsResendDisabled(false);
-        console.log("Button re-enabled");
-      }, 30000);  // 30 seconds
+      setTimeout(() => setIsResendDisabled(false), 30000);
     } catch (error) {
-      console.error("Error in resending email", error);
       setAlert({ message: error.response?.data?.message || 'Failed to resend email.', type: 'error' });
       setIsResendDisabled(false);
     }
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#d0e6fd' }}>
-      <div style={{ maxWidth: '400px', padding: '25px', backgroundColor: '#162660', borderRadius: '10px', boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)', textAlign: 'center' }}>
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', color: '#f1e4d1', fontWeight: 'bold' }}>
-            <ResponsiveLogo alt="Exdollarium" style={{ marginRight: '10px' }} />
-            <span>Exdollarium</span>
+    <div style={s.page}>
+      <div style={s.glowA} /><div style={s.glowB} />
+      <div style={s.card}>
+        <div style={s.logoRow}>
+          <div style={s.logoInner}>
+            <ResponsiveLogo alt="Exdollarium" style={{ height: 32 }} />
+            <span style={s.logoText}>EXDOLLARIUM</span>
           </div>
-          <nav>
-            <Link to="/" style={{ marginLeft: '15px', textDecoration: 'none', color: '#d0e6fd', transition: 'color 0.3s ease-in-out' }}>Home</Link>
-            <Link to="/signup" style={{ marginLeft: '15px', textDecoration: 'none', color: '#d0e6fd', transition: 'color 0.3s ease-in-out' }}>Signup</Link>
+          <nav style={s.navRow}>
+            <Link to="/" style={s.navLink}>Home</Link>
+            <Link to="/signup" style={s.navLink}>Signup</Link>
           </nav>
-        </header>
+        </div>
 
-        <h2 style={{ color: '#f1e4d1', marginBottom: '15px' }}>Email Verification</h2>
+        <div style={s.badge}>✉️ Email Verification</div>
+        <h2 style={s.heading}>Verify Your Email</h2>
 
         {alert.message && <Alert message={alert.message} type={alert.type} />}
 
         {loading ? (
-          <p style={{ color: '#d0e6fd', fontWeight: 'bold' }}>Verifying email...</p>
+          <p style={s.verifyText}>Verifying your email…</p>
         ) : alert.type === 'success' ? (
-          <Link to="/login" style={{ backgroundColor: '#d0e6fd', color: '#162660', padding: '10px', borderRadius: '5px', fontWeight: 'bold', textDecoration: 'none', display: 'inline-block', marginTop: '10px' }}>
-            Go to Login
-          </Link>
+          <Link to="/login" style={s.btn}>Go to Login →</Link>
         ) : (
-          <button onClick={handleResendVerification} disabled={isResendDisabled} style={{ backgroundColor: isResendDisabled ? '#b5b5b5' : '#d0e6fd', color: '#162660', padding: '10px', borderRadius: '5px', fontWeight: 'bold', cursor: isResendDisabled ? 'not-allowed' : 'pointer' }}>
+          <button
+            onClick={handleResendVerification}
+            disabled={isResendDisabled}
+            style={isResendDisabled ? s.btnDisabled : s.btn}
+          >
             {isResendDisabled ? 'Resend in 30s' : 'Resend Verification Email'}
           </button>
         )}

@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../lib/api';
-import { 
-  FaHome, 
-  FaUsers, 
+import {
+  FaHome,
+  FaUsers,
   FaComments,
-  FaExchangeAlt, 
-  FaMoneyBillWave, 
-  FaWallet, 
-  FaCogs, 
-  FaUserShield, 
-  FaClipboardList, 
-  FaBell, 
+  FaExchangeAlt,
+  FaMoneyBillWave,
+  FaWallet,
+  FaCogs,
+  FaUserShield,
+  FaClipboardList,
+  FaBell,
   FaAddressBook,
   FaTicketAlt
   ,
-  FaBullhorn
+  FaBullhorn,
+  FaIdCard
 } from 'react-icons/fa'; // Icons for Admin Sidebar
 import ResponsiveLogo from './ResponsiveLogo';
 import '../styles/Sidebar.css'; // Ensure styles are correctly imported
@@ -25,6 +26,7 @@ const AdminSidebar = () => {
   const [hasNewConfirmations, setHasNewConfirmations] = useState(false);
   const [hasNewWithdrawals, setHasNewWithdrawals] = useState(false);
   const [hasNewTickets, setHasNewTickets] = useState(false);
+  const [hasPendingKYC, setHasPendingKYC] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -43,6 +45,11 @@ const AdminSidebar = () => {
         setHasNewConfirmations(confPending > 0);
         setHasNewWithdrawals(withPending > 0);
         setHasNewTickets(ticketsCount > 0);
+        // Check for pending KYC submissions
+        try {
+          const kycRes = await api.get('/api/admin/kyc', { params: { status: 'pending', limit: 1 } });
+          setHasPendingKYC((kycRes.data.total || 0) > 0);
+        } catch (_) {}
       } catch (err) {
         // silent fail: admin stats may not exist on older backends
       }
@@ -139,8 +146,14 @@ const AdminSidebar = () => {
           {isExpanded && <span>Admin Faq</span>}
         </Link>
         <Link to="/admin/Admin-reviews">
-          <FaAddressBook className="sidebar-icon" />  {/* Updated to FaAddressBook */}
+          <FaAddressBook className="sidebar-icon" />  {/* Updated to FaAddressBook */}      
           {isExpanded && <span>Admin Reviews</span>}
+        </Link>
+        <Link to="/admin/kyc">
+          <FaIdCard className="sidebar-icon" />
+          {isExpanded && <span>KYC Verification</span>}
+          {!isExpanded && hasPendingKYC && <span className="sidebar-dot" />}
+          {isExpanded && hasPendingKYC && <span style={{ marginLeft: 8 }} className="sidebar-dot" />}
         </Link>
       </nav>
     </div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import { getAdminToken, removeAdminToken } from '../utils/adminAuth';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { io as ioClient } from 'socket.io-client';
@@ -79,7 +80,7 @@ const AdminTickets = () => {
       // extract filename
       const parts = url.split('/');
       const name = parts[parts.length - 1];
-      const tokenLocal = localStorage.getItem('adminToken');
+      const tokenLocal = getAdminToken();
       const reqUrl = `${apiUrl.replace(/\/$/, '')}/api/uploads/${encodeURIComponent(name)}/signed`;
       const res = await fetch(reqUrl, { headers: tokenLocal ? { Authorization: `Bearer ${tokenLocal}` } : {} }).catch(() => null);
       if (res && res.ok) {
@@ -118,7 +119,7 @@ const AdminTickets = () => {
   }, [selectedTicket, ensureSignedUrl, signedUrls]);
 
   const navigate = useNavigate();
-  const token = localStorage.getItem('adminToken');
+  const token = getAdminToken();
   const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
   const fetchTickets = useCallback(async () => {
@@ -146,7 +147,7 @@ const AdminTickets = () => {
     } catch (err) {
       console.error('Failed to fetch tickets', err);
       if (err.response && err.response.status === 401) {
-        localStorage.removeItem('adminToken');
+        removeAdminToken();
         navigate('/admin/login');
       }
     } finally {
@@ -184,7 +185,7 @@ const AdminTickets = () => {
     } catch (err) {
       console.error('Failed to open ticket', err);
       if (err.response && err.response.status === 401) {
-        localStorage.removeItem('adminToken');
+        removeAdminToken();
         navigate('/admin/login');
       }
     }
@@ -240,7 +241,7 @@ const AdminTickets = () => {
         });
         // Use fetch for multipart upload (let browser set Content-Type boundary)
         const url = `${apiUrl.replace(/\/$/, '')}/api/tickets/${encodeURIComponent(selectedTicket._id)}/reply`;
-        const tokenLocal = localStorage.getItem('adminToken');
+        const tokenLocal = getAdminToken();
         const fetchHeaders = {};
         if (tokenLocal) fetchHeaders.Authorization = `Bearer ${tokenLocal}`;
         const resp = await fetch(url, { method: 'POST', headers: fetchHeaders, body: form });
@@ -264,7 +265,7 @@ const AdminTickets = () => {
     } catch (err) {
       console.error('Reply failed', err);
       if (err.response && err.response.status === 401) {
-        localStorage.removeItem('adminToken');
+        removeAdminToken();
         navigate('/admin/login');
         return;
       }
@@ -343,7 +344,7 @@ const AdminTickets = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h3 style={{ margin: 0 }}>Ticket #{selectedTicket.ticketId || selectedTicket._id}</h3>
-                  <div style={{ color: '#666' }}>{(selectedTicket.user && (selectedTicket.user.email || selectedTicket.user.username)) ? `${String(selectedTicket.user.email || selectedTicket.user.username)} • ${formatDate(selectedTicket.createdAt)}` : formatDate(selectedTicket.createdAt)}</div>
+                  <div style={{ color: '#666' }}>{(selectedTicket.user && (selectedTicket.user.email || selectedTicket.user.username)) ? `${String(selectedTicket.user.email || selectedTicket.user.username)} �?${formatDate(selectedTicket.createdAt)}` : formatDate(selectedTicket.createdAt)}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   {selectedTicket && String(selectedTicket.status).toLowerCase() === 'resolved' ? (
@@ -403,7 +404,7 @@ const AdminTickets = () => {
                 </div>
                 {(selectedTicket.replies || []).map((r, i) => (
                   <div key={i} style={{ marginTop: 12 }}>
-                    <div style={{ fontSize: 12, color: '#666' }}>{r.senderRole} • {formatDate(r.createdAt)}</div>
+                    <div style={{ fontSize: 12, color: '#666' }}>{r.senderRole} �?{formatDate(r.createdAt)}</div>
                     <div style={{ padding: 12, background: r.senderRole === 'admin' ? '#eef3ff' : '#fff', marginTop: 6, borderRadius: 6 }}>{r.message}
                       {r.attachments && r.attachments.length > 0 ? (
                         <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
@@ -509,3 +510,5 @@ const AdminTickets = () => {
 };
 
 export default AdminTickets;
+
+

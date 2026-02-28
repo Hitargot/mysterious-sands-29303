@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from "axios";
 import Alert from "../components/Alert"; // Your alert component
-import {jwtDecode } from 'jwt-decode';
 import '../styles/TradeTransactions.css';
 import FundConfirmationModal from "../components/FundConfirmationModal.js"; // Import the modal component
+import { getAdminToken, getAdminPayload } from '../utils/adminAuth';
 
 
 const TradeTransactions = () => {
@@ -11,7 +11,22 @@ const TradeTransactions = () => {
     const [filteredTransactions, setFilteredTransactions] = useState([]);
     const [error, setError] = useState(null);
     const [rejectionReasons, setRejectionReasons] = useState({});
-    const [adminUsername, setAdminUsername] = useState(""); // Admin username extracted from JWT
+    // Decode admin username once from stored payload — kept for future use
+    // eslint-disable-next-line no-unused-vars
+    const [adminUsername] = useState(() => {
+        const payload = getAdminPayload();
+        if (payload?.username) return payload.username;
+        // fallback: decode raw token once
+        try {
+            const token = getAdminToken();
+            if (token) {
+                const parts = token.split('.');
+                const decoded = JSON.parse(atob(parts[1]));
+                return decoded.username || '';
+            }
+        } catch (_) {}
+        return '';
+    });
     const [showRejectModal, setShowRejectModal] = useState(false); // Modal state for rejection
     const [showApproveModal, setShowApproveModal] = useState(false); // Modal state for approval
     const [selectedTransaction, setSelectedTransaction] = useState(null); // For selected transaction
@@ -36,7 +51,7 @@ const TradeTransactions = () => {
     // Fetch transactions function
     const fetchTransactions = useCallback(async () => {
         try {
-            const token = localStorage.getItem('adminToken');
+            const token = getAdminToken();
             if (!token) {
                 setError("Unauthorized: Admin token missing.");
                 return;
@@ -45,24 +60,18 @@ const TradeTransactions = () => {
             const headers = { Authorization: `Bearer ${token}` };
             const response = await axios.get(`${apiUrl}/api/admin/confirmations`, { headers });
 
-            const sortedTransactions = (response.data.confirmations || response.data.confirmations || []).sort((a, b) =>
+            const sortedTransactions = (response.data.confirmations || []).sort((a, b) =>
                 new Date(b.createdAt) - new Date(a.createdAt)
             );
 
             setTransactions(sortedTransactions);
             setFilteredTransactions(sortedTransactions);
 
-            const decodedToken = jwtDecode(token);
-            setAdminUsername(decodedToken.username);
-            console.log(decodedToken.username); // Corrected logging
-            console.log(adminUsername); // Just to use the variable
-
-
         } catch (err) {
             const errorMessage = err.response?.data?.message || 'Failed to fetch trade transactions.';
             setError(errorMessage);
         }
-    }, [apiUrl, adminUsername]);
+    }, [apiUrl]); // ← removed adminUsername: was causing re-fetch loop
 
 
 
@@ -84,10 +93,10 @@ const TradeTransactions = () => {
         setFilteredTransactions(filtered);
     };
 
-    // ✅ Approve Confirmation
+    // �?Approve Confirmation
     const handleApprove = async (id) => {
         try {
-            const token = localStorage.getItem('adminToken');
+            const token = getAdminToken();
             const headers = { Authorization: `Bearer ${token}` };
             const response = await axios.patch(`${apiUrl}/api/admin/confirmations/${id}/approve`, {}, { headers });
 
@@ -116,7 +125,7 @@ const TradeTransactions = () => {
 
     // const handleFunding = async (confirmationId, userId, amount) => {
     //     try {
-    //         const token = localStorage.getItem('adminToken');
+    //         const token = getAdminToken();
     //         if (!token) {
     //             alert("Admin authentication token missing. Please log in again.");
     //             return;
@@ -124,16 +133,16 @@ const TradeTransactions = () => {
 
     //         const headers = { Authorization: `Bearer ${token}` };
 
-    //          ✅ Send funding request
+    //          �?Send funding request
     //         const response = await axios.post(`${apiUrl}/api/admin/confirmations/${confirmationId}/fund`, {
     //             userId,
     //             amount
     //         }, { headers });
 
-    //         ✅ Show success alert
-    //         alert(`Wallet funded successfully with ₦${amount}`);
+    //         �?Show success alert
+    //         alert(`Wallet funded successfully with �?{amount}`);
 
-    //          ✅ Update state to mark transaction as funded
+    //          �?Update state to mark transaction as funded
     //         setTransactions((prev) =>
     //             prev.map((tx) =>
     //                 tx._id === confirmationId ? { ...tx, funded: true } : tx
@@ -156,7 +165,7 @@ const TradeTransactions = () => {
 
     const handleReject = async (id, rejectionReason) => {
         try {
-            const token = localStorage.getItem('adminToken');
+            const token = getAdminToken();
             const headers = { Authorization: `Bearer ${token}` };
             const response = await axios.patch(`${apiUrl}/api/admin/confirmations/${id}/reject`, { rejectionReason }, { headers });
 
@@ -287,11 +296,11 @@ const TradeTransactions = () => {
                                             )}
                                             {/* timestamps */}
                                             <div className="timestamps mt-2">
-                                                <div className="created">Created: {tx.createdAt ? new Date(tx.createdAt).toLocaleString() : '—'}</div>
+                                                <div className="created">Created: {tx.createdAt ? new Date(tx.createdAt).toLocaleString() : 'N/A'}</div>
                                                 {(() => {
                                                     const actionTime = tx.approvedAt || tx.fundedAt || tx.rejectedAt || tx.updatedAt;
                                                     const actionLabel = tx.approvedAt ? 'Approved' : tx.fundedAt ? 'Funded' : tx.rejectedAt ? 'Rejected' : (tx.updatedAt ? 'Updated' : null);
-                                                    return actionLabel ? <div className="action">{actionLabel} at: {actionTime ? new Date(actionTime).toLocaleString() : '—'}</div> : null;
+                                                    return actionLabel ? <div className="action">{actionLabel} at: {actionTime ? new Date(actionTime).toLocaleString() : 'N/A'}</div> : null;
                                                 })()}
                                             </div>
                                             <div className="actions-inline mt-2">
@@ -322,7 +331,7 @@ const TradeTransactions = () => {
                             <div className="card-row">
                                 <div className="card-left">
                                     <h3 className="text-lg font-bold">{tx.transactionId}</h3>
-                                    <p className="muted">{tx.userId?.username || "N/A"} • {tx.serviceId?.name || "N/A"}</p>
+                                    <p className="muted">{tx.userId?.username || "N/A"} - {tx.serviceId?.name || "N/A"}</p>
                                     <p className="muted">Tag: {tx.serviceTag || tx.serviceId?.tag || '-'}</p>
                                     {Array.isArray(tx.fileUrls) && tx.fileUrls.length > 0 && (
                                         <>
@@ -333,11 +342,11 @@ const TradeTransactions = () => {
                                                 })}
                                             </div>
                                             <div className="timestamps mt-2">
-                                                <div className="created">Created: {tx.createdAt ? new Date(tx.createdAt).toLocaleString() : '—'}</div>
+                                                <div className="created">Created: {tx.createdAt ? new Date(tx.createdAt).toLocaleString() : 'N/A'}</div>
                                                 {(() => {
                                                     const actionTime = tx.approvedAt || tx.fundedAt || tx.rejectedAt || tx.updatedAt;
                                                     const actionLabel = tx.approvedAt ? 'Approved' : tx.fundedAt ? 'Funded' : tx.rejectedAt ? 'Rejected' : (tx.updatedAt ? 'Updated' : null);
-                                                    return actionLabel ? <div className="action">{actionLabel} at: {actionTime ? new Date(actionTime).toLocaleString() : '—'}</div> : null;
+                                                    return actionLabel ? <div className="action">{actionLabel} at: {actionTime ? new Date(actionTime).toLocaleString() : 'N/A'}</div> : null;
                                                 })()}
                                             </div>
                                             <div className="card-actions mt-2">

@@ -24,7 +24,7 @@ export default function ResponsiveLogo({ alt = 'Exdollarium', style = {}, classN
   // If caller does not provide them, fall back to the responsive `height` computed above.
   const { height: callerHeight, width: callerWidth, ...restStyle } = style || {};
   const finalHeight = callerHeight || height;
-  const finalWidth = callerWidth || height; // default to square area unless caller specifies width
+  const finalWidth = callerWidth || finalHeight; // use finalHeight so explicit height is respected as width too
 
   return (
     <img

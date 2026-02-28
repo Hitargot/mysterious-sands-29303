@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Alert from "../components/Alert"; // Assuming you have an alert component
 import '../styles/FundConfirmationModal.css';
+import { getAdminToken } from '../utils/adminAuth';
 
 const FundConfirmationModal = ({ confirmationId, userId, onClose }) => {
     const [currency, setCurrency] = useState("usd");
@@ -39,7 +40,7 @@ const FundConfirmationModal = ({ confirmationId, userId, onClose }) => {
         setAlert(null);
 
         try {
-            const token = localStorage.getItem("adminToken");
+            const token = getAdminToken();
             if (!token) {
                 setAlert({ type: "error", message: "Admin authentication token missing. Please log in again." });
                 return;
@@ -108,3 +109,4 @@ const FundConfirmationModal = ({ confirmationId, userId, onClose }) => {
 };
 
 export default FundConfirmationModal;
+

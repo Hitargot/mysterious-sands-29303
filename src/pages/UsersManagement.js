@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { removeAdminToken } from '../utils/adminAuth';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import Alert from "../components/Alert"; // Adjust path as needed
@@ -204,7 +205,7 @@ const UserManagement = () => {
 
       // If unauthorized or forbidden, clear token and redirect to admin login
       if (status === 401 || status === 403) {
-        localStorage.removeItem('adminToken');
+        removeAdminToken();
         // small delay so alert shows before redirect
         setTimeout(() => {
           navigate('/admin/login');
@@ -611,3 +612,5 @@ const UserManagement = () => {
 };
 
 export default UserManagement;
+
+

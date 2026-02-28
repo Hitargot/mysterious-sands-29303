@@ -9,120 +9,90 @@ const VerifyOtpPage = () => {
   const [otp, setOtp] = useState('');
   const [alert, setAlert] = useState({ message: '', type: '' });
   const [loading, setLoading] = useState(false);
+  const [focused, setFocused] = useState(false);
   const navigate = useNavigate();
   const [otpValid, setOtpValid] = useState(false);
   const location = useLocation();
-
   const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
-    const otpFromUrl = urlParams.get('otp'); // Retrieve OTP from URL
-
-    if (otpFromUrl) {
-      setOtp(otpFromUrl); // Pre-fill OTP if available in the URL
-    }
+    const otpFromUrl = urlParams.get('otp');
+    if (otpFromUrl) setOtp(otpFromUrl);
   }, [location]);
 
-  // Check if OTP is a 4-digit number
   useEffect(() => {
-    if (otp.length === 4 && /^[0-9]{4}$/.test(otp)) {
-      setOtpValid(true); // OTP is valid if it's a 4-digit number
-    } else {
-      setOtpValid(false); // OTP is invalid otherwise
-    }
+    setOtpValid(otp.length === 4 && /^[0-9]{4}$/.test(otp));
   }, [otp]);
 
   const handleVerifyOtp = async () => {
     setLoading(true);
     const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
-
     if (!token) {
       setAlert({ message: 'No token found. Please log in again.', type: 'error' });
       setLoading(false);
       return;
     }
-
     try {
       const { id: userId } = jwtDecode(token);
-      const response = await axios.get(`${apiUrl}/api/users/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
+      const response = await axios.get(`${apiUrl}/api/users/user/${userId}`, { headers: { Authorization: `Bearer ${token}` } });
       const email = response.data.email;
-
-      // Verify OTP on the backend
       await axios.post(`${apiUrl}/api/user/verify-otp-for-pin-reset`, { email, otp });
-
       setAlert({ message: 'OTP verified!', type: 'success' });
-      setTimeout(() => navigate('/reset-pin', { state: { otp } }), 2000); // Pass OTP via state
+      setTimeout(() => navigate('/reset-pin', { state: { otp } }), 2000);
     } catch (err) {
-      setAlert({
-        message: err.response?.data?.message || 'OTP verification failed.',
-        type: 'error',
-      });
+      setAlert({ message: err.response?.data?.message || 'OTP verification failed.', type: 'error' });
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#d0e6fd' }}>
-      <div
-        style={{
-          maxWidth: '400px',
-          padding: '25px',
-          backgroundColor: '#162660',
-          borderRadius: '10px',
-          boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
-          textAlign: 'center',
-        }}
-      >
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', color: '#f1e4d1', fontWeight: 'bold' }}>
-            <ResponsiveLogo alt="Exdollarium" style={{ marginRight: '10px' }} />
-            <span>Exdollarium</span>
-          </div>
-        </header>
+  const s = {
+    page: { minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'linear-gradient(135deg,#0A0F1E 0%,#0F172A 60%,#111827 100%)', padding:'1.5rem', position:'relative', overflow:'hidden' },
+    glowA: { position:'absolute', top:'-100px', left:'-100px', width:'400px', height:'400px', borderRadius:'50%', background:'radial-gradient(circle,rgba(245,166,35,0.1) 0%,transparent 70%)', pointerEvents:'none' },
+    glowB: { position:'absolute', bottom:'-80px', right:'-80px', width:'300px', height:'300px', borderRadius:'50%', background:'radial-gradient(circle,rgba(245,166,35,0.07) 0%,transparent 70%)', pointerEvents:'none' },
+    card: { position:'relative', width:'100%', maxWidth:'420px', background:'rgba(15,23,42,0.85)', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', border:'1px solid rgba(245,166,35,0.15)', borderRadius:'20px', padding:'2.5rem 2rem', boxShadow:'0 24px 64px rgba(0,0,0,0.5)', textAlign:'center' },
+    logoRow: { display:'flex', alignItems:'center', marginBottom:'2rem' },
+    logoInner: { display:'flex', alignItems:'center', gap:'0.6rem' },
+    logoText: { color:'#F5A623', fontWeight:700, fontSize:'1rem', letterSpacing:'0.06em' },
+    badge: { display:'inline-block', background:'rgba(245,166,35,0.12)', border:'1px solid rgba(245,166,35,0.3)', color:'#F5A623', borderRadius:'50px', padding:'0.3rem 0.9rem', fontSize:'0.72rem', fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:'0.8rem' },
+    heading: { color:'#E2E8F0', fontSize:'1.6rem', fontWeight:800, margin:'0 0 1.4rem' },
+    sub: { color:'#64748B', fontSize:'0.88rem', marginBottom:'1.6rem' },
+    input: { width:'100%', padding:'0.85rem 1rem', background:'rgba(255,255,255,0.05)', border: focused ? '1px solid rgba(245,166,35,0.6)' : '1px solid rgba(30,41,59,0.9)', borderRadius:'10px', color:'#E2E8F0', fontSize:'1.2rem', outline:'none', boxSizing:'border-box', marginBottom:'1.2rem', textAlign:'center', letterSpacing:'0.3em', transition:'border-color 0.2s' },
+    btn: { width:'100%', padding:'0.85rem', background: loading || !otpValid ? 'rgba(245,166,35,0.35)' : 'linear-gradient(135deg,#F5A623,#FBBF24)', color: loading || !otpValid ? 'rgba(0,0,0,0.4)' : '#0A0F1E', border:'none', borderRadius:'50px', fontWeight:800, fontSize:'0.95rem', cursor: loading || !otpValid ? 'not-allowed' : 'pointer', letterSpacing:'0.04em' },
+  };
 
-        <h2 style={{ color: '#f1e4d1', marginBottom: '15px' }}>Verify OTP</h2>
+  return (
+    <div style={s.page}>
+      <div style={s.glowA} /><div style={s.glowB} />
+      <div style={s.card}>
+        <div style={s.logoRow}>
+          <div style={s.logoInner}>
+            <ResponsiveLogo alt="Exdollarium" style={{ height: 32 }} />
+            <span style={s.logoText}>EXDOLLARIUM</span>
+          </div>
+        </div>
+
+        <div style={s.badge}>🔐 OTP Verification</div>
+        <h2 style={s.heading}>Verify OTP</h2>
+        <p style={s.sub}>Enter the 4-digit code sent to your email.</p>
 
         {alert.message && <Alert message={alert.message} type={alert.type} />}
 
         <input
           type="text"
-          placeholder="Enter OTP"
+          placeholder="• • • •"
           value={otp}
           onChange={(e) => setOtp(e.target.value)}
           disabled={loading}
-          style={{
-            width: '100%',
-            padding: '10px',
-            marginBottom: '15px',
-            borderRadius: '5px',
-            border: 'none',
-            outline: 'none',
-            fontSize: '16px',
-            backgroundColor: '#f1e4d1',
-          }}
+          maxLength={4}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          style={s.input}
         />
 
-        <button
-          onClick={handleVerifyOtp}
-          disabled={loading || !otpValid}
-          style={{
-            backgroundColor: loading ? '#b5b5b5' : '#d0e6fd',
-            color: '#162660',
-            padding: '12px',
-            borderRadius: '5px',
-            fontWeight: 'bold',
-            width: '100%',
-            border: 'none',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            fontSize: '16px',
-          }}
-        >
-          {loading ? 'Verifying...' : 'Verify OTP'}
+        <button onClick={handleVerifyOtp} disabled={loading || !otpValid} style={s.btn}>
+          {loading ? 'Verifying…' : 'Verify OTP →'}
         </button>
       </div>
     </div>

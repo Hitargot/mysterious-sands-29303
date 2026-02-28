@@ -134,7 +134,7 @@ const PayPalFeeCalculator = () => {
             checked={mode === 'sending'}
             onChange={() => setMode('sending')}
           />{' '}
-          You’re sending
+          You're sending
         </label>
         <label>
           <input

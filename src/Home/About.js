@@ -1,204 +1,139 @@
-import { useState, useEffect, useMemo } from "react";
-import React from 'react'; // Add this import statement
-import styled, { keyframes } from "styled-components";
-import image1 from "../assets/images/949shots_so.png"; 
-import image2 from "../assets/images/969shots_so.png";
-import image3 from "../assets/images/856shots_so.png";
-// import johnDoeImg from "../assets/images/path_to_team_member_image1.jpg"; 
-// import janeSmithImg from "../assets/images/designer.PNG"; 
-// import aliceJohnsonImg from "../assets/images/path_to_team_member_image1.jpg";
+import React from 'react';
+import image1 from '../assets/images/949shots_so.png';
+import image2 from '../assets/images/969shots_so.png';
+import image3 from '../assets/images/856shots_so.png';
 
-const AboutWrapper = styled.div`
-  overflow: hidden;
-`;
+const stats = [
+  { num: '1K+',  label: 'Transactions completed' },
+  { num: '98%',  label: 'Completion rate'         },
+  { num: '5 min', label: 'Average payout time'   },
+  { num: '24/7', label: 'Admin availability'      },
+];
 
-const slideIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateX(-100px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-`;
+const About = () => (
+  <section id="about" style={s.section}>
+    <div style={s.inner}>
+      {/* Images column */}
+      <div style={s.imagesCol}>
+        <img src={image1} alt="App screenshot 1" style={{ ...s.img, marginTop: 0    }} />
+        <img src={image2} alt="App screenshot 2" style={{ ...s.img, marginTop: -60  }} />
+        <img src={image3} alt="App screenshot 3" style={{ ...s.img, marginTop: -60  }} />
+      </div>
 
-const AboutSection = styled.section`
-  background-color: #f1e4d1;
-  color: #162660;
-  padding: 60px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 40px;
-`;
+      {/* Text column */}
+      <div style={s.textCol}>
+        <span style={s.tag}>About Us</span>
+        <h2 style={s.heading}>We are the trusted middleman for Nigerian forex.</h2>
+        <p style={s.lead}>
+          Exdollarium is a human-verified P2P forex desk. We sit between you and the foreign payment platform —
+          verifying every transaction before a single Naira moves. No black market risk. No chargebacks. Just trust.
+        </p>
+        <p style={s.body}>
+          Founded to solve the daily struggle of converting PayPal, Payoneer, gift cards and crypto to Naira
+          at a fair rate, without the fear that comes with unverified traders.
+        </p>
 
-const AboutImage = styled.img`
-  width: 400px;
-  height: auto;
-  border-radius: 15px;
-  box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.1);
-  opacity: 0;
-  animation: ${slideIn} 1.2s ease-in-out forwards;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    max-width: 350px;
-  }
-`;
-
-const AboutContent = styled.div`
-  max-width: 600px;
-  text-align: left;
-
-  h3 {
-    font-size: 1.8rem;
-    margin-bottom: 15px;
-  }
-
-  p {
-    font-size: 1.2rem;
-    line-height: 1.6;
-    color: #162660;
-  }
-`;
-
-// const TeamSection = styled.div`
-//   background-color: #d0e6fd;
-//   padding: 50px 20px;
-// `;
-
-// const Heading = styled.h2`
-//   font-size: 2.5rem;
-//   color: #162660;
-//   text-align: center;
-//   margin-bottom: 20px;
-// `;
-
-// const TeamGrid = styled.div`
-//   display: flex;
-//   justify-content: center;
-//   gap: 20px;
-//   flex-wrap: wrap;
-// `;
-
-// const TeamMember = styled.div`
-//   background: rgba(255, 255, 255, 0.3);
-//   border-radius: 15px;
-//   padding: 20px;
-//   width: 280px;
-//   text-align: center;
-//   transition: transform 0.3s ease, box-shadow 0.3s ease;
-//   backdrop-filter: blur(10px);
-
-//   &:hover {
-//     transform: translateY(-10px);
-//     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-//   }
-
-//   img {
-//     width: 100px;
-//     height: 100px;
-//     border-radius: 50%;
-//     border: 3px solid #162660;
-//     margin-bottom: 10px;
-//   }
-
-//   h4 {
-//     font-size: 1.5rem;
-//     color: #162660;
-//     margin: 10px 0 5px;
-//   }
-
-//   p {
-//     font-size: 1rem;
-//     color: #162660;
-//   }
-// `;
-
-// const teamMembers = [
-//   {
-//     name: "Abubakar k.",
-//     position: "CEO",
-//     image: johnDoeImg,
-//     description:
-//       "Abubakar is the visionary behind Exdollarium, dedicated to improving exchange services.",
-//   },
-//   {
-//     name: "Jane Smith",
-//     position: "CTO",
-//     image: janeSmithImg,
-//     description:
-//       "Jane leads our technology efforts, ensuring our platform is secure and user-friendly.",
-//   },
-//   {
-//     name: "Alice Johnson",
-//     position: "Marketing Director",
-//     image: aliceJohnsonImg,
-//     description:
-//       "Alice is passionate about connecting users with our services through effective marketing.",
-//   },
-// ];
-
-
-const About = () => {
-  const images = useMemo(() => [image1, image2, image3], []);
-  const [selectedImage, setSelectedImage] = useState(images[Math.floor(Math.random() * images.length)]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSelectedImage(images[Math.floor(Math.random() * images.length)]);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [images]);
-  useEffect(() => {
-    const aboutText = document.getElementById("about-text");
-    if (!aboutText) return;
-
-    const textToType = aboutText.textContent.trim();
-    aboutText.textContent = "";
-
-    for (let i = 0; i < textToType.length; i++) {
-      setTimeout(() => {
-        aboutText.textContent += textToType[i];
-      }, 50 * i);
-    }
-  }, []); // No dependencies needed here
-
-  return (
-    <AboutWrapper id="about">
-      <AboutSection>
-        {/* Force re-animation by changing the key */}
-        <AboutImage key={selectedImage} src={selectedImage} alt="About Us" />
-        <AboutContent>
-          <h3>Exdollarium: Redefining Currency Exchange</h3>
-          <p id="about-text">
-            Founded in 2024, Exdollarium is where <b>effortless transactions meet cutting-edge innovation.</b> 
-            We combine advanced technology with a passion for enhancing user experience, ensuring every exchange 
-            is secure, seamless, and stress-free. With trust as our cornerstone, we are transforming financial 
-            transactions into a future-focused journey. Ready to join the revolution? Step into the world of 
-            endless possibilities with Exdollarium.
-          </p>
-        </AboutContent>
-      </AboutSection>
-
-      {/* <TeamSection>
-        <Heading>Meet Our Team</Heading>
-        <TeamGrid>
-          {teamMembers.map((member, index) => (
-            <TeamMember key={index}>
-              <img src={member.image} alt={member.name} />
-              <h4>{member.name}</h4>
-              <p>{member.position}</p>
-              <p>{member.description}</p>
-            </TeamMember>
+        <div style={s.statsGrid}>
+          {stats.map(({ num, label }) => (
+            <div key={label} style={s.statCard}>
+              <span style={s.statNum}>{num}</span>
+              <span style={s.statLabel}>{label}</span>
+            </div>
           ))}
-        </TeamGrid>
-      </TeamSection> */}
-    </AboutWrapper>
-  );
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const s = {
+  section: {
+    padding: '88px 5%',
+    background: 'var(--navy-2)',
+  },
+  inner: {
+    maxWidth: 1100,
+    margin: '0 auto',
+    display: 'flex',
+    gap: 64,
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  imagesCol: {
+    flex: '0 0 auto',
+    display: 'flex',
+    gap: 12,
+    alignItems: 'flex-start',
+  },
+  img: {
+    width: 140,
+    borderRadius: 16,
+    boxShadow: '0 16px 40px rgba(0,0,0,0.4)',
+    objectFit: 'cover',
+  },
+  textCol: {
+    flex: 1,
+    minWidth: 280,
+  },
+  tag: {
+    display: 'inline-block',
+    background: 'rgba(245,166,35,0.12)',
+    border: '1px solid rgba(245,166,35,0.3)',
+    color: 'var(--gold)',
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: '2px',
+    textTransform: 'uppercase',
+    padding: '5px 14px',
+    borderRadius: 100,
+    marginBottom: 18,
+  },
+  heading: {
+    fontSize: 'clamp(1.6rem, 3vw, 2.4rem)',
+    fontWeight: 800,
+    letterSpacing: -0.8,
+    lineHeight: 1.15,
+    color: '#fff',
+    marginBottom: 16,
+  },
+  lead: {
+    fontSize: '1.05rem',
+    color: '#94A3B8',
+    lineHeight: 1.7,
+    marginBottom: 12,
+  },
+  body: {
+    fontSize: '0.95rem',
+    color: '#64748B',
+    lineHeight: 1.7,
+    marginBottom: 32,
+  },
+  statsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: 16,
+  },
+  statCard: {
+    background: 'var(--navy-card)',
+    border: '1px solid var(--navy-border)',
+    borderRadius: 12,
+    padding: '18px 16px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+  },
+  statNum: {
+    fontSize: '1.6rem',
+    fontWeight: 900,
+    color: 'var(--gold)',
+    letterSpacing: -1,
+  },
+  statLabel: {
+    fontSize: '0.75rem',
+    color: '#64748B',
+    fontWeight: 600,
+    letterSpacing: '0.5px',
+  },
 };
 
 export default About;

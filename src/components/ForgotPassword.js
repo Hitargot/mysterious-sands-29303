@@ -1,177 +1,135 @@
 import React, { useState } from "react";
 import ResponsiveLogo from './ResponsiveLogo';
 import axios from "axios";
-import Alert from "./Alert"; // Assuming you have this alert component
-import { Link } from "react-router-dom"; // Import Link for routing
+import Alert from "./Alert";
+import { Link, useNavigate } from "react-router-dom";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [focused, setFocused] = useState(false);
   const [alert, setAlert] = useState({ type: "", message: "" });
+  const navigate = useNavigate();
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Start loading
-
+    setLoading(true);
     try {
       const response = await axios.post(`${apiUrl}/api/auth/forgot-password`, { email });
-      setAlert({ type: "success", message: response.data.message });
-      setEmail(""); // Clear the input field
-
-      // Reset alert after 3 seconds
-      setTimeout(() => {
-        setAlert({ type: "", message: "" }); // Clear alert
-      }, 3000);
+      setAlert({ type: "success", message: response.data.message || "Reset link sent! Check your inbox." });
+      setEmail("");
+      setTimeout(() => navigate("/login"), 3000);
     } catch (err) {
       const errorMsg = err.response?.data?.message || "Something went wrong";
       setAlert({ type: "error", message: errorMsg });
-
-      // Reset alert after 3 seconds
-      setTimeout(() => {
-        setAlert({ type: "", message: "" }); // Clear alert
-      }, 3000);
+      setTimeout(() => setAlert({ type: "", message: "" }), 3000);
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
+  const s = {
+    page: {
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'linear-gradient(135deg, #0A0F1E 0%, #0F172A 60%, #111827 100%)',
+      padding: '1.5rem',
+      position: 'relative',
+      overflow: 'hidden',
+    },
+    glowA: { position:'absolute', top:'-100px', left:'-100px', width:'400px', height:'400px', borderRadius:'50%', background:'radial-gradient(circle, rgba(245,166,35,0.1) 0%, transparent 70%)', pointerEvents:'none' },
+    glowB: { position:'absolute', bottom:'-80px', right:'-80px', width:'300px', height:'300px', borderRadius:'50%', background:'radial-gradient(circle, rgba(245,166,35,0.07) 0%, transparent 70%)', pointerEvents:'none' },
+    card: {
+      position: 'relative',
+      width: '100%',
+      maxWidth: '420px',
+      background: 'rgba(15,23,42,0.85)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      border: '1px solid rgba(245,166,35,0.15)',
+      borderRadius: '20px',
+      padding: '2.5rem 2rem',
+      boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
+    },
+    logoRow: { display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'2rem' },
+    logoInner: { display:'flex', alignItems:'center', gap:'0.6rem' },
+    logoText: { color:'#F5A623', fontWeight:700, fontSize:'1rem', letterSpacing:'0.06em' },
+    navRow: { display:'flex', gap:'1.2rem' },
+    navLink: { color:'#94A3B8', textDecoration:'none', fontSize:'0.85rem', fontWeight:500 },
+    badge: { display:'inline-block', background:'rgba(245,166,35,0.12)', border:'1px solid rgba(245,166,35,0.3)', color:'#F5A623', borderRadius:'50px', padding:'0.3rem 0.9rem', fontSize:'0.72rem', fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:'0.8rem' },
+    heading: { color:'#E2E8F0', fontSize:'1.6rem', fontWeight:800, margin:'0 0 0.4rem' },
+    sub: { color:'#64748B', fontSize:'0.88rem', marginBottom:'1.8rem', lineHeight:1.6 },
+    label: { display:'block', color:'#94A3B8', fontSize:'0.8rem', fontWeight:600, marginBottom:'0.4rem', letterSpacing:'0.04em', textTransform:'uppercase' },
+    input: {
+      width:'100%', padding:'0.75rem 1rem',
+      background:'rgba(255,255,255,0.05)',
+      border: focused ? '1px solid rgba(245,166,35,0.6)' : '1px solid rgba(30,41,59,0.9)',
+      borderRadius:'10px', color:'#E2E8F0', fontSize:'0.95rem',
+      outline:'none', boxSizing:'border-box', marginBottom:'1.4rem',
+      transition:'border-color 0.2s',
+    },
+    btn: {
+      width:'100%', padding:'0.85rem',
+      background: loading ? 'rgba(245,166,35,0.35)' : 'linear-gradient(135deg,#F5A623,#FBBF24)',
+      color: loading ? 'rgba(0,0,0,0.4)' : '#0A0F1E',
+      border:'none', borderRadius:'50px', fontWeight:800,
+      fontSize:'0.95rem', cursor: loading ? 'not-allowed' : 'pointer',
+      letterSpacing:'0.04em', transition:'opacity 0.2s',
+    },
+    footer: { marginTop:'1.4rem', textAlign:'center' },
+    footerText: { color:'#64748B', fontSize:'0.83rem', marginBottom:'0.4rem' },
+    footerLink: { color:'#F5A623', textDecoration:'none', fontWeight:600 },
+  };
+
   return (
-    <div style={styles.forgotPassword}>
-      <div style={styles.forgotContainer}>
-        <header style={styles.forgotHeader}>
-          <div style={styles.logo}>
-            <ResponsiveLogo alt="Exdollarium" style={styles.logoImg} />
-            <span>EXDOLLARIUM</span>
+    <div style={s.page}>
+      <div style={s.glowA} /><div style={s.glowB} />
+      <div style={s.card}>
+        <div style={s.logoRow}>
+          <div style={s.logoInner}>
+            <ResponsiveLogo alt="Exdollarium" style={{ height: 32, width: 32 }} />
+            <span style={s.logoText}>EXDOLLARIUM</span>
           </div>
-          <nav>
-            <Link to="/" style={styles.navLink}>Home</Link>
-            <Link to="/login" style={styles.navLink}>Login</Link>
+          <nav style={s.navRow}>
+            <Link to="/" style={s.navLink}>Home</Link>
+            <Link to="/login" style={s.navLink}>Login</Link>
           </nav>
-        </header>
+        </div>
 
-        <h2 style={styles.heading}>Forgot Password</h2>
+        <div style={s.badge}>🔑 Password Reset</div>
+        <h2 style={s.heading}>Forgot Password?</h2>
+        <p style={s.sub}>Enter your email and we'll send you a reset link.</p>
 
-        {/* Alert Component */}
-        {alert.message && (
-          <Alert type={alert.type} message={alert.message} onClose={() => setAlert({ type: "", message: "" })} />
-        )}
+        {alert.message && <Alert type={alert.type} message={alert.message} onClose={() => setAlert({ type:"", message:"" })} />}
 
-        <form onSubmit={handleSubmit} style={styles.forgotForm}>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Email Address</label>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              style={styles.input}
-            />
-          </div>
-          <button type="submit" disabled={loading} style={styles.button}>
-            {loading ? "Sending..." : "Send Reset Link"}
+        <form onSubmit={handleSubmit}>
+          <label style={s.label}>Email Address</label>
+          <input
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            required
+            style={s.input}
+          />
+          <button type="submit" disabled={loading} style={s.btn}>
+            {loading ? "Sending…" : "Send Reset Link →"}
           </button>
         </form>
 
-        <footer style={styles.footerLinks}>
-          <p>Already have an account? <Link to="/login" style={styles.footerLink}>Login</Link></p>
-          <p>Don't have an account? <Link to="/signup" style={styles.footerLink}>Sign Up here</Link></p>
-        </footer>
+        <div style={s.footer}>
+          <p style={s.footerText}>Remember your password? <Link to="/login" style={s.footerLink}>Login</Link></p>
+          <p style={s.footerText}>No account? <Link to="/signup" style={s.footerLink}>Sign Up</Link></p>
+        </div>
       </div>
     </div>
   );
 };
 
 export default ForgotPassword;
-
-// INLINE STYLES
-const styles = {
-  forgotPassword: {
-    height: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#d0e6fd", // Light Blue
-    padding: "20px",
-  },
-  forgotContainer: {
-    width: "90%",
-    maxWidth: "400px",
-    padding: "25px",
-    backgroundColor: "#162660", // Dark Blue
-    borderRadius: "10px",
-    boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
-    textAlign: "center",
-  },
-  forgotHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px",
-  },
-  logo: {
-    display: "flex",
-    alignItems: "center",
-    color: "#f1e4d1", // Cream
-    fontSize: "1.2rem",
-    fontWeight: "bold",
-  },
-  logoImg: {
-    marginRight: "10px",
-  },
-  navLink: {
-    marginLeft: "15px",
-    textDecoration: "none",
-    color: "#f1e4d1", // Cream
-    transition: "color 0.3s ease-in-out",
-  },
-  heading: {
-    color: "#f1e4d1", // Cream
-    fontSize: "1.5rem",
-  },
-  forgotForm: {
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-  },
-  formGroup: {
-    marginBottom: "15px",
-    textAlign: "left",
-  },
-  label: {
-    color: "#f1e4d1", // Cream
-    fontWeight: "bold",
-  },
-  input: {
-    width: "100%",
-    padding: "10px",
-    border: "1px solid #d0e6fd", // Light Blue
-    borderRadius: "5px",
-    background: "transparent",
-    color: "#f1e4d1", // Cream
-    fontSize: "1rem",
-  },
-  button: {
-    backgroundColor: "#d0e6fd", // Light Blue
-    color: "#162660", // Dark Blue
-    padding: "10px",
-    border: "none",
-    borderRadius: "5px",
-    fontWeight: "bold",
-    cursor: "pointer",
-    transition: "background-color 0.3s ease-in-out",
-    fontSize: "1rem",
-  },
-  footerLinks: {
-    marginTop: "15px",
-    color: "#f1e4d1", // Cream
-  },
-  footerLink: {
-    color: "#d0e6fd", // Light Blue
-    textDecoration: "none",
-  },
-};

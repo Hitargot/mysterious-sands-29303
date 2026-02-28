@@ -3,29 +3,52 @@ import ReactDOM from 'react-dom';
 import axios from 'axios';
 import Alert from '../components/Alert';
 import PreSubmissionGuideline from '../components/PreSubmissionGuideline';
+import { FaListAlt, FaSearch, FaRegCopy, FaCheckCircle } from 'react-icons/fa';
 
-// layout & theme tokens
-const THEME = {
-  primary: '#162660',
-  muted: '#666',
-  cardBg: '#fff',
-  border: '#e6e6e6',
-  radius: 10,
+// ── Design tokens ──────────────────────────────────────────────────────────────
+const G = {
+  gold: '#F5A623', goldLight: '#FBBF24', goldFaint: 'rgba(245,166,35,0.08)',
+  goldBorder: 'rgba(245,166,35,0.25)', navy: '#0A0F1E', navy2: '#0F172A',
+  navy3: '#111827', navy4: '#1E293B', slate: '#94A3B8', slateD: '#64748B',
+  white: '#F1F5F9', green: '#34D399', red: '#F87171',
+  greenFaint: 'rgba(52,211,153,0.12)', redFaint: 'rgba(248,113,113,0.12)',
 };
 
-const containerStyle = { maxWidth: 1000, margin: '20px auto', padding: 16 };
-const headerStyle = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 12 };
-const headerLeft = { display: 'flex', alignItems: 'center', gap: 12 };
-const searchInput = { padding: 10, borderRadius: 8, border: `1px solid ${THEME.border}`, minWidth: 200 };
-const filterSelect = { padding: 8, borderRadius: 8, border: `1px solid ${THEME.border}` };
+// Shared modal styles
+const modalOverlay = {
+  position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)',
+  display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
+};
+const modalBox = {
+  background: G.navy2, border: `1px solid ${G.goldBorder}`, borderRadius: 20,
+  padding: '28px 24px', width: 'min(460px,92%)',
+  boxShadow: '0 0 40px rgba(245,166,35,0.12)',
+  position: 'relative', overflow: 'hidden',
+};
 
-const cardGrid = (isMobile) => ({ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12 });
-const cardStyle = { background: THEME.cardBg, padding: 14, borderRadius: THEME.radius, border: `1px solid ${THEME.border}`, boxShadow: '0 6px 18px rgba(16,24,40,0.04)' };
-const cardHeader = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 };
-const actionBtn = { background: THEME.primary, color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 8, cursor: 'pointer' };
-const actionOutline = { background: '#fff', color: THEME.primary, border: `1px solid ${THEME.primary}`, padding: '8px 12px', borderRadius: 8, cursor: 'pointer' };
+const inputStyle = {
+  width: '100%', padding: '10px 13px', borderRadius: 10,
+  border: `1px solid ${G.goldBorder}`, background: G.navy3,
+  color: G.white, fontSize: 14, outline: 'none', boxSizing: 'border-box',
+};
+const btnGold = {
+  background: `linear-gradient(135deg,${G.gold},${G.goldLight})`,
+  color: G.navy, border: 'none', padding: '10px 18px', borderRadius: 10,
+  cursor: 'pointer', fontWeight: 700, fontSize: 14,
+};
+const btnOutline = {
+  background: 'transparent', color: G.gold,
+  border: `1px solid ${G.goldBorder}`, padding: '10px 18px', borderRadius: 10,
+  cursor: 'pointer', fontWeight: 600, fontSize: 14,
+};
 
-const styles = { input: { padding: 8, borderRadius: 6, border: '1px solid #ccc' } };
+// Status badge colours
+const statusColor = (s) => {
+  const v = String(s || '').toLowerCase();
+  if (v === 'completed') return { bg: G.greenFaint, color: G.green };
+  if (v === 'cancelled') return { bg: G.redFaint, color: G.red };
+  return { bg: G.goldFaint, color: G.gold }; // pending / default
+};
 
 const MyPreSubmissions = () => {
   const [preSubs, setPreSubs] = useState([]);
@@ -190,29 +213,56 @@ const MyPreSubmissions = () => {
   }, [preSubs, searchTerm, statusFilter]);
 
   return (
-    <div style={{ ...containerStyle, padding: isMobile ? 12 : containerStyle.padding, maxWidth: isMobile ? '96%' : containerStyle.maxWidth }}>
-      <div style={headerStyle}>
-        <div style={headerLeft}>
-          <div>
-            <h2 style={{ margin: 0 }}>My Pre-submissions</h2>
-            <div style={{ color: THEME.muted, fontSize: 13 }}>Manage your pending withdrawal pre-submissions</div>
-          </div>
-        </div>
+    <div style={{ maxWidth: 1000, margin: '0 auto', padding: isMobile ? 12 : '8px 4px' }}>
 
-        {/* header right removed - search & filter moved below title for better layout */}
+      {/* Page header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+        <div style={{
+          width: 44, height: 44, borderRadius: 12,
+          background: `linear-gradient(135deg,${G.gold},${G.goldLight})`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 0 16px rgba(245,166,35,0.35)',
+        }}>
+          <FaListAlt style={{ color: G.navy, fontSize: 20 }} />
+        </div>
+        <div>
+          <h2 style={{ margin: 0, color: G.white, fontSize: 20, fontWeight: 700 }}>My Pre-submissions</h2>
+          <div style={{ color: G.slateD, fontSize: 13 }}>Manage your pending withdrawal pre-submissions</div>
+        </div>
       </div>
 
-      {/* Search and filter row placed under the title */}
-      <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 } : { display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
-        <input placeholder="Search by account, service or id" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ ...searchInput, width: isMobile ? '100%' : searchInput.minWidth }} />
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ ...filterSelect, width: isMobile ? '100%' : 'auto' }}>
+      {/* Search + filter row */}
+      <div style={{
+        display: 'flex', gap: 10, alignItems: 'center', marginBottom: 14,
+        flexDirection: isMobile ? 'column' : 'row',
+      }}>
+        <div style={{ position: 'relative', flex: 1, width: isMobile ? '100%' : 'auto' }}>
+          <FaSearch style={{
+            position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+            color: G.slateD, fontSize: 13, pointerEvents: 'none',
+          }} />
+          <input
+            placeholder="Search by account, service or id"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ ...inputStyle, paddingLeft: 34, width: isMobile ? '100%' : 260 }}
+          />
+        </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          style={{
+            ...inputStyle, width: isMobile ? '100%' : 'auto', padding: '10px 14px',
+            appearance: 'none', WebkitAppearance: 'none', cursor: 'pointer',
+          }}
+        >
           <option value="all">All statuses</option>
           <option value="pending">Pending</option>
           <option value="completed">Completed</option>
           <option value="cancelled">Cancelled</option>
         </select>
-        <div style={{ minWidth: 160 }}>
-          <span style={{ color: THEME.muted, fontSize: 13 }}>{loading ? 'Loading…' : `${preSubs.length} total`}</span>
+        <div style={{ color: G.slateD, fontSize: 13, whiteSpace: 'nowrap' }}>
+          {loading ? 'Loading...' : `${preSubs.length} total`}
         </div>
       </div>
 
@@ -220,70 +270,102 @@ const MyPreSubmissions = () => {
       {alert && <Alert message={alert.message} type={alert.type} onClose={() => setAlert(null)} />}
 
       {loading && (
-        <div style={{ padding: 24, textAlign: 'center', color: THEME.muted }}>Loading your pre-submissions…</div>
+        <div style={{ padding: 32, textAlign: 'center', color: G.slateD }}>Loading your pre-submissions...</div>
       )}
 
       {!loading && filteredPreSubs.length === 0 && (
-        <div style={{ padding: 28, borderRadius: 12, border: `1px dashed ${THEME.border}`, textAlign: 'center', color: THEME.muted }}>
-          <div style={{ fontSize: 18, marginBottom: 8 }}>No pre-submissions found</div>
-          <div style={{ marginBottom: 12 }}>You don't have any active pre-submissions right now.</div>
-          <div>
-            <button onClick={() => setRefreshKey(k => k + 1)} style={actionBtn}>Refresh</button>
-          </div>
+        <div style={{
+          padding: 32, borderRadius: 14, border: `1px dashed ${G.goldBorder}`,
+          textAlign: 'center', color: G.slateD, background: G.goldFaint,
+        }}>
+          <div style={{ fontSize: 18, marginBottom: 8, color: G.slate }}>No pre-submissions found</div>
+          <div style={{ marginBottom: 14, fontSize: 14 }}>You don't have any active pre-submissions right now.</div>
+          <button onClick={() => setRefreshKey(k => k + 1)} style={btnGold}>Refresh</button>
         </div>
       )}
 
-      <div style={cardGrid(isMobile)}>
-                {filteredPreSubs.map((p) => (
-          <div key={p._id} style={cardStyle}>
-            <div style={cardHeader}>
-              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                <div style={{ width: 44, height: 44, borderRadius: 8, background: '#f3f6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: THEME.primary }}>{(p.username || '').charAt(0).toUpperCase()}</div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: 15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.username}</div>
-                  <div style={{ fontSize: 12, color: THEME.muted }}>ID: {displayPreId(p)}</div>
+      {/* Card grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14 }}>
+        {filteredPreSubs.map((p) => {
+          const sb = statusColor(p.status);
+          return (
+            <div key={p._id} style={{
+              background: 'rgba(15,23,42,0.88)', backdropFilter: 'blur(14px)',
+              border: `1px solid ${G.goldBorder}`, borderRadius: 14,
+              padding: 16, display: 'flex', flexDirection: 'column', gap: 10,
+            }}>
+              {/* Card top row: avatar + username + status */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: 8,
+                    background: G.goldFaint, border: `1px solid ${G.goldBorder}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: 700, color: G.gold, fontSize: 16,
+                  }}>
+                    {(p.username || '').charAt(0).toUpperCase()}
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: G.white, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.username}</div>
+                    <div style={{ fontSize: 12, color: G.slateD }}>ID: {displayPreId(p)}</div>
+                  </div>
+                </div>
+                <span style={{
+                  padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700,
+                  background: sb.bg, color: sb.color, whiteSpace: 'nowrap',
+                }}>
+                  {p.status || 'Pending'}
+                </span>
+              </div>
+
+              {/* Card info row */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                <div style={{ fontSize: 13, color: G.slateD }}>
+                  <div><span style={{ color: G.slate }}>Files:</span> {(p.fileUrls && p.fileUrls.length) || 0}</div>
+                  <div style={{ marginTop: 4 }}>
+                    <span style={{ color: G.slate }}>Available in:</span>{' '}
+                    <span style={{ color: Number(p.remainingMs || 0) <= 0 ? G.green : G.gold, fontWeight: 600 }}>
+                      {formatMs(p.remainingMs)}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* status removed from card header per UI request */}
-            </div>
-
-            <div style={{ marginBottom: 12, display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', gap: 12, alignItems: isMobile ? 'stretch' : 'center' }}>
-              <div style={{ color: THEME.muted, fontSize: 13, width: isMobile ? '100%' : 'auto' }}>
-                {/* Service removed from card list view per request */}
-                <div style={{ marginBottom: 8 }} />
-                  <div><strong>Files:</strong> {(p.fileUrls && p.fileUrls.length) || 0}</div>
-                <div style={{ marginTop: 6 }}><strong>Available in:</strong> {formatMs(p.remainingMs)}</div>
-              </div>
-
-              <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'stretch', width: '100%' } : { display: 'flex', gap: 8, alignItems: 'center' }}>
-                  {(p.fileUrls && p.fileUrls.length > 0) && (
-                    <button
-                      onClick={() => { setModalPre(p); setModalDetailPre(p); setShowDetailsModal(true); }}
-                      style={isMobile ? { ...actionOutline, width: '100%' } : actionOutline}
-                      title={p.fileUrls.length > 1 ? 'View files' : 'View file'}
-                    >
-                      View
-                    </button>
-                  )}
-
+              {/* Action buttons */}
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {(p.fileUrls && p.fileUrls.length > 0) && (
+                  <button
+                    onClick={() => { setModalPre(p); setModalDetailPre(p); setShowDetailsModal(true); }}
+                    style={{ ...btnOutline, padding: '7px 14px', fontSize: 13, flex: isMobile ? 1 : undefined }}
+                  >
+                    View
+                  </button>
+                )}
                 {p.status !== 'Cancelled' && p.status !== 'Completed' && (
                   <>
-                    {/* Only show Complete when awaiting period has elapsed */}
                     {Number(p.remainingMs || 0) <= 0 && (
-                      <button onClick={() => { setModalPre(p); setShowCompleteModal(true); setCompleteAmount(''); setCompleteFiles([]); }} style={isMobile ? { ...actionBtn, width: '100%' } : actionBtn}>Complete</button>
+                      <button
+                        onClick={() => { setModalPre(p); setShowCompleteModal(true); setCompleteAmount(''); setCompleteFiles([]); }}
+                        style={{ ...btnGold, padding: '7px 14px', fontSize: 13, flex: isMobile ? 1 : undefined }}
+                      >
+                        Complete
+                      </button>
                     )}
-                    <button onClick={() => { setModalPre(p); setShowCancelModal(true); }} style={isMobile ? { ...actionOutline, width: '100%' } : actionOutline}>Cancel</button>
+                    <button
+                      onClick={() => { setModalPre(p); setShowCancelModal(true); }}
+                      style={{ ...btnOutline, padding: '7px 14px', fontSize: 13, flex: isMobile ? 1 : undefined }}
+                    >
+                      Cancel
+                    </button>
                   </>
                 )}
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Modals are rendered below via portal */}
-
+      {/* Modals */}
       {showCompleteModal && modalPre && (
         <CompleteModal
           pre={modalPre}
@@ -293,7 +375,6 @@ const MyPreSubmissions = () => {
           setFiles={setCompleteFiles}
           onClose={() => { setShowCompleteModal(false); setModalPre(null); setCompletingId(null); }}
           onSubmit={async () => {
-            // set completingId for API
             setCompletingId(modalPre._id);
             await submitComplete();
             setShowCompleteModal(false);
@@ -307,7 +388,6 @@ const MyPreSubmissions = () => {
           pre={modalPre}
           onClose={() => { setShowCancelModal(false); setModalPre(null); }}
           onConfirm={async (reason) => {
-            // call cancel API
             try {
               const token = getToken();
               const res = await axios.post(`${apiUrl}/api/pre-submissions/${modalPre._id}/cancel`, { reason }, { headers: { Authorization: `Bearer ${token}` } });
@@ -335,7 +415,6 @@ const MyPreSubmissions = () => {
           onPreIdGenerated={() => setRefreshKey(k => k + 1)}
         />
       )}
-
     </div>
   );
 };
@@ -347,28 +426,29 @@ const CompleteModal = ({ pre, amount, setAmount, files, setFiles, onClose, onSub
   const el = (
     <div style={modalOverlay}>
       <div style={modalBox}>
-        <h3 style={{ marginTop: 0 }}>Complete Pre-submission</h3>
-        <div style={{ marginBottom: 8, color: '#333' }}>
-          <small>
-            Completing will create a confirmation that the withdrawal was processed and mark this pre-submission as completed. Provide the amount and any proof files.
-          </small>
+        {/* Gold top bar */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg,${G.gold},${G.goldLight})` }} />
+        <h3 style={{ marginTop: 4, marginBottom: 12, color: G.gold, fontSize: 17, fontWeight: 700 }}>Complete Pre-submission</h3>
+        <div style={{ marginBottom: 12, color: G.slateD, fontSize: 13 }}>
+          Completing will create a confirmation that the withdrawal was processed. Provide the amount and any proof files.
         </div>
-        <div style={{ marginBottom: 8 }}>
-          <div><strong>Account:</strong> {pre.username}</div>
-          <div><strong>Service:</strong> {pre.serviceId?.name || pre.serviceId}</div>
-          <div><strong>Service tag:</strong> {pre?.serviceTag || '-'}</div>
+        <div style={{ marginBottom: 12, fontSize: 14 }}>
+          <div style={{ color: G.slate }}><strong style={{ color: G.white }}>Account:</strong> {pre.username}</div>
+          <div style={{ color: G.slate, marginTop: 4 }}><strong style={{ color: G.white }}>Service:</strong> {pre.serviceId?.name || pre.serviceId}</div>
+          {pre?.serviceTag && <div style={{ color: G.slate, marginTop: 4 }}><strong style={{ color: G.white }}>Tag:</strong> {pre.serviceTag}</div>}
         </div>
-        <div style={{ marginBottom: 8 }}>
-          <label>Amount (required):</label>
-          <input value={amount} onChange={(e) => setAmount(e.target.value)} style={styles.input} />
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ display: 'block', color: G.slate, fontSize: 13, marginBottom: 5 }}>Amount (required)</label>
+          <input value={amount} onChange={(e) => setAmount(e.target.value)} style={inputStyle} placeholder="0.00" />
         </div>
-        <div style={{ marginBottom: 8 }}>
-          <label>Upload files (optional):</label>
-          <input type="file" multiple onChange={(e) => setFiles(Array.from(e.target.files || []))} />
+        <div style={{ marginBottom: 18 }}>
+          <label style={{ display: 'block', color: G.slate, fontSize: 13, marginBottom: 5 }}>Upload files (optional)</label>
+          <input type="file" multiple onChange={(e) => setFiles(Array.from(e.target.files || []))}
+            style={{ color: G.slate, fontSize: 13 }} />
         </div>
-        <div style={mobile ? { display: 'flex', flexDirection: 'column', gap: 8 } : { display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-          <button onClick={onSubmit} style={mobile ? { ...actionBtn, width: '100%' } : actionBtn}>Submit</button>
-          <button onClick={onClose} style={mobile ? { ...actionOutline, width: '100%' } : actionOutline}>Close</button>
+        <div style={{ display: 'flex', gap: 10, flexDirection: mobile ? 'column' : 'row' }}>
+          <button onClick={onSubmit} style={{ ...btnGold, flex: 1 }}>Submit</button>
+          <button onClick={onClose} style={{ ...btnOutline, flex: 1 }}>Close</button>
         </div>
       </div>
     </div>
@@ -382,21 +462,28 @@ const CancelModal = ({ pre, onClose, onConfirm }) => {
   const el = (
     <div style={modalOverlay}>
       <div style={modalBox}>
-        <h3 style={{ marginTop: 0 }}>Cancel Pre-submission</h3>
-        <div style={{ marginBottom: 8 }}>
-          <div>Please provide a short reason for cancelling the pre-submission for <strong>{pre.username}</strong>.</div>
-          <div style={{ marginTop: 8, fontSize: 13, color: '#666' }}>
-            <small>
-              Cancelling will stop any further processing for this pre-submission and remove it from your active list.
-            </small>
-          </div>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg,${G.red},#f87171cc)` }} />
+        <h3 style={{ marginTop: 4, marginBottom: 12, color: G.red, fontSize: 17, fontWeight: 700 }}>Cancel Pre-submission</h3>
+        <div style={{ marginBottom: 8, color: G.slate, fontSize: 14 }}>
+          Please provide a short reason for cancelling the pre-submission for{' '}
+          <strong style={{ color: G.white }}>{pre.username}</strong>.
         </div>
-        <div style={{ marginBottom: 8 }}>
-          <textarea value={reason} onChange={(e) => setReason(e.target.value)} style={{ width: '100%', minHeight: 80, padding: 8 }} />
+        <div style={{ marginBottom: 8, fontSize: 13, color: G.slateD }}>
+          Cancelling will stop any further processing and remove it from your active list.
         </div>
-        <div style={mobile ? { display: 'flex', flexDirection: 'column', gap: 8 } : { display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-          <button onClick={() => onConfirm(reason)} style={mobile ? { ...actionBtn, width: '100%' } : actionBtn}>Confirm</button>
-          <button onClick={onClose} style={mobile ? { ...actionOutline, width: '100%' } : actionOutline}>Close</button>
+        <div style={{ marginBottom: 18 }}>
+          <textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            style={{
+              ...inputStyle, minHeight: 80, resize: 'vertical',
+              fontFamily: 'inherit', padding: '10px 13px',
+            }}
+          />
+        </div>
+        <div style={{ display: 'flex', gap: 10, flexDirection: mobile ? 'column' : 'row' }}>
+          <button onClick={() => onConfirm(reason)} style={{ ...btnGold, flex: 1, background: G.red, boxShadow: 'none' }}>Confirm Cancel</button>
+          <button onClick={onClose} style={{ ...btnOutline, flex: 1 }}>Back</button>
         </div>
       </div>
     </div>
@@ -408,16 +495,14 @@ const DetailsModal = ({ pre, onClose }) => {
   const mobile = typeof window !== 'undefined' && window.innerWidth <= 640;
   const apiBase = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/$/, '') : '';
   const [copied, setCopied] = useState(false);
-  const [signedUrls, setSignedUrls] = useState({}); // map raw file -> signed url
+  const [signedUrls, setSignedUrls] = useState({});
   const [signingLoading, setSigningLoading] = useState({});
 
   const getTokenForApi = () => localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
 
-  // Request signed URLs for relative upload paths so <img> tags can load without Authorization header.
   const fetchSignedUrl = async (f) => {
     try {
       if (!f) return '';
-      // if already absolute, no need for signed url
       if (/^https?:\/\//i.test(String(f))) return String(f);
       if (signedUrls[f]) return signedUrls[f];
       if (signingLoading[f]) return null;
@@ -433,25 +518,21 @@ const DetailsModal = ({ pre, onClose }) => {
       return signed;
     } catch (e) {
       setSigningLoading(s => ({ ...s, [f]: false }));
-      // fallback: return absolute constructed URL
       try {
         let base = apiBase || '';
         if (base && /^https:\/\//i.test(base) && base.includes('localhost')) base = base.replace(/^https:\/\//i, 'http://');
         const fallback = base + (String(f).startsWith('/') ? f : '/' + f);
         setSignedUrls(s => ({ ...s, [f]: fallback }));
         return fallback;
-      } catch (err) {
-        return '';
-      }
+      } catch (err) { return ''; }
     }
   };
 
   useEffect(() => {
-    // prefetch signed urls when modal opens
     if (!pre || !pre.fileUrls || !pre.fileUrls.length) return;
     pre.fileUrls.forEach((f) => {
       if (!f) return;
-      if (/^https?:\/\//i.test(String(f))) return; // absolute already
+      if (/^https?:\/\//i.test(String(f))) return;
       if (!signedUrls[f] && !signingLoading[f]) fetchSignedUrl(f).catch(() => {});
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -460,175 +541,169 @@ const DetailsModal = ({ pre, onClose }) => {
   const copyId = async () => {
     try {
       const id = pre?._id || pre?.id || '';
-      if (navigator && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      if (navigator && navigator.clipboard) {
         await navigator.clipboard.writeText(id);
         setCopied(true);
         setTimeout(() => setCopied(false), 1800);
       }
-    } catch (e) { /* ignore */ }
+    } catch (e) {}
   };
 
   const fileUrl = (fRaw) => {
     const f = String(fRaw || '').trim();
     if (!f) return '';
-    // already a full url
     if (/^https?:\/\//i.test(f)) {
-      // If it's https and pointing to localhost in dev, downgrade to http to avoid SSL protocol errors
-      if (/^https:\/\//i.test(f) && (/localhost/i.test(f) || /127\.0\.0\.1/.test(f))) {
-        return f.replace(/^https:\/\//i, 'http://');
-      }
+      if (/^https:\/\//i.test(f) && (/localhost/i.test(f) || /127\.0\.0\.1/.test(f))) return f.replace(/^https:\/\//i, 'http://');
       return f;
     }
-
-    // handle paths that begin with a colon (e.g. ':22222/uploads/...')
     if (f.startsWith(':')) {
-      const host = (typeof window !== 'undefined' && window.location && window.location.hostname) ? window.location.hostname : 'localhost';
-      // assume http for local dev ports
+      const host = (typeof window !== 'undefined' && window.location?.hostname) ? window.location.hostname : 'localhost';
       return `http://${host}${f}`;
     }
-
-    // if we have an apiBase, join it properly and fall back http for localhost dev
     if (apiBase) {
       try {
         let base = String(apiBase).replace(/\/$/, '');
-        if (/^https:\/\//i.test(base) && base.includes('localhost')) {
-          base = base.replace(/^https:\/\//i, 'http://');
-        }
+        if (/^https:\/\//i.test(base) && base.includes('localhost')) base = base.replace(/^https:\/\//i, 'http://');
         return base + (f.startsWith('/') ? f : '/' + f);
-      } catch (e) {
-        // fall through to return a sane path
-      }
+      } catch (e) {}
     }
-
-    // final fallback: ensure a leading slash
     return f.startsWith('/') ? f : '/' + f;
   };
 
   const openAllFiles = () => {
-    if (!pre?.fileUrls || !pre.fileUrls.length) return;
-    pre.fileUrls.forEach((f) => {
-      const u = fileUrl(f);
-      try { window.open(u, '_blank', 'noopener'); } catch (e) { /* ignore */ }
-    });
+    if (!pre?.fileUrls?.length) return;
+    pre.fileUrls.forEach((f) => { try { window.open(fileUrl(f), '_blank', 'noopener'); } catch (e) {} });
   };
 
   const renderFile = (f, i) => {
     const u = signedUrls[f] || fileUrl(f);
     const isImage = /\.(jpe?g|png|gif|webp|bmp|svg)(\?.*)?$/i.test(String(f));
     return (
-      <div key={i} style={{ width: 140, margin: 8, textAlign: 'center', transition: 'transform 160ms ease' }}>
+      <div key={i} style={{ width: 130, margin: 6, textAlign: 'center' }}>
         {isImage ? (
           <a href={u} target="_blank" rel="noopener noreferrer" style={{ display: 'block', position: 'relative' }}>
             <img
               src={u}
               alt={`file-${i}`}
-              style={{ width: 140, height: 96, objectFit: 'cover', borderRadius: 8, border: `1px solid ${THEME.border}`, boxShadow: '0 6px 18px rgba(16,24,40,0.06)' }}
+              style={{ width: 130, height: 90, objectFit: 'cover', borderRadius: 8, border: `1px solid ${G.goldBorder}` }}
               onError={(e) => {
                 try {
-                  // hide the broken image and reveal the fallback link (keeps layout stable)
                   e.target.style.display = 'none';
-                  const parent = e.target.parentNode;
-                  const fb = parent && parent.querySelector && parent.querySelector('.img-fallback');
+                  const fb = e.target.parentNode?.querySelector?.('.img-fallback');
                   if (fb) fb.style.display = 'flex';
-                } catch (err) { /* ignore */ }
+                } catch (err) {}
               }}
             />
-            <div className="img-fallback" style={{ display: 'none', width: 140, height: 96, borderRadius: 8, border: `1px solid ${THEME.border}`, background: '#f7f7f9', alignItems: 'center', justifyContent: 'center' }}>
-              <button onClick={() => { try { window.open(u, '_blank', 'noopener'); } catch (e) {} }} style={{ border: 'none', background: 'transparent', color: THEME.primary, fontWeight: 700, cursor: 'pointer' }}>Open image</button>
+            <div className="img-fallback" style={{
+              display: 'none', width: 130, height: 90, borderRadius: 8,
+              border: `1px solid ${G.goldBorder}`, background: G.navy3,
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+              <button onClick={() => { try { window.open(u, '_blank', 'noopener'); } catch (e) {} }}
+                style={{ border: 'none', background: 'transparent', color: G.gold, fontWeight: 700, cursor: 'pointer' }}>
+                Open image
+              </button>
             </div>
           </a>
         ) : (
-          <div style={{ width: 140, height: 96, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, border: `1px solid ${THEME.border}`, background: '#fbfbfd', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)' }}>
-            <a href={u} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: THEME.primary, fontWeight: 600 }}>📎 Download</a>
+          <div style={{
+            width: 130, height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            borderRadius: 8, border: `1px solid ${G.goldBorder}`, background: G.navy3,
+          }}>
+            <a href={u} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: G.gold, fontWeight: 600, fontSize: 13 }}>
+              &#128206; Download
+            </a>
           </div>
         )}
-        <div style={{ fontSize: 12, color: THEME.muted, marginTop: 8, maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{String(u).split('/').pop()}</div>
+        <div style={{ fontSize: 11, color: G.slateD, marginTop: 6, maxWidth: 130, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {String(u).split('/').pop()}
+        </div>
       </div>
     );
   };
 
+  const sb = statusColor(pre?.status);
+
   const el = (
     <div style={modalOverlay}>
-      <div style={{ ...modalBox, maxWidth: mobile ? '92%' : 880, padding: 18, maxHeight: mobile ? '70vh' : '75vh', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 10 }}>
-          <div style={{ flex: 1 }}>
-            <h2 style={{ margin: 0, fontSize: 18, color: '#111' }}>Pre-submission Details</h2>
-          </div>
+      <div style={{
+        ...modalBox, maxWidth: mobile ? '92%' : 880, padding: 20,
+        maxHeight: mobile ? '72vh' : '78vh', overflowY: 'auto',
+      }}>
+        {/* Gold top bar */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg,${G.gold},${G.goldLight})` }} />
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <button onClick={onClose} aria-label="Close" style={{ border: 'none', background: 'transparent', fontSize: 20, cursor: 'pointer', color: '#666' }}>✕</button>
-          </div>
+        {/* Modal header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 14, marginTop: 4 }}>
+          <h2 style={{ margin: 0, fontSize: 17, color: G.gold, fontWeight: 700 }}>Pre-submission Details</h2>
+          <button onClick={onClose} aria-label="Close" style={{ border: 'none', background: 'rgba(255,255,255,0.06)', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', color: G.slate, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            &#x2715;
+          </button>
         </div>
 
-        <div style={{ height: 1, background: THEME.border, marginBottom: 12, borderRadius: 2 }} />
+        <div style={{ height: 1, background: G.goldBorder, marginBottom: 16 }} />
 
-        {/* Single column: show account/meta fields then files in a horizontal row */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ background: '#fff', padding: 12, borderRadius: 10, border: `1px solid ${THEME.border}`, boxShadow: '0 6px 18px rgba(16,24,40,0.04)' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '160px 1fr', gap: 8, alignItems: 'center' }}>
-              <div style={{ color: THEME.muted, fontWeight: 700 }}>Account username:</div>
-              <div style={{ fontWeight: 700 }}>{pre?.username || '-'}</div>
+        {/* Details grid */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: mobile ? '1fr' : '160px 1fr',
+          gap: '10px 12px', alignItems: 'start',
+          background: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: '14px 16px',
+          border: `1px solid ${G.goldBorder}`,
+        }}>
+          <div style={{ color: G.slateD, fontSize: 13, fontWeight: 600 }}>Account:</div>
+          <div style={{ color: G.white, fontWeight: 700 }}>{pre?.username || '-'}</div>
 
-              <div style={{ color: THEME.muted, fontWeight: 700 }}>ID:</div>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 420 }}>{pre?.preId || pre?._id || pre?.id || '-'}</div>
-                {/* small clipboard icon button for copy */}
-                <button onClick={copyId} aria-label="Copy ID" title="Copy ID" style={{ border: 'none', background: 'transparent', padding: 6, cursor: 'pointer' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M16 1H4C2.89543 1 2 1.89543 2 3V17H4V3H16V1Z" fill="#162660" />
-                    <path d="M20 5H8C6.89543 5 6 5.89543 6 7V21C6 22.1046 6.89543 23 8 23H20C21.1046 23 22 22.1046 22 21V7C22 5.89543 21.1046 5 20 5ZM20 21H8V7H20V21Z" fill="#162660" />
-                  </svg>
-                </button>
-                {copied ? <div style={{ color: '#0b0', fontSize: 12 }}>Copied</div> : null}
-              </div>
-
-              <div style={{ color: THEME.muted, fontWeight: 700 }}>File:</div>
-              <div>
-                {(!pre.fileUrls || pre.fileUrls.length === 0) ? (
-                  <div style={{ color: THEME.muted }}>No files attached</div>
-                ) : (
-                  <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 8, WebkitOverflowScrolling: 'touch' }}>
-                    {pre.fileUrls.map((f, i) => (
-                      <div key={i} style={{ flex: '0 0 auto', display: 'inline-block' }}>
-                        {renderFile(f, i)}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div style={{ color: THEME.muted, fontWeight: 700 }}>Service:</div>
-              <div>{pre?.serviceId?.name || pre?.serviceId || '-'}</div>
-
-              <div style={{ color: THEME.muted, fontWeight: 700 }}>Service tag:</div>
-              <div>{pre?.serviceTag || '-'}</div>
-
-              <div style={{ color: THEME.muted, fontWeight: 700 }}>Status:</div>
-              <div style={{ fontWeight: 700 }}>{pre?.status || '-'}</div>
-
-              <div style={{ color: THEME.muted, fontWeight: 700 }}>Submitted:</div>
-              <div>{new Date(pre?.createdAt || Date.now()).toLocaleString()}</div>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ marginTop: 14, display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', gap: 8 }}>
-            {pre.fileUrls && pre.fileUrls.length > 1 ? <button onClick={openAllFiles} style={actionOutline}>Open all files</button> : null}
-            {pre.fileUrls && pre.fileUrls.length ? (
-              <button onClick={() => { try { window.open(fileUrl(pre.fileUrls[0]), '_blank', 'noopener'); } catch (e) {} }} style={actionOutline}>Open first file</button>
-            ) : null}
+          <div style={{ color: G.slateD, fontSize: 13, fontWeight: 600 }}>ID:</div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <span style={{ color: G.white, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 380, fontSize: 13 }}>
+              {pre?.preId || pre?._id || pre?.id || '-'}
+            </span>
+            <button onClick={copyId} aria-label="Copy ID" title="Copy ID" style={{ border: 'none', background: 'transparent', padding: 4, cursor: 'pointer', color: copied ? G.green : G.slateD, fontSize: 16 }}>
+              {copied ? <FaCheckCircle /> : <FaRegCopy />}
+            </button>
+            {copied && <span style={{ color: G.green, fontSize: 12 }}>Copied</span>}
           </div>
 
+          <div style={{ color: G.slateD, fontSize: 13, fontWeight: 600 }}>Status:</div>
+          <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700, background: sb.bg, color: sb.color }}>
+            {pre?.status || 'Pending'}
+          </span>
+
+          <div style={{ color: G.slateD, fontSize: 13, fontWeight: 600 }}>Service:</div>
+          <div style={{ color: G.white }}>{pre?.serviceId?.name || pre?.serviceId || '-'}</div>
+
+          <div style={{ color: G.slateD, fontSize: 13, fontWeight: 600 }}>Service tag:</div>
+          <div style={{ color: G.white }}>{pre?.serviceTag || '-'}</div>
+
+          <div style={{ color: G.slateD, fontSize: 13, fontWeight: 600 }}>Submitted:</div>
+          <div style={{ color: G.white }}>{new Date(pre?.createdAt || Date.now()).toLocaleString()}</div>
+
+          <div style={{ color: G.slateD, fontSize: 13, fontWeight: 600 }}>Files:</div>
           <div>
-            <button onClick={onClose} style={actionBtn}>Close</button>
+            {(!pre.fileUrls || pre.fileUrls.length === 0) ? (
+              <span style={{ color: G.slateD }}>No files attached</span>
+            ) : (
+              <div style={{ display: 'flex', flexWrap: 'wrap', marginLeft: -6 }}>
+                {pre.fileUrls.map((f, i) => renderFile(f, i))}
+              </div>
+            )}
           </div>
+        </div>
+
+        {/* Footer buttons */}
+        <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {pre.fileUrls && pre.fileUrls.length > 1 && (
+              <button onClick={openAllFiles} style={btnOutline}>Open all files</button>
+            )}
+            {pre.fileUrls && pre.fileUrls.length > 0 && (
+              <button onClick={() => { try { window.open(fileUrl(pre.fileUrls[0]), '_blank', 'noopener'); } catch (e) {} }} style={btnOutline}>Open first file</button>
+            )}
+          </div>
+          <button onClick={onClose} style={btnGold}>Close</button>
         </div>
       </div>
     </div>
   );
   return ReactDOM.createPortal(el, document.body);
 };
-
-const modalOverlay = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 };
-const modalBox = { background: '#fff', padding: 20, borderRadius: 8, width: 'min(720px, 92%)', boxShadow: '0 8px 24px rgba(0,0,0,0.2)' };

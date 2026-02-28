@@ -5,10 +5,52 @@ import { jwtDecode } from 'jwt-decode';
 import ResponsiveLogo from './ResponsiveLogo';
 import Alert from '../components/Alert';
 
-// const apiUrl = 'http://localhost:22222';
-// const apiUrl = "https://exdollarium-6f0f5aab6a7d.herokuapp.com";
 const apiUrl = process.env.REACT_APP_API_URL;
 
+const s = {
+  page: {
+    minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'linear-gradient(135deg,#0A0F1E 0%,#0F172A 60%,#111827 100%)',
+    padding: '1.5rem', position: 'relative', overflow: 'hidden',
+  },
+  glowA: {
+    position: 'absolute', top: '-100px', left: '-100px', width: '400px', height: '400px',
+    borderRadius: '50%', background: 'radial-gradient(circle,rgba(245,166,35,0.1) 0%,transparent 70%)',
+    pointerEvents: 'none',
+  },
+  glowB: {
+    position: 'absolute', bottom: '-80px', right: '-80px', width: '300px', height: '300px',
+    borderRadius: '50%', background: 'radial-gradient(circle,rgba(245,166,35,0.07) 0%,transparent 70%)',
+    pointerEvents: 'none',
+  },
+  card: {
+    position: 'relative', width: '100%', maxWidth: '420px',
+    background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(245,166,35,0.15)',
+    borderRadius: '20px', padding: '2.5rem 2rem', boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
+    textAlign: 'center',
+  },
+  logoRow: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '1.5rem' },
+  logoText: { color: '#F5A623', fontWeight: 700, fontSize: '1rem', letterSpacing: '0.06em' },
+  badge: {
+    display: 'inline-block', background: 'rgba(245,166,35,0.12)', border: '1px solid rgba(245,166,35,0.3)',
+    color: '#F5A623', borderRadius: '50px', padding: '0.35rem 1rem',
+    fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+    marginBottom: '1rem',
+  },
+  heading: { color: '#F1F5F9', fontSize: '1.6rem', fontWeight: 800, margin: '0 0 0.4rem' },
+  sub: { color: '#64748B', fontSize: '0.9rem', marginBottom: '2rem', lineHeight: 1.6 },
+  btn: {
+    width: '100%', padding: '0.85rem', borderRadius: '50px', border: 'none',
+    background: 'linear-gradient(135deg,#F5A623,#FBBF24)', color: '#0A0F1E',
+    fontWeight: 800, fontSize: '1rem', cursor: 'pointer',
+  },
+  btnDisabled: {
+    width: '100%', padding: '0.85rem', borderRadius: '50px', border: 'none',
+    background: 'rgba(245,166,35,0.35)', color: 'rgba(0,0,0,0.4)',
+    fontWeight: 800, fontSize: '1rem', cursor: 'not-allowed',
+  },
+};
 
 const RequestOtpPage = () => {
   const [loading, setLoading] = useState(false);
@@ -19,7 +61,11 @@ const RequestOtpPage = () => {
     setLoading(true);
     const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
 
-    if (!token) return alert('You must be logged in.');
+    if (!token) {
+      setAlert({ message: 'You must be logged in.', type: 'error' });
+      setLoading(false);
+      return;
+    }
 
     try {
       const { id: userId } = jwtDecode(token);
@@ -39,44 +85,23 @@ const RequestOtpPage = () => {
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#d0e6fd' }}>
-      <div
-        style={{
-          maxWidth: '400px',
-          padding: '25px',
-          backgroundColor: '#162660',
-          borderRadius: '10px',
-          boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
-          textAlign: 'center',
-        }}
-      >
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', color: '#f1e4d1', fontWeight: 'bold' }}>
-            <ResponsiveLogo alt="Exdollarium" style={{ marginRight: '10px' }} />
-            <span>Exdollarium</span>
-          </div>
-        </header>
+    <div style={s.page}>
+      <div style={s.glowA} />
+      <div style={s.glowB} />
+      <div style={s.card}>
+        <div style={s.logoRow}>
+          <ResponsiveLogo style={{ height: 32 }} />
+          <span style={s.logoText}>EXDOLLARIUM</span>
+        </div>
 
-        <h2 style={{ color: '#f1e4d1', marginBottom: '15px' }}>Reset Withdrawal PIN</h2>
+        <span style={s.badge}>🔑 Reset Withdrawal PIN</span>
+        <h2 style={s.heading}>Request OTP</h2>
+        <p style={s.sub}>We'll send a one-time code to your registered email address to verify your identity.</p>
 
         {alert.message && <Alert message={alert.message} type={alert.type} />}
 
-        <button
-          onClick={handleRequestOtp}
-          disabled={loading}
-          style={{
-            backgroundColor: loading ? '#b5b5b5' : '#d0e6fd',
-            color: '#162660',
-            padding: '12px',
-            borderRadius: '5px',
-            fontWeight: 'bold',
-            width: '100%',
-            border: 'none',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            fontSize: '16px',
-          }}
-        >
-          {loading ? 'Sending OTP...' : 'Send OTP to Email'}
+        <button onClick={handleRequestOtp} disabled={loading} style={loading ? s.btnDisabled : s.btn}>
+          {loading ? 'Sending OTP…' : 'Send OTP to Email →'}
         </button>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { getAdminToken } from '../utils/adminAuth';
 import axios from 'axios';
 import Alert from '../components/Alert';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -26,7 +27,7 @@ const SecondaryAdminWallet = () => {
 
   const fetchWalletData = useCallback(async () => {
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       if (!token) {
         setAlert({ type: "error", message: "Admin not authenticated" });
         return;
@@ -45,11 +46,11 @@ const SecondaryAdminWallet = () => {
         message: error.response?.data?.message || error.message,
       });
     }
-  }, [apiUrl]); // âœ… include dependencies
+  }, [apiUrl]); // âœ?include dependencies
 
   useEffect(() => {
     fetchWalletData();
-  }, [fetchWalletData]); // âœ…
+  }, [fetchWalletData]); // âœ?
   
 
   useEffect(() => {
@@ -115,7 +116,7 @@ const SecondaryAdminWallet = () => {
                 <p><strong>ID:</strong> {tx._id}</p>
                 <p><strong>Type:</strong> {tx.type}</p>
                 <p style={{ color: tx.type === 'Funding' ? 'green' : 'orangered' }}>
-                  <strong>Amount:</strong> {tx.type === 'Funding' ? `+â‚¦${tx.amount.toLocaleString()}` : `-â‚¦${tx.amount.toLocaleString()}`}
+                  <strong>Amount:</strong> {tx.type === 'Funding' ? `+â‚?{tx.amount.toLocaleString()}` : `-â‚?{tx.amount.toLocaleString()}`}
                 </p>
                 <p><strong>Note:</strong> {tx.note || 'N/A'}</p>
                 <p><strong>Date:</strong> {tx.timestamp ? new Date(tx.timestamp).toLocaleString() : 'Not available'}</p>
@@ -139,7 +140,7 @@ const SecondaryAdminWallet = () => {
                   <td>{tx._id}</td>
                   <td>{tx.type}</td>
                   <td style={{ color: tx.type === 'Funding' ? 'green' : 'orangered' }}>
-                    {tx.type === 'Funding' ? `+â‚¦${tx.amount.toLocaleString()}` : `-â‚¦${tx.amount.toLocaleString()}`}
+                    {tx.type === 'Funding' ? `+â‚?{tx.amount.toLocaleString()}` : `-â‚?{tx.amount.toLocaleString()}`}
                   </td>
                   <td>{tx.note || 'N/A'}</td>
                   <td>{new Date(tx.date).toLocaleDateString()} {new Date(tx.date).toLocaleTimeString()}</td>
@@ -160,3 +161,4 @@ const SecondaryAdminWallet = () => {
 };
 
 export default SecondaryAdminWallet;
+

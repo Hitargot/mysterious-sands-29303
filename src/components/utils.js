@@ -1,8 +1,9 @@
 // src/utils.js
 import {jwtDecode} from 'jwt-decode';
+import { getAdminToken } from '../utils/adminAuth';
 
 export const getUserRole = () => {
-  const token = localStorage.getItem('adminToken');
+  const token = getAdminToken();
   if (!token) return null;
   try {
     const decoded = jwtDecode(token);
@@ -14,7 +15,7 @@ export const getUserRole = () => {
 };
 
 export const getUserPermissions = () => {
-  const token = localStorage.getItem('adminToken');
+  const token = getAdminToken();
   if (!token) return [];
   try {
     const decoded = jwtDecode(token);

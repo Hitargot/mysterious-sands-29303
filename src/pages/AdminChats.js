@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { getAdminToken, removeAdminToken } from '../utils/adminAuth';
 // ExLogo removed (not used) to avoid unused import
 import UserIcon from '../assets/images/path_to_team_member_image.jpg';
 import { useNavigate } from 'react-router-dom';
@@ -32,7 +33,7 @@ const AdminChats = () => {
   const fileInputRef = useRef(null);
 
   const navigate = useNavigate();
-  const token = localStorage.getItem('adminToken');
+  const token = getAdminToken();
   const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
   const isTokenExpired = (tkn) => {
@@ -74,7 +75,7 @@ const AdminChats = () => {
     } catch (err) {
       console.error('Failed to fetch chats', err);
       if (err.response && err.response.status === 401) {
-        localStorage.removeItem('adminToken');
+        removeAdminToken();
         navigate('/admin/login');
         return;
       }
@@ -89,7 +90,7 @@ const AdminChats = () => {
   useEffect(() => {
     // require a valid admin token
     if (!token || isTokenExpired(token)) {
-      localStorage.removeItem('adminToken');
+      removeAdminToken();
       navigate('/admin/login');
       return;
     }
@@ -232,7 +233,7 @@ const AdminChats = () => {
     } catch (err) {
       console.error('Failed to open chat', err);
       if (err.response && err.response.status === 401) {
-        localStorage.removeItem('adminToken');
+        removeAdminToken();
         navigate('/admin/login');
         return;
       }
@@ -240,9 +241,7 @@ const AdminChats = () => {
     }
   };
 
-  // Helper to get admin token for signed URL requests
-  const getAdminToken = () => localStorage.getItem('adminToken');
-
+  // Helper to get admin token for signed URL requests — uses imported getAdminToken
   const fetchSignedUrl = async (rawPath) => {
     try {
       if (!rawPath) return null;
@@ -291,7 +290,7 @@ const AdminChats = () => {
         replyFiles.forEach((f, i) => form.append('attachments', f.file, f.name || `file${i}`));
         // Use fetch for multipart upload so the browser/runtime sets the boundary correctly
         const url = `${apiUrl.replace(/\/$/, '')}/api/tickets/${encodeURIComponent(selectedChat._id)}/reply`;
-        const tokenLocal = localStorage.getItem('adminToken');
+        const tokenLocal = getAdminToken();
         const fetchHeaders = {};
         if (tokenLocal) fetchHeaders.Authorization = `Bearer ${tokenLocal}`;
         const resp = await fetch(url, { method: 'POST', headers: fetchHeaders, body: form });
@@ -336,7 +335,7 @@ const AdminChats = () => {
     } catch (err) {
       console.error('Failed to reply', err);
       if (err.response && err.response.status === 401) {
-        localStorage.removeItem('adminToken');
+        removeAdminToken();
         navigate('/admin/login');
         return;
       }
@@ -359,7 +358,7 @@ const AdminChats = () => {
     } catch (err) {
       console.error('Failed to close chat', err);
       if (err.response && err.response.status === 401) {
-        localStorage.removeItem('adminToken');
+        removeAdminToken();
         navigate('/admin/login');
         return;
       }
@@ -468,7 +467,7 @@ const AdminChats = () => {
                   {/* Render replies chronologically */}
                   {(selectedChat.replies || []).map((r, idx) => (
                     <div key={idx} style={{ marginTop: 10, padding: 8, background: '#fff' }}>
-                      <div style={{ fontSize: 12, color: '#666' }}>{(r.by || r.senderRole || 'user')} • {r.at ? new Date(r.at).toLocaleString() : (r.createdAt ? new Date(r.createdAt).toLocaleString() : '')}</div>
+                      <div style={{ fontSize: 12, color: '#666' }}>{(r.by || r.senderRole || 'user')} �?{r.at ? new Date(r.at).toLocaleString() : (r.createdAt ? new Date(r.createdAt).toLocaleString() : '')}</div>
                       <div style={{ marginTop: 6 }}>{r.message}</div>
                       {r.attachments && r.attachments.length > 0 ? (
                             <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
@@ -551,3 +550,5 @@ const AdminChats = () => {
 };
 
 export default AdminChats;
+
+

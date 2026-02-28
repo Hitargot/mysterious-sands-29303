@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode';
 import styled from 'styled-components';
 import logo from '../assets/images/IMG_940.PNG';
+import { getAdminToken, setAdminToken, setAdminPayload, removeAdminToken } from '../utils/adminAuth';
 
 const Page = styled.div`
   min-height: 100vh;
@@ -132,18 +133,18 @@ export default function AdminLogin() {
   const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
+    const token = getAdminToken();
     if (token) {
       try {
         const { exp } = jwtDecode(token);
         if (Date.now() < exp * 1000) {
           navigate('/admin');
         } else {
-          localStorage.removeItem('adminToken');
+          removeAdminToken();
         }
       } catch (err) {
         console.error('Invalid token:', err);
-        localStorage.removeItem('adminToken');
+        removeAdminToken();
       }
     }
   }, [navigate]);
@@ -163,15 +164,22 @@ export default function AdminLogin() {
       const res = await fetch(`${apiUrl}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usernameOrEmail: credential, password }),
+        // withCredentials equivalent for fetch N/A tells browser to accept the Set-Cookie header
+        credentials: 'include',
+        body: JSON.stringify({ usernameOrEmail: credential, password, rememberMe: remember }),
       });
 
       const data = await res.json();
 
       if (res.ok && data.token) {
-        localStorage.setItem('adminToken', data.token);
-        if (remember) localStorage.setItem('adminRemember', '1');
-        setMessage('Signed in — redirecting…');
+        // Server has set the httpOnly cookie. Also keep the token in sessionStorage
+        // as a fallback for any fetch() calls that still use Authorization headers.
+        setAdminToken(data.token, remember);
+        // Store the decoded payload for UI reads (name, role) N/A NOT the raw token.
+        try {
+          setAdminPayload(jwtDecode(data.token));
+        } catch (_) { /* ignore decode errors */ }
+        setMessage('Signed in N/A redirecting...');
         setMessageType('success');
         if (data.tempPasswordExpiresAt) {
           setTempPasswordExpiry(new Date(data.tempPasswordExpiresAt).getTime());
@@ -182,7 +190,7 @@ export default function AdminLogin() {
       }
     } catch (err) {
       console.error(err);
-      setMessage('Network error — try again');
+      setMessage('Network error N/A try again');
       setMessageType('error');
     }
   };
@@ -193,12 +201,14 @@ export default function AdminLogin() {
         const now = Date.now();
         const left = tempPasswordExpiry - now;
         if (left <= 0) {
-          setMessage('Your temporary password has expired. Please reset your password.');
+          setMessage('Your temporary password has expired. Please change your password now.');
           setMessageType('error');
           setTempPasswordExpiry(null);
+          // Redirect to change-password page after a short delay
+          setTimeout(() => navigate('/admin/change-password'), 1800);
         } else {
           const mins = Math.ceil(left / 60000);
-          setMessage(`Temporary password expires in ${mins} minute(s)`);
+          setMessage(`Temporary password N/A please change it soon (expires in ${mins} minute(s))`);
           setMessageType('warning');
         }
       };
@@ -206,14 +216,21 @@ export default function AdminLogin() {
       const t = setInterval(check, 30000);
       return () => clearInterval(t);
     }
-  }, [tempPasswordExpiry]);
+  }, [tempPasswordExpiry, navigate]);
 
   useEffect(() => {
     if (messageType === 'success') {
-      const t = setTimeout(() => navigate('/admin'), 1400);
+      const t = setTimeout(() => {
+        // If the backend indicated a temp password, go straight to change-password
+        if (tempPasswordExpiry) {
+          navigate('/admin/change-password');
+        } else {
+          navigate('/admin');
+        }
+      }, 1400);
       return () => clearTimeout(t);
     }
-  }, [messageType, navigate]);
+  }, [messageType, tempPasswordExpiry, navigate]);
 
   return (
     <Page>
@@ -222,7 +239,7 @@ export default function AdminLogin() {
           <LogoImg src={logo} alt="Exdollarium" />
           <div>
             <Title>Admin Login</Title>
-            <Desc>Secure admin access — enter your credentials to continue.</Desc>
+            <Desc>Secure admin access N/A enter your credentials to continue.</Desc>
           </div>
         </Header>
 

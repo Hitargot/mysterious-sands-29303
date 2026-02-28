@@ -1,157 +1,145 @@
-import React from "react";
+﻿import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled from "styled-components";
-import paypalIcon from "../assets/images/path_to_paypal_icon.png";
-import cryptoIcon from "../assets/images/path_to_crypto_icon.png";
-import payoneerIcon from "../assets/images/path_to_payonee.png";
-import fiverrIcon from "../assets/images/path_to_fiverr.png";
-import usBankIcon from "../assets/images/path_to_us_bank_icon.png";
-import upworkIcon from "../assets/images/path_to_upwork_icon.png";
-import websiteRechargeIcon from "../assets/images/path_to_website_recharge_icon.png";
-import cardIcon from "../assets/images/2019-01-30-gift-cards.jpeg";
+import paypalIcon   from '../assets/images/path_to_paypal_icon.png';
+import cryptoIcon   from '../assets/images/path_to_crypto_icon.png';
+import payoneerIcon from '../assets/images/path_to_payonee.png';
+import fiverrIcon   from '../assets/images/path_to_fiverr.png';
+import usBankIcon   from '../assets/images/path_to_us_bank_icon.png';
+import upworkIcon   from '../assets/images/path_to_upwork_icon.png';
+import websiteIcon  from '../assets/images/path_to_website_recharge_icon.png';
+import cardIcon     from '../assets/images/2019-01-30-gift-cards.jpeg';
 
 const services = [
-  { name: "PayPal Exchange", icon: paypalIcon, desc: "Convert PayPal balances to Naira quickly with competitive rates." },
-  { name: "Crypto Exchange", icon: cryptoIcon, desc: "Buy/sell BTC, USDT, ETH and more with instant settlement." },
-  { name: "Gift Card Redeem", icon: cardIcon, desc: "Redeem Steam, Apple, iTunes and other gift cards for cash." },
-  { name: "Payoneer Exchange", icon: payoneerIcon, desc: "Withdraw Payoneer balances to your local account easily." },
-  { name: "Fiverr Withdrawal", icon: fiverrIcon, desc: "Get paid from Fiverr and convert to Naira or local bank transfers." },
-  { name: "US Bank Transfer", icon: usBankIcon, desc: "Receive USD payouts directly to your US bank account." },
-  { name: "Upwork Withdrawal", icon: upworkIcon, desc: "Withdraw your Upwork earnings fast and securely." },
-  { name: "Website Recharge", icon: websiteRechargeIcon, desc: "Top-up websites and services using smscode and pivapin methods." },
+  { name: 'PayPal Exchange',   icon: paypalIcon,   desc: 'Convert PayPal balances to Naira quickly with competitive rates.' },
+  { name: 'Crypto Exchange',   icon: cryptoIcon,   desc: 'Buy/sell BTC, USDT, ETH and more with instant NGN settlement.' },
+  { name: 'Gift Card Redeem',  icon: cardIcon,     desc: 'Redeem Steam, Apple, iTunes and other gift cards for cash.' },
+  { name: 'Payoneer Exchange', icon: payoneerIcon, desc: 'Withdraw Payoneer balances to your local Nigerian account easily.' },
+  { name: 'Fiverr Withdrawal', icon: fiverrIcon,   desc: 'Get paid from Fiverr and convert earnings to Naira or bank transfers.' },
+  { name: 'US Bank Transfer',  icon: usBankIcon,   desc: 'Receive USD payouts directly to your US bank account seamlessly.' },
+  { name: 'Upwork Withdrawal', icon: upworkIcon,   desc: 'Withdraw your Upwork earnings fast and securely at best rates.' },
+  { name: 'Website Recharge',  icon: websiteIcon,  desc: 'Top-up websites and services using smscode and pivapin methods.' },
 ];
-
-const ServicesSection = styled.section`
-  background: linear-gradient(135deg, #d0e6fd, #f1e4d1);
-  color: #162660;
-  padding: 60px 20px;
-  text-align: center;
-  position: relative;
-`;
-
-/* two-column layout removed; calculator panel lives elsewhere on the page */
-
-const Heading = styled.h2`
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-  font-weight: bold;
-`;
-
-const Description = styled.p`
-  font-size: 1.2rem;
-  margin-bottom: 40px;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
-`;
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  max-width: 1100px;
-  margin: 0 auto;
-  align-items: stretch;
-`;
-
-const ServiceCard = styled.div`
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  text-align: left;
-  box-shadow: 0 6px 20px rgba(16,24,40,0.08);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: transform 0.28s ease, box-shadow 0.28s ease;
-
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 18px 40px rgba(16,24,40,0.12);
-  }
-
-  .top {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-  }
-
-  img {
-    width: 64px;
-    height: 64px;
-    object-fit: cover;
-    border-radius: 10px;
-    background: #f7fafc;
-  }
-
-  h3 {
-    margin: 0;
-    font-size: 1.05rem;
-    color: #162660;
-  }
-
-  p.desc {
-    margin: 12px 0 0 0;
-    color: #475569;
-    font-size: 0.95rem;
-    line-height: 1.4;
-  }
-
-  .cta-row {
-    margin-top: 16px;
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  button {
-    background: #162660;
-    color: #fff;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 700;
-  }
-`;
-
-/* Arrow buttons removed - grid layout uses direct CTA */
 
 const Services = () => {
   const navigate = useNavigate();
-  return (
-    <ServicesSection id="services">
-      <Heading>Our Services</Heading>
-      <Description>We offer a wide range of exchange and payout services — fast, secure and reliable. Click a service to get started.</Description>
+  const [hovered, setHovered] = React.useState(null);
 
-      <Grid>
-        {services.map((s, i) => (
-          <ServiceCard key={i} role="article" aria-label={s.name}>
-            <div>
-              <div className="top">
-                <img src={s.icon} alt={s.name} />
-                <div>
-                  <h3>{s.name}</h3>
-                </div>
-              </div>
-              <p className="desc">{s.desc}</p>
+  const scrollToCalc = () => {
+    const el = document.getElementById('calculator');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    else navigate('/services');
+  };
+
+  return (
+    <section id="services" style={s.section}>
+      <div style={s.header}>
+        <span style={s.tag}>SERVICES</span>
+        <h2 style={s.heading}>
+          What We <span style={{ color: 'var(--gold)' }}>Exchange</span>
+        </h2>
+        <p style={s.lead}>
+          From PayPal to crypto &mdash; we handle it all with competitive rates and fast payouts.
+        </p>
+      </div>
+
+      <div style={s.grid}>
+        {services.map((svc, i) => (
+          <div
+            key={svc.name}
+            style={{
+              ...s.card,
+              borderColor: hovered === i ? 'rgba(245,166,35,0.5)' : 'var(--navy-border)',
+              transform: hovered === i ? 'translateY(-4px)' : 'none',
+            }}
+            onMouseEnter={() => setHovered(i)}
+            onMouseLeave={() => setHovered(null)}
+          >
+            <div style={s.iconWrap}>
+              <img src={svc.icon} alt={svc.name} style={s.iconImg} />
             </div>
-            <div className="cta-row">
-              <button onClick={() => {
-                const el = document.getElementById('calculator');
-                  if (el) {
-                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  const input = el.querySelector('select, input');
-                  if (input) input.focus();
-                } else {
-                  navigate('/services');
-                }
-              }}>Exchange</button>
-            </div>
-          </ServiceCard>
+            <h3 style={s.cardTitle}>{svc.name}</h3>
+            <p style={s.cardDesc}>{svc.desc}</p>
+            <button onClick={scrollToCalc} style={s.cardBtn}>Check Rate &rarr;</button>
+          </div>
         ))}
-      </Grid>
-    </ServicesSection>
+      </div>
+    </section>
   );
+};
+
+const s = {
+  section: { padding: '88px 5%', background: 'var(--navy)' },
+  header: { textAlign: 'center', maxWidth: 580, margin: '0 auto 52px' },
+  tag: {
+    display: 'inline-block',
+    background: 'rgba(245,166,35,0.12)',
+    border: '1px solid rgba(245,166,35,0.3)',
+    color: 'var(--gold)',
+    fontSize: 11, fontWeight: 700, letterSpacing: '2px',
+    textTransform: 'uppercase',
+    padding: '5px 14px', borderRadius: 100, marginBottom: 16,
+  },
+  heading: {
+    fontSize: 'clamp(1.8rem, 4vw, 2.6rem)',
+    fontWeight: 800, color: '#fff',
+    letterSpacing: -0.8, lineHeight: 1.2, marginBottom: 12,
+  },
+  lead: { fontSize: '1rem', color: 'var(--muted-light)', lineHeight: 1.7 },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+    gap: 20,
+    maxWidth: 1100,
+    margin: '0 auto',
+  },
+  card: {
+    background: 'var(--navy-card)',
+    border: '1px solid',
+    borderRadius: 16,
+    padding: '28px 24px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 12,
+    transition: 'border-color 200ms, transform 200ms',
+  },
+  iconWrap: {
+    width: 60,
+    height: 60,
+    background: 'rgba(255,255,255,0.06)',
+    borderRadius: 14,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    padding: 10,
+  },
+  iconImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
+    display: 'block',
+  },
+  cardTitle: { fontSize: '1rem', fontWeight: 800, color: '#fff', margin: 0 },
+  cardDesc: {
+    fontSize: '0.875rem',
+    color: 'var(--muted-light)',
+    lineHeight: 1.6,
+    flex: 1,
+    margin: 0,
+  },
+  cardBtn: {
+    marginTop: 8,
+    background: 'transparent',
+    border: '1px solid rgba(245,166,35,0.3)',
+    color: 'var(--gold)',
+    padding: '8px 14px',
+    borderRadius: 100,
+    fontWeight: 700,
+    fontSize: '0.8rem',
+    cursor: 'pointer',
+    transition: 'background 180ms',
+    alignSelf: 'flex-start',
+  },
 };
 
 export default Services;

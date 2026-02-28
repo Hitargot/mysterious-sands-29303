@@ -4,12 +4,13 @@ import Alert from '../components/Alert';
 import {jwtDecode} from 'jwt-decode'; // default import
 import '../styles/withdrawalRequests.css';
 import { useNavigate } from 'react-router-dom';
+import { getAdminToken, removeAdminToken } from '../utils/adminAuth';
 
 // Responsive admin withdrawal requests page (table on desktop, cards on mobile)
 const WithdrawalRequests = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
   const navigate = useNavigate();
-  const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
+  const token = typeof window !== 'undefined' ? getAdminToken() : null;
 
   const [withdrawals, setWithdrawals] = useState([]);
   const [filtered, setFiltered] = useState([]);
@@ -40,8 +41,8 @@ const WithdrawalRequests = () => {
 
   useEffect(() => {
     if (isTokenExpired(token)) {
-      setError('Session expired — please log in again');
-      localStorage.removeItem('adminToken');
+      setError('Session expired N/A please log in again');
+      removeAdminToken();
       navigate('/login');
       return;
     }
@@ -148,7 +149,7 @@ const WithdrawalRequests = () => {
           <option value="completed">Completed</option>
           <option value="rejected">Rejected</option>
         </select>
-        <button className="btn refresh" onClick={load} disabled={loading}>{loading ? 'Refreshing…' : 'Refresh'}</button>
+        <button className="btn refresh" onClick={load} disabled={loading}>{loading ? 'Refreshing...' : 'Refresh'}</button>
       </div>
 
       {/* Desktop table */}
@@ -172,15 +173,15 @@ const WithdrawalRequests = () => {
               return (
               <tr key={w._id || w.transactionId} className={`row ${st}`}>
                 <td className="mono">{w.transactionId || w._id}</td>
-                <td>{w.userId?.username || w.userId?.name || w.user?.username || w.username || '—'}</td>
+                <td>{w.userId?.username || w.userId?.name || w.user?.username || w.username || 'N/A'}</td>
                 <td>₦{Number(w.amount || w.value || 0).toLocaleString()}</td>
                 <td>
-                  <div>{w.bankId?.accountName || w.bankAccount?.accountName || '—'}</div>
-                  <div className="muted">{w.bankId?.accountNumber || w.bankAccount?.accountNumber || '—'}</div>
-                  <div className="muted">{w.bankId?.bankName || w.bankName || w.bank?.name || '—'}</div>
+                  <div>{w.bankId?.accountName || w.bankAccount?.accountName || 'N/A'}</div>
+                  <div className="muted">{w.bankId?.accountNumber || w.bankAccount?.accountNumber || 'N/A'}</div>
+                  <div className="muted">{w.bankId?.bankName || w.bankName || w.bank?.name || 'N/A'}</div>
                 </td>
                 <td><span className={`status-badge ${w.status ? w.status.toLowerCase() : ''}`}>{w.status || 'pending'}</span></td>
-                <td>{w.createdAt ? new Date(w.createdAt).toLocaleString() : (w.requestedAt ? new Date(w.requestedAt).toLocaleString() : '—')}</td>
+                <td>{w.createdAt ? new Date(w.createdAt).toLocaleString() : (w.requestedAt ? new Date(w.requestedAt).toLocaleString() : 'N/A')}</td>
                 <td>
                   <div className="actions">
                     {canAct && (
@@ -210,13 +211,13 @@ const WithdrawalRequests = () => {
               <div className={`status ${w.status ? w.status.toLowerCase() : ''}`}>{w.status || 'pending'}</div>
             </div>
             <div className="card-body">
-              <div><strong>User:</strong> {w.userId?.username || w.userId?.name || w.user?.username || w.username || '—'}</div>
+              <div><strong>User:</strong> {w.userId?.username || w.userId?.name || w.user?.username || w.username || 'N/A'}</div>
               <div><strong>Amount:</strong> ₦{Number(w.amount || w.value || 0).toLocaleString()}</div>
               <div>
                 <strong>Bank:</strong>
-                <div>{w.bankId?.accountName || w.bankAccount?.accountName || '—'}</div>
-                <div className="muted">{w.bankId?.accountNumber || w.bankAccount?.accountNumber || '—'}</div>
-                <div className="muted">{w.bankId?.bankName || w.bankName || w.bank?.name || '—'}</div>
+                <div>{w.bankId?.accountName || w.bankAccount?.accountName || 'N/A'}</div>
+                <div className="muted">{w.bankId?.accountNumber || w.bankAccount?.accountNumber || 'N/A'}</div>
+                <div className="muted">{w.bankId?.bankName || w.bankName || w.bank?.name || 'N/A'}</div>
               </div>
                 <div className="card-actions">
                 {canAct && (

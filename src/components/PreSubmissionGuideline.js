@@ -1,4 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { FaInfoCircle, FaChevronDown, FaChevronUp, FaCheckCircle } from 'react-icons/fa';
+
+const G = {
+  navy2: '#0F172A', navy4: '#1E293B',
+  gold: '#F5A623', goldLight: '#FBBF24', goldFaint: 'rgba(245,166,35,0.08)',
+  goldBorder: 'rgba(245,166,35,0.18)',
+  green: '#34D399', greenFaint: 'rgba(52,211,153,0.10)',
+  white: '#F1F5F9', slate: '#94A3B8', slateD: '#64748B',
+};
 
 const STORAGE_KEY = 'preSubmissionGuidelineCollapsed';
 
@@ -18,7 +27,6 @@ const PreSubmissionGuideline = () => {
     if (saved !== null) {
       setCollapsed(saved === 'true');
     } else {
-      // default: collapsed on mobile, expanded on desktop
       setCollapsed(isMobile);
     }
   }, [isMobile]);
@@ -29,66 +37,75 @@ const PreSubmissionGuideline = () => {
     try { localStorage.setItem(STORAGE_KEY, String(next)); } catch (e) {}
   };
 
-  return (
-    <div style={containerBase}>
-      <div style={headerRow}>
-        <div style={{ fontSize: 14, fontWeight: 600 }}>Pre-submission guidelines</div>
-        <button onClick={toggle} aria-expanded={!collapsed} style={toggleBtn}>
-          {collapsed ? 'Show' : 'Hide'}
-        </button>
-      </div>
+  const tips = [
+    { text: 'Pick the number of days left until your intended withdraw day (1–5).' },
+    { text: 'Attach proof files (screenshots, receipts) so we can verify the request.' },
+    { text: <><strong style={{ color: G.white }}>Complete</strong>: mark as processed and create a confirmation (use when withdrawal is done).</> },
+    { text: <><strong style={{ color: G.white }}>Cancel</strong>: stop processing and remove this pre-submission if you no longer need it.</> },
+  ];
 
+  return (
+    <div style={{
+      background: G.navy2, borderRadius: 12, marginBottom: 16,
+      border: `1px solid ${G.goldBorder}`,
+      overflow: 'hidden',
+    }}>
+      {/* Header */}
+      <button
+        onClick={toggle}
+        aria-expanded={!collapsed}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '13px 16px', background: 'transparent', border: 'none',
+          cursor: 'pointer', gap: 10,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: '50%',
+            background: G.goldFaint, border: `1px solid ${G.goldBorder}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 13, color: G.gold, flexShrink: 0,
+          }}>
+            <FaInfoCircle />
+          </div>
+          <span style={{ color: G.goldLight, fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.02em' }}>
+            Pre-Submission Guidelines
+          </span>
+        </div>
+        <span style={{ color: G.slateD, fontSize: 13 }}>
+          {collapsed ? <FaChevronDown /> : <FaChevronUp />}
+        </span>
+      </button>
+
+      {/* Body */}
       {!collapsed && (
-        <div style={content}>
-          <p style={{ margin: '6px 0' }}>
-            Use pre-submission to schedule withdrawal processing. The system's default processing window is 24 hours, but if
-            you want the withdrawal to happen on a later day you can pre-submit and choose how many days remain until your
-            withdraw day.
+        <div style={{ padding: '0 16px 16px', borderTop: `1px solid rgba(245,166,35,0.12)` }}>
+          <p style={{ margin: '14px 0 12px', color: G.slate, fontSize: '0.83rem', lineHeight: 1.65 }}>
+            Use pre-submission to schedule withdrawal processing. The default window is <strong style={{ color: G.white }}>24 hours</strong>, but
+            if you want processing on a later day you can pre-submit and choose how many days remain until your withdraw day.
           </p>
-          <p style={{ margin: '6px 0' }}><strong>Tips</strong></p>
-          <ul style={{ margin: '6px 0 0 18px', padding: 0 }}>
-            <li>Pick the number of days left until your intended withdraw day (1–5).</li>
-            <li>Attach proof files (screenshots, receipts) so we can verify the request.</li>
-            <li><strong>Complete</strong>: mark the pre-submission as processed and create a confirmation (use when withdrawal is done).</li>
-            <li><strong>Cancel</strong>: stop processing and remove this pre-submission if you no longer need it.</li>
-          </ul>
+
+          <div style={{ color: G.goldLight, fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
+            Tips
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {tips.map((tip, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'flex-start', gap: 9,
+                background: 'rgba(255,255,255,0.03)', borderRadius: 8,
+                border: '1px solid rgba(255,255,255,0.05)', padding: '9px 12px',
+              }}>
+                <FaCheckCircle style={{ color: G.gold, fontSize: 12, marginTop: 2, flexShrink: 0 }} />
+                <span style={{ color: G.slate, fontSize: '0.82rem', lineHeight: 1.55 }}>{tip.text}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
   );
-};
-
-const containerBase = {
-  background: '#fff',
-  border: '1px solid #e6e6e6',
-  padding: 8,
-  borderRadius: 8,
-  marginBottom: 12,
-  boxShadow: '0 1px 4px rgba(0,0,0,0.03)'
-};
-
-const headerRow = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: '6px 8px'
-};
-
-const toggleBtn = {
-  background: '#162660',
-  color: '#fff',
-  border: 'none',
-  padding: '6px 10px',
-  borderRadius: 6,
-  cursor: 'pointer',
-  boxShadow: '0 2px 6px rgba(22,38,96,0.12)'
-};
-
-const content = {
-  fontSize: 13,
-  color: '#333',
-  lineHeight: 1.4,
-  padding: '4px 8px'
 };
 
 export default PreSubmissionGuideline;

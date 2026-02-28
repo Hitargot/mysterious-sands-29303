@@ -7,96 +7,138 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
   const [signupClosing, setSignupClosing] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const timerRef = useRef(null);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   const toggle = () => {
-    setOpen((v) => !v);
-    // toggle body no-scroll when opening/closing mobile nav
-    if (typeof document !== 'undefined') {
-      document.body.classList.toggle('no-scroll', !open);
-    }
+    const next = !open;
+    setOpen(next);
+    document.body.style.overflow = next ? 'hidden' : '';
+  };
+
+  const closeNav = () => {
+    setOpen(false);
+    document.body.style.overflow = '';
   };
 
   const openSignup = () => {
     setSignupClosing(false);
     setSignupOpen(true);
-    if (typeof document !== 'undefined') {
-      document.body.classList.toggle('no-scroll', true);
-    }
   };
 
   const closeSignup = () => {
-    // start closing animation, then unmount after the animation finishes
     setSignupClosing(true);
-    // keep no-scroll until animation finishes
-    if (typeof document !== 'undefined') {
-      document.body.classList.toggle('no-scroll', true);
-    }
-    // clear any existing timer
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
+    if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = window.setTimeout(() => {
       setSignupOpen(false);
       setSignupClosing(false);
-      if (typeof document !== 'undefined') {
-        document.body.classList.toggle('no-scroll', false);
-      }
       timerRef.current = null;
-    }, 220); // match CSS animation duration
+    }, 220);
   };
 
-  useEffect(() => {
-    return () => {
-  if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
+
+  const navLinks = [
+    { label: 'Home',         href: '#home'      },
+    { label: 'About',        href: '#about'      },
+    { label: 'Services',     href: '#services'   },
+    { label: 'Testimonials', to:   '/testimonials'},
+    { label: 'FAQ',          href: '#faq'        },
+    { label: 'Contact',      href: '#contact'    },
+  ];
 
   return (
-    <header className="header">
+    <header className="header" style={scrolled ? { boxShadow: '0 4px 24px rgba(0,0,0,0.4)' } : {}}>
+      {/* Logo */}
       <div className="header-left">
         <div className="logo">
-          <img src={exoLogo} alt="Logo" className="logo-img" />
-          <p className="company-name">Exdollarium</p>
+          <img src={exoLogo} alt="Exdollarium Logo" className="logo-img" />
+          <span className="company-name">Exdollarium</span>
         </div>
       </div>
 
+      {/* Desktop nav + CTA */}
       <div className="header-right">
-        {/* menu toggle for mobile */}
-        <button className={ 'menu-toggle' + (open ? ' active' : '') } aria-label="Toggle navigation" onClick={toggle}>
-          <span className="hamburger" />
-        </button>
-
-  {/* Primary action: LOGIN (placed where 'Create an account' used to be). Opens the modal. */}
-  <button type="button" className="action-btn signup-btn" onClick={() => { setOpen(false); openSignup(); }}>LOGIN</button>
-
-        <nav className="cta">
-          <div className={ 'menu-backdrop' + (open ? ' active' : '') } onClick={toggle}></div>
-          <ul className={ 'cta-nav-list' + (open ? ' active' : '') }>
-            {/* MOBILE LOGIN and SIGNUP first for prominence on small screens */}
-            <li className="mobile-only"><Link to="/login" className="mobile-login-btn" onClick={() => setOpen(false)}>LOGIN</Link></li>
-            <li className="mobile-only"><Link to="/signup" className="mobile-signup-btn" onClick={() => setOpen(false)}>CREATE AN ACCOUNT</Link></li>
-            <li><a href="#home" onClick={() => setOpen(false)}>HOME</a></li>
-            <li><a href="#about" onClick={() => setOpen(false)}>ABOUT US</a></li>
-            <li><a href="#services" onClick={() => setOpen(false)}>SERVICES</a></li>
-            <li><Link to="/testimonials" onClick={() => setOpen(false)}>TESTIMONIALS</Link></li>
-            <li><a href="#faq" onClick={() => setOpen(false)}>FAQ</a></li>
-            <li><a href="#contact" onClick={() => setOpen(false)}>CONTACT US</a></li>
+        <nav>
+          <ul className="cta-nav-list" style={{ display: 'flex', listStyle: 'none', gap: '1.8rem', margin: 0, padding: 0 }}>
+            {navLinks.map(({ label, href, to }) => (
+              <li key={label} style={{ display: 'none' }} className="desktop-nav-item">
+                {to
+                  ? <Link to={to} style={{ textDecoration: 'none', color: 'var(--muted-light)', fontWeight: 600, fontSize: '0.875rem', transition: 'color 180ms' }}
+                      onMouseEnter={e => e.target.style.color = '#fff'}
+                      onMouseLeave={e => e.target.style.color = 'var(--muted-light)'}
+                    >{label}</Link>
+                  : <a href={href} style={{ textDecoration: 'none', color: 'var(--muted-light)', fontWeight: 600, fontSize: '0.875rem', transition: 'color 180ms' }}
+                      onMouseEnter={e => e.target.style.color = '#fff'}
+                      onMouseLeave={e => e.target.style.color = 'var(--muted-light)'}
+                    >{label}</a>
+                }
+              </li>
+            ))}
           </ul>
         </nav>
-        {signupOpen && (
-          <>
-            <div className={ 'modal-backdrop' + (signupOpen ? ' active' : '') + (signupClosing ? ' closing' : '') } onClick={closeSignup}></div>
-            <div className={ 'signup-modal' + (signupClosing ? ' closing' : '') } role="dialog" aria-modal="true" aria-labelledby="signup-title">
-              <button className="modal-close" onClick={closeSignup} aria-label="Close">×</button>
-              <div className="signup-form">
-                <Link to="/signup" className="action-btn signup-btn" onClick={closeSignup}>Create an account</Link>
-              </div>
-              <p className="modal-footer">Already had an account? <Link to="/login" onClick={closeSignup}>LOGIN</Link></p>
-            </div>
-          </>
-        )}
+
+        {/* Desktop nav inline */}
+        <nav style={{ display: 'flex', gap: '1.8rem' }} className="desktop-only-nav">
+          {navLinks.map(({ label, href, to }) => (
+            to
+              ? <Link key={label} to={to} style={navStyle} onMouseEnter={e => e.currentTarget.style.color='#fff'} onMouseLeave={e => e.currentTarget.style.color='var(--muted-light)'}>{label}</Link>
+              : <a   key={label} href={href} style={navStyle} onMouseEnter={e => e.currentTarget.style.color='#fff'} onMouseLeave={e => e.currentTarget.style.color='var(--muted-light)'}>{label}</a>
+          ))}
+        </nav>
+
+        <button className="action-btn signup-btn" onClick={openSignup}>Login</button>
+
+        {/* Hamburger */}
+        <button className={`menu-toggle${open ? ' active' : ''}`} aria-label="Toggle navigation" onClick={toggle}>
+          <span className="hamburger" />
+        </button>
       </div>
+
+      {/* Mobile nav drawer */}
+      <div className={`menu-backdrop${open ? ' active' : ''}`} onClick={closeNav} />
+      <ul className={`cta-nav-list mobile-nav-list${open ? ' active' : ''}`}>
+        <li><Link to="/login"  className="mobile-login-btn"  onClick={closeNav}>Login</Link></li>
+        <li><Link to="/signup" className="mobile-signup-btn" onClick={closeNav}>Create Account</Link></li>
+        {navLinks.map(({ label, href, to }) => (
+          <li key={label}>
+            {to
+              ? <Link to={to} style={{ color: 'var(--text)', fontWeight: 600, fontSize: '1rem', textDecoration: 'none' }} onClick={closeNav}>{label}</Link>
+              : <a   href={href} style={{ color: 'var(--text)', fontWeight: 600, fontSize: '1rem', textDecoration: 'none' }} onClick={closeNav}>{label}</a>
+            }
+          </li>
+        ))}
+      </ul>
+
+      {/* Login/Signup modal */}
+      {signupOpen && (
+        <>
+          <div className={`modal-backdrop active${signupClosing ? ' closing' : ''}`} onClick={closeSignup} />
+          <div className={`signup-modal${signupClosing ? ' closing' : ''}`} role="dialog" aria-modal="true">
+            <button className="modal-close" onClick={closeSignup} aria-label="Close">×</button>
+            <h2>Welcome back 👋</h2>
+            <div className="signup-form">
+              <Link to="/login"  className="action-btn" style={{ background: 'var(--gold)', color: '#000' }} onClick={closeSignup}>Login</Link>
+              <Link to="/signup" className="action-btn" style={{ background: 'transparent', border: '1px solid var(--navy-border)', color: 'var(--text)' }} onClick={closeSignup}>Create Account</Link>
+            </div>
+            <p className="modal-footer">New to Exdollarium? <Link to="/signup" onClick={closeSignup} style={{ color: 'var(--gold)' }}>Sign up free →</Link></p>
+          </div>
+        </>
+      )}
     </header>
   );
 }
+
+const navStyle = {
+  textDecoration: 'none',
+  color: 'var(--muted-light)',
+  fontWeight: 600,
+  fontSize: '0.875rem',
+  transition: 'color 180ms ease',
+};

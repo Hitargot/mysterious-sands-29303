@@ -1,35 +1,54 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaSun, FaMoon, FaSignOutAlt } from 'react-icons/fa';
+import { FaSun, FaMoon, FaSignOutAlt, FaKey } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import '../styles/AdminHeader.css';
+import { getAdminToken, getAdminPayload, removeAdminToken } from '../utils/adminAuth';
 
 const AdminHeader = () => {
   const [adminName, setAdminName] = useState('');
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
   const navigate = useNavigate();
+  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:22222';
 
   // Memoize handleLogout function with useCallback
-  const handleLogout = useCallback(() => {
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('tempPasswordExpiresAt');
+  const handleLogout = useCallback(async () => {
+    try {
+      // Tell the server to clear the httpOnly cookie
+      await fetch(`${apiUrl}/api/admin/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (_) {
+      // Best-effort N/A proceed with client cleanup even if request fails
+    }
+    removeAdminToken();
     setAdminName('');
     navigate('/admin/login');
-  }, [navigate]);
+  }, [navigate, apiUrl]);
 
   // Authentication and expiration check effect
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    const tempPasswordExpiresAt = localStorage.getItem('tempPasswordExpiresAt');
+    // Prefer decoded payload from sessionStorage (set on login, no raw token needed)
+    const payload = getAdminPayload();
+    if (payload) {
+      setAdminName(payload.username || '');
+      // Check token expiry from payload
+      if (payload.exp && Date.now() >= payload.exp * 1000) {
+        handleLogout();
+        return;
+      }
+      return;
+    }
 
+    // Fallback: raw token still in storage (e.g. page refresh before cookie-only migration)
+    const token = getAdminToken();
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        setAdminName(decodedToken.username);
-
-        if (tempPasswordExpiresAt && Date.now() > parseInt(tempPasswordExpiresAt, 10)) {
-          alert('Your temporary password has expired. Please log in again.');
-          handleLogout(); // Logout if expired
+        setAdminName(decodedToken.username || '');
+        if (decodedToken.exp && Date.now() >= decodedToken.exp * 1000) {
+          handleLogout();
         }
       } catch (err) {
         console.error('Error decoding token:', err);
@@ -38,7 +57,7 @@ const AdminHeader = () => {
     } else {
       navigate('/admin/login');
     }
-  }, [handleLogout, navigate]); // `handleLogout` is now memoized, no need to worry about re-creating it
+  }, [handleLogout, navigate]);
 
   // Theme change effect
   useEffect(() => {
@@ -61,6 +80,14 @@ const AdminHeader = () => {
           <span className="admin-name">Welcome, {adminName || 'Admin'}</span>
           <button className="icon-button" onClick={toggleTheme}>
             {theme === 'light' ? <FaSun /> : <FaMoon />}
+          </button>
+          <button
+            className="icon-button"
+            title="Change Password"
+            onClick={() => navigate('/admin/change-password')}
+            aria-label="Change password"
+          >
+            <FaKey />
           </button>
           <div className="logout-container" onClick={handleLogout}>
             <FaSignOutAlt className="logout-icon" />

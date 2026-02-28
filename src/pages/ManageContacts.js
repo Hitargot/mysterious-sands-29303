@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { getAdminPayload } from '../utils/adminAuth';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import { jwtDecode } from 'jwt-decode'; // Ensure jwt-decode is installed
 import Alert from '../components/Alert'; // Your Alert component
 import { CircleSpinnerOverlay } from 'react-spinner-overlay'; // Spinner for loading
 import "../styles/ManageContacts.css";
@@ -14,30 +14,9 @@ const ManageContacts = () => {
   const [selectedContact, setSelectedContact] = useState(null);
   const [alert, setAlert] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [adminName, setAdminName] = useState("");
+  const [adminName] = useState(() => getAdminPayload()?.username || 'Admin');
 
   const apiUrl = process.env.REACT_APP_API_URL;
-
-  // Utility to decode admin token
-  const getAdminUsername = () => {
-    const token = localStorage.getItem("adminToken");
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        return decodedToken.username || "Admin";
-      } catch (err) {
-        console.error("Error decoding token:", err);
-        return "Admin";
-      }
-    }
-    return "Admin";
-  };
-
-  useEffect(() => {
-    // Set admin name on mount
-    const username = getAdminUsername();
-    setAdminName(username);
-  }, []);
 
   useEffect(() => {
     // Fetch contacts from API
@@ -189,3 +168,4 @@ const ManageContacts = () => {
 };
 
 export default ManageContacts;
+
